@@ -20,6 +20,7 @@ try {
 
     $report['auth_mode'] = hophop_auth_mode();
     $report['storage'] = hophop_storage();
+    $report['brewrecipes_share_url'] = hophop_brewrecipes_share_url();
     $report['phpbb_root_guess'] = hophop_phpbb_root();
 
     if (hophop_uses_phpbb()) {

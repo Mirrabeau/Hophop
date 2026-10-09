@@ -432,6 +432,11 @@ function applySessionMeta(s) {
   AUTH.brewrecipes_share_url = s.brewrecipes_share_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
 }
+/** URL POST BrewRecipes (session phpBB ou repli dev /forum/). */
+function brewrecipesShareUrl() {
+  if (AUTH.brewrecipes_share_url) return AUTH.brewrecipes_share_url;
+  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/preview' : '';
+}
 
 /* ---------- 3. LIBELLÉS & GABARITS ---------- */
 const FTYPE = {grain: 'Grain (empâté)', sugar: 'Sucre', extract: 'Extrait'};
@@ -701,7 +706,7 @@ function viewEditor() {
       <div class="fgrid" style="align-items:end">${fld('Nouveau volume final (L)', `<input id="newvol" inputmode="decimal" value="${esc(r.batch)}">`)}<div class="sub" id="kfac"></div></div>
       <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="resizeApply">Appliquer à cette recette</button><button class="btn ghost sm" data-act="resizeCopy">Créer une copie à ce volume</button></div></section>
     <section class="card"><h2>Exporter et gérer</h2><div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0">
-      ${AUTH.brewrecipes_share_url ? '<button class="btn sm" data-act="shareBrewRecipes">Partager sur BrewRecipes</button>' : ''}
+      ${brewrecipesShareUrl() ? '<button class="btn sm" data-act="shareBrewRecipes">Partager sur BrewRecipes</button>' : ''}
       <button class="btn ghost sm" data-act="exp" data-k="xml">Exporter BeerXML</button><button class="btn ghost sm" data-act="exp" data-k="json">Exporter BeerJSON</button>
       <button class="btn ghost sm" data-act="dupRecipe">Dupliquer</button><button class="btn danger sm" data-act="delRecipe">Supprimer</button></div></section>
   </div><aside class="stats" id="stats"></aside></div>
@@ -1571,22 +1576,30 @@ function copyText(t) {
   fallbackCopy();
   function fallbackCopy() { const ta = $('#exptxt'); ta.select(); try { document.execCommand('copy'); toast('Copié'); } catch { toast('Sélectionnez le texte et copiez-le manuellement.'); } }
 }
-function shareToBrewRecipes() {
-  const url = AUTH.brewrecipes_share_url;
+async function shareToBrewRecipes() {
+  const url = brewrecipesShareUrl();
   if (!url) { toast('Partage BrewRecipes indisponible.'); return; }
   const r = R();
   if (!r) { toast('Ouvrez une recette.'); return; }
   const xml = toBeerXML(r);
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = url;
-  form.acceptCharset = 'UTF-8';
-  const field = document.createElement('textarea');
-  field.name = 'beerxml';
-  field.value = xml;
-  form.appendChild(field);
-  document.body.appendChild(form);
-  form.submit();
+  toast('Envoi vers BrewRecipes…');
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type': 'application/xml; charset=UTF-8'},
+      body: xml,
+      redirect: 'follow',
+    });
+    if (res.redirected || res.ok) {
+      window.location.href = res.url;
+      return;
+    }
+    const msg = (await res.text()).trim();
+    toast(msg.slice(0, 160) || `Erreur BrewRecipes (${res.status})`);
+  } catch {
+    toast('Impossible de contacter BrewRecipes.');
+  }
 }
 function showExport(kind) {
   const r = R(), xml = kind === 'xml', txt = xml ? toBeerXML(r) : toBeerJSON(r), name = slug(r.name) + (xml ? '.xml' : '.json');
