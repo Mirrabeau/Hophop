@@ -142,8 +142,73 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
     $now = time();
     $table = hophop_store_table();
 
+    if (!hophop_store_table_valid($table)) {
+        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = 'Nom de table invalide.';
+
+        return false;
+    }
+
+    $mysqli = hophop_phpbb_mysqli();
+
+    if ($mysqli instanceof \mysqli) {
+        try {
+            hophop_store_debug_log('save_mysql prepared uid=' . $user_id . ' len=' . strlen($json));
+
+            $check = $mysqli->prepare('SELECT user_id FROM ' . $table . ' WHERE user_id = ?');
+
+            if ($check === false) {
+                throw new \RuntimeException('prepare SELECT : ' . $mysqli->error);
+            }
+
+            $check->bind_param('i', $user_id);
+            $check->execute();
+            $exists = (bool) $check->get_result()->fetch_assoc();
+            $check->close();
+
+            if ($exists) {
+                $stmt = $mysqli->prepare(
+                    'UPDATE ' . $table . ' SET store_json = ?, updated = ? WHERE user_id = ?'
+                );
+
+                if ($stmt === false) {
+                    throw new \RuntimeException('prepare UPDATE : ' . $mysqli->error);
+                }
+
+                $stmt->bind_param('sii', $json, $now, $user_id);
+            } else {
+                $stmt = $mysqli->prepare(
+                    'INSERT INTO ' . $table . ' (user_id, store_json, updated) VALUES (?, ?, ?)'
+                );
+
+                if ($stmt === false) {
+                    throw new \RuntimeException('prepare INSERT : ' . $mysqli->error);
+                }
+
+                $stmt->bind_param('isi', $user_id, $json, $now);
+            }
+
+            if (!$stmt->execute()) {
+                $err = $stmt->error;
+                $stmt->close();
+                throw new \RuntimeException('execute : ' . $err);
+            }
+
+            $stmt->close();
+            hophop_store_debug_log('save_mysql OK uid=' . $user_id);
+
+            return true;
+        } catch (\Throwable $e) {
+            $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = $e->getMessage();
+            error_log('HopHop store save (mysqli): ' . $e->getMessage());
+            hophop_store_debug_log('save_mysql FAIL prepared ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    hophop_store_debug_log('save_mysql fallback sql_build_array uid=' . $user_id);
+
     try {
-        // Une seule passe sql_escape sur le JSON (évite OOM / fatal phpBB sur gros blob).
         $sql = 'SELECT user_id
             FROM ' . $table . '
             WHERE user_id = ' . $user_id;
@@ -190,6 +255,43 @@ function hophop_store_debug_log(string $line): void
         gmdate('c') . ' ' . $line . "\n",
         FILE_APPEND | LOCK_EX
     );
+}
+
+/** Connexion MySQLi sous-jacente phpBB (requêtes préparées, gros JSON). */
+function hophop_phpbb_mysqli(): ?\mysqli
+{
+    global $db;
+
+    if (!isset($db) || !is_object($db)) {
+        return null;
+    }
+
+    foreach (['db_connect_id', 'conn'] as $prop) {
+        try {
+            $ref = new \ReflectionObject($db);
+
+            if (!$ref->hasProperty($prop)) {
+                continue;
+            }
+
+            $property = $ref->getProperty($prop);
+            $property->setAccessible(true);
+            $link = $property->getValue($db);
+
+            if ($link instanceof \mysqli) {
+                return $link;
+            }
+        } catch (\ReflectionException $e) {
+            continue;
+        }
+    }
+
+    return null;
+}
+
+function hophop_store_table_valid(string $table): bool
+{
+    return (bool) preg_match('/^[A-Za-z0-9_]+$/', $table);
 }
 
 function hophop_user_store_delete_mysql(int $user_id): void
