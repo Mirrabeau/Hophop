@@ -76,6 +76,7 @@ function hophop_session_payload(): array
     if (hophop_auth_mode() === 'phpbb') {
         $payload['login_url'] = hophop_forum_login_url();
         $payload['logout_url'] = hophop_forum_logout_url();
+        $payload['brewrecipes_share_url'] = hophop_brewrecipes_share_url();
         $payload['mysql_ready'] = hophop_storage() !== 'mysql' || hophop_mysql_store_ready();
     }
 

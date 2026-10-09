@@ -16,4 +16,7 @@ return [
 
     // Préfixe des tables phpBB (identique à $table_prefix dans config.php du forum).
     'table_prefix' => 'phpbb_',
+
+    // Optionnel : URL POST « Partager sur BrewRecipes » (sinon déduite via phpBB append_sid).
+    // 'brewrecipes_hophop_preview' => '/forum/app.php/brewrecipes/hophop/preview',
 ];

@@ -90,6 +90,8 @@ Pour le forum (`/forum/hophop/`) : session forum (SSO) + stockage MySQL (JSON pa
 
 Au premier accès, si un ancien fichier `data/store/<pseudo>.json` existe pour le même pseudo forum, il est importé une fois en MySQL.
 
+Dans l’éditeur recette, **Partager sur BrewRecipes** envoie le BeerXML vers l’extension BrewRecipes (route `hophop/preview`, `import_source = hophop` en file d’import) puis ouvre l’aperçu d’import habituel. Nécessite BrewRecipes à jour sur le forum et une session membre.
+
 Sans `config.local.php`, HopHop reste en mode **standalone** (comptes locaux + fichiers JSON).
 
 ## Limites connues

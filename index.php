@@ -324,7 +324,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
-const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', mysql_ready: true};
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', mysql_ready: true};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -429,6 +429,7 @@ function applySessionMeta(s) {
   AUTH.features = s.features || AUTH.features;
   AUTH.login_url = s.login_url || '';
   AUTH.logout_url = s.logout_url || '';
+  AUTH.brewrecipes_share_url = s.brewrecipes_share_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
 }
 
@@ -598,8 +599,11 @@ function authHTML() {
 function shellHTML() {
   const cur = ['editor', 'sheet'].includes(ui.view) ? 'recipes' : ui.view;
   const T = [['recipes', 'Recettes'], ['brews', 'Brassins'], ['ings', 'Ingrédients'], ['profiles', 'Matériel'], ['account', 'Compte']];
+  const forumBack = AUTH.mode === 'phpbb'
+    ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
+    : '<button class="btn ghost sm" data-act="logout">Déconnexion</button>';
   return `<header class="top"><div class="in"><div class="brand"><span class="brand-logo">${LOGO_SVG}</span>HopHop</div><div class="grow"></div>
-    <span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}${esc(USER)}</span><button class="btn ghost sm" data-act="logout">Déconnexion</button></div>
+    <span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}${esc(USER)}</span>${forumBack}</div>
     <nav class="tabs" aria-label="Navigation principale">${T.map(([v, l]) => `<button data-act="go" data-v="${v}" ${cur === v ? 'aria-current="page"' : ''}>${l}</button>`).join('')}</nav></header>
     <main class="wrap" id="main"></main>`;
 }
@@ -697,6 +701,7 @@ function viewEditor() {
       <div class="fgrid" style="align-items:end">${fld('Nouveau volume final (L)', `<input id="newvol" inputmode="decimal" value="${esc(r.batch)}">`)}<div class="sub" id="kfac"></div></div>
       <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="resizeApply">Appliquer à cette recette</button><button class="btn ghost sm" data-act="resizeCopy">Créer une copie à ce volume</button></div></section>
     <section class="card"><h2>Exporter et gérer</h2><div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0">
+      ${AUTH.brewrecipes_share_url ? '<button class="btn sm" data-act="shareBrewRecipes">Partager sur BrewRecipes</button>' : ''}
       <button class="btn ghost sm" data-act="exp" data-k="xml">Exporter BeerXML</button><button class="btn ghost sm" data-act="exp" data-k="json">Exporter BeerJSON</button>
       <button class="btn ghost sm" data-act="dupRecipe">Dupliquer</button><button class="btn danger sm" data-act="delRecipe">Supprimer</button></div></section>
   </div><aside class="stats" id="stats"></aside></div>
@@ -914,7 +919,9 @@ function viewProfiles() {
 function viewAccount() {
   return `<div class="bar"><h1>Compte</h1></div>
   <div class="card"><div style="display:flex;gap:.8rem;align-items:center">${avatarHTML('lg')}<div><h2 style="margin:0">${esc(USER)}</h2><p class="sub" style="margin:.1rem 0 0">${D.recipes.length} recette(s) · ${D.brews.length} brassage(s) · ${D.profiles.length} profil(s) matériel</p></div></div>
-    <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:.8rem 0 0"><button class="btn ghost sm" data-act="logout">Se déconnecter</button></div></div>
+    <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:.8rem 0 0">${AUTH.mode === 'phpbb'
+      ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
+      : '<button class="btn ghost sm" data-act="logout">Se déconnecter</button>'}</div></div>
   <div class="card"><h2>Avatar</h2>
     <p class="sub" style="margin-top:0">Choisissez un emoji ou importez une photo (recadrée et réduite automatiquement).</p>
     <div class="avatar-picks">${AVATAR_PICKS.map(e => `<button data-act="setAvatarEmoji" data-v="${e}" aria-pressed="${D.prefs.avatarType === 'emoji' && D.prefs.avatarEmoji === e}">${e}</button>`).join('')}</div>
@@ -1066,6 +1073,7 @@ const ACT = {
     D.recipes.push(c); ui.rid = c.id; persist(); renderMain(); window.scrollTo(0, 0); toast('Copie redimensionnée créée');
   },
   exp: el => showExport(el.dataset.k),
+  shareBrewRecipes: () => shareToBrewRecipes(),
   brewFrom: () => openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
     const r = R(); createBrew(r, v.date || today());
     if (v.deduct) { openStockDeductDialog(r); return false; }
@@ -1562,6 +1570,23 @@ function copyText(t) {
   if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(() => toast('Copié')).catch(() => fallbackCopy());
   fallbackCopy();
   function fallbackCopy() { const ta = $('#exptxt'); ta.select(); try { document.execCommand('copy'); toast('Copié'); } catch { toast('Sélectionnez le texte et copiez-le manuellement.'); } }
+}
+function shareToBrewRecipes() {
+  const url = AUTH.brewrecipes_share_url;
+  if (!url) { toast('Partage BrewRecipes indisponible.'); return; }
+  const r = R();
+  if (!r) { toast('Ouvrez une recette.'); return; }
+  const xml = toBeerXML(r);
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  form.acceptCharset = 'UTF-8';
+  const field = document.createElement('textarea');
+  field.name = 'beerxml';
+  field.value = xml;
+  form.appendChild(field);
+  document.body.appendChild(form);
+  form.submit();
 }
 function showExport(kind) {
   const r = R(), xml = kind === 'xml', txt = xml ? toBeerXML(r) : toBeerJSON(r), name = slug(r.name) + (xml ? '.xml' : '.json');

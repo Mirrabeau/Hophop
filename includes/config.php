@@ -56,6 +56,30 @@ function hophop_uses_phpbb(): bool
     return hophop_auth_mode() === 'phpbb' || hophop_storage() === 'mysql';
 }
 
+/** URL POST vers BrewRecipes (aperçu import). Vide hors intégration forum. */
+function hophop_brewrecipes_share_url(): string
+{
+    if (hophop_auth_mode() !== 'phpbb') {
+        return '';
+    }
+
+    $override = hophop_local_config()['brewrecipes_hophop_preview'] ?? null;
+
+    if (is_string($override) && $override !== '') {
+        return $override;
+    }
+
+    if (!hophop_bootstrap_phpbb()) {
+        return '/forum/app.php/brewrecipes/hophop/preview';
+    }
+
+    try {
+        return append_sid(generate_board_url(false) . '/app.php/brewrecipes/hophop/preview', '', true);
+    } catch (\Throwable $e) {
+        return generate_board_url(false) . '/app.php/brewrecipes/hophop/preview';
+    }
+}
+
 if (hophop_uses_phpbb() && !defined('HOPHOP_DIAGNOSTIC') && !hophop_bootstrap_phpbb()) {
     http_response_code(503);
     header('Content-Type: application/json; charset=utf-8');
