@@ -324,7 +324,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
-const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', avatar_url: '', mysql_ready: true};
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -473,6 +473,8 @@ function applySessionMeta(s) {
   AUTH.login_url = s.login_url || '';
   AUTH.logout_url = s.logout_url || '';
   AUTH.brewrecipes_share_url = s.brewrecipes_share_url || '';
+  AUTH.brewrecipes_style_guides_url = s.brewrecipes_style_guides_url || '';
+  AUTH.brewrecipes_styles_url = s.brewrecipes_styles_url || '';
   AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
 }
@@ -480,6 +482,14 @@ function applySessionMeta(s) {
 function brewrecipesShareUrl() {
   if (AUTH.brewrecipes_share_url) return AUTH.brewrecipes_share_url;
   return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/preview' : '';
+}
+function brewrecipesStyleGuidesUrl() {
+  if (AUTH.brewrecipes_style_guides_url) return AUTH.brewrecipes_style_guides_url;
+  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/style-guides' : '';
+}
+function brewrecipesStylesUrl() {
+  if (AUTH.brewrecipes_styles_url) return AUTH.brewrecipes_styles_url;
+  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/styles' : '';
 }
 
 /* ---------- 3. LIBELLÉS & GABARITS ---------- */
@@ -729,7 +739,7 @@ function viewEditor() {
   <div class="editor"><div>
     <section class="card"><input class="namefield" data-b="name" value="${esc(r.name)}" aria-label="Nom de la recette" style="margin-bottom:.8rem">
       <div class="fgrid">
-        ${fld('Style', `<select data-b="styleId">${styleSelectOpts(r.styleId)}</select>`, 'span2')}
+        ${fld('Style', `<div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap"><select data-b="styleId" style="flex:1;min-width:12rem">${styleSelectOpts(r.styleId)}</select>${brewrecipesStyleGuidesUrl() ? '<button type="button" class="btn ghost sm" data-act="pickBrewRecipesStyle">Depuis BrewRecipes…</button>' : ''}</div>`, 'span2')}
         ${fld('Profil matériel', `<select data-b="profileId">${libProfiles(r.profileId)}</select>`)}
         ${fld('Volume final (L)', bi('batch', r.batch, 1))}
         ${fld('Rapport eau/grain (L/kg)', bi('ratio', r.ratio, 1))}
@@ -1130,6 +1140,7 @@ const ACT = {
   },
   exp: el => showExport(el.dataset.k),
   shareBrewRecipes: () => shareToBrewRecipes(),
+  pickBrewRecipesStyle: () => openBrewRecipesStylePicker(),
   brewFrom: () => openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
     const r = R(); createBrew(r, v.date || today());
     if (v.deduct) { openStockDeductDialog(r); return false; }
@@ -1667,6 +1678,95 @@ async function shareToBrewRecipes() {
   } catch {
     toast('Impossible de contacter BrewRecipes.');
   }
+}
+
+/** Sélecteur de style BrewRecipes (guide → liste → copier dans la recette HopHop). */
+async function openBrewRecipesStylePicker() {
+  const guidesUrl = brewrecipesStyleGuidesUrl(), stylesUrl = brewrecipesStylesUrl();
+  if (!guidesUrl || !stylesUrl) { toast('Catalogue BrewRecipes indisponible.'); return; }
+  const r = R();
+  if (!r) { toast('Ouvrez une recette.'); return; }
+  dlgSave = null;
+  showDlg(`<h2>Style BrewRecipes</h2>
+    <p class="sub" style="margin-top:0">Choisissez un guide, puis un style : les données sont copiées dans votre bibliothèque HopHop et associées à cette recette.</p>
+    <label class="sub" for="br-guide">Guide</label>
+    <select id="br-guide" style="width:100%;margin:.3rem 0 .8rem" disabled><option>Chargement…</option></select>
+    <div id="br-styles" class="sub">Sélectionnez un guide.</div>
+    <div class="dlg-actions"><button class="btn ghost" data-act="dlgClose">Fermer</button></div>`);
+  const guideEl = $('#br-guide'), listEl = $('#br-styles');
+  try {
+    const res = await fetch(guidesUrl, {credentials: 'include'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const guides = data.guides || [];
+    if (!guides.length) {
+      guideEl.innerHTML = '<option value="">Aucun guide</option>';
+      listEl.textContent = 'Aucun guide de styles dans BrewRecipes.';
+      return;
+    }
+    guideEl.innerHTML = '<option value="">— Choisir un guide —</option>'
+      + guides.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+    guideEl.disabled = false;
+    const bjcp = guides.find(g => /^BJCP/i.test(g));
+    if (bjcp) { guideEl.value = bjcp; await loadBrewRecipesStylesList(bjcp, listEl, stylesUrl); }
+    guideEl.onchange = () => loadBrewRecipesStylesList(guideEl.value, listEl, stylesUrl);
+  } catch {
+    guideEl.innerHTML = '<option value="">Erreur</option>';
+    listEl.textContent = 'Impossible de charger les guides BrewRecipes.';
+  }
+}
+
+async function loadBrewRecipesStylesList(guide, listEl, stylesUrl) {
+  if (!guide) {
+    listEl.innerHTML = '<p class="sub">Sélectionnez un guide.</p>';
+    return;
+  }
+  listEl.innerHTML = '<p class="sub">Chargement des styles…</p>';
+  try {
+    const sep = stylesUrl.includes('?') ? '&' : '?';
+    const res = await fetch(stylesUrl + sep + 'guide=' + encodeURIComponent(guide), {credentials: 'include'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const styles = data.styles || [];
+    if (!styles.length) {
+      listEl.innerHTML = '<p class="sub">Aucun style pour ce guide.</p>';
+      return;
+    }
+    listEl.innerHTML = `<div style="max-height:16rem;overflow:auto;display:flex;flex-direction:column;gap:.35rem;margin-top:.2rem">`
+      + styles.map((s, i) => `<div style="display:flex;gap:.5rem;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem">
+          <span style="font-size:.9rem">${esc(s.label || s.name)}</span>
+          <button type="button" class="btn sm" data-br-style="${i}">Choisir ce style</button>
+        </div>`).join('')
+      + `</div>`;
+    listEl.querySelectorAll('[data-br-style]').forEach(btn => {
+      btn.onclick = () => applyBrewRecipesStyle(styles[+btn.dataset.brStyle]);
+    });
+  } catch {
+    listEl.innerHTML = '<p class="sub">Erreur de chargement des styles.</p>';
+  }
+}
+
+function applyBrewRecipesStyle(style) {
+  const r = R();
+  if (!r || !style || !style.name) { toast('Style invalide.'); return; }
+  const st = upsertStyle(style.name, style.guide || '', {
+    category: style.category || '',
+    type: style.type || 'other',
+    ogMin: N(style.ogMin), ogMax: N(style.ogMax),
+    fgMin: N(style.fgMin), fgMax: N(style.fgMax),
+    ibuMin: N(style.ibuMin), ibuMax: N(style.ibuMax),
+    colorMin: N(style.colorMin), colorMax: N(style.colorMax),
+    abvMin: N(style.abvMin), abvMax: N(style.abvMax),
+    note: style.note || '',
+  });
+  if (!st) { toast('Impossible d’enregistrer le style.'); return; }
+  r.styleId = st.id;
+  r.style = st.name;
+  r.updated = Date.now();
+  closeDlg();
+  persist();
+  renderMain(true);
+  toast('Style « ' + styleComposite(st) + ' » associé à la recette.');
 }
 function showExport(kind) {
   const r = R(), xml = kind === 'xml', txt = xml ? toBeerXML(r) : toBeerJSON(r), name = slug(r.name) + (xml ? '.xml' : '.json');

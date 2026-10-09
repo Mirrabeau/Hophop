@@ -59,24 +59,52 @@ function hophop_uses_phpbb(): bool
 /** URL POST vers BrewRecipes (aperçu import). Vide hors intégration forum. */
 function hophop_brewrecipes_share_url(): string
 {
+    return hophop_brewrecipes_route_url('hophop/preview', 'brewrecipes_hophop_preview');
+}
+
+/** GET JSON — guides de styles BrewRecipes. */
+function hophop_brewrecipes_style_guides_url(): string
+{
+    return hophop_brewrecipes_route_url('hophop/style-guides', 'brewrecipes_style_guides');
+}
+
+/** GET JSON — styles d’un guide (?guide=…). */
+function hophop_brewrecipes_styles_url(): string
+{
+    return hophop_brewrecipes_route_url('hophop/styles', 'brewrecipes_styles');
+}
+
+/**
+ * URL app.php/brewrecipes/{relative} (override config.local optionnel).
+ *
+ * @param string $relative chemin sous brewrecipes/ (ex. hophop/preview)
+ * @param string $config_key clé optionnelle dans config.local.php
+ */
+function hophop_brewrecipes_route_url(string $relative, string $config_key = ''): string
+{
     if (hophop_auth_mode() !== 'phpbb') {
         return '';
     }
 
-    $override = hophop_local_config()['brewrecipes_hophop_preview'] ?? null;
+    if ($config_key !== '') {
+        $override = hophop_local_config()[$config_key] ?? null;
 
-    if (is_string($override) && $override !== '') {
-        return $override;
+        if (is_string($override) && $override !== '') {
+            return $override;
+        }
     }
 
+    $relative = ltrim(str_replace('\\', '/', $relative), '/');
+    $fallback = '/forum/app.php/brewrecipes/' . $relative;
+
     if (!hophop_bootstrap_phpbb()) {
-        return '/forum/app.php/brewrecipes/hophop/preview';
+        return $fallback;
     }
 
     try {
-        return append_sid(generate_board_url(false) . '/app.php/brewrecipes/hophop/preview', '', true);
+        return append_sid(generate_board_url(false) . '/app.php/brewrecipes/' . $relative, '', true);
     } catch (\Throwable $e) {
-        return generate_board_url(false) . '/app.php/brewrecipes/hophop/preview';
+        return generate_board_url(false) . '/app.php/brewrecipes/' . $relative;
     }
 }
 

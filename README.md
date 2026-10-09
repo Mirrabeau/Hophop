@@ -94,6 +94,8 @@ Dans l’éditeur recette, **Partager sur BrewRecipes** envoie le BeerXML vers l
 
 Sens inverse : BrewRecipes peut **POST** le BeerXML vers `hophop/import_preview.php` (même contrat : `application/xml`, cookies forum) → redirection HopHop → import dans l’éditeur.
 
+Dans l’éditeur, **Depuis BrewRecipes…** charge le catalogue de styles (guides AJAX) et copie le style choisi dans la bibliothèque + la recette.
+
 Sans `config.local.php`, HopHop reste en mode **standalone** (comptes locaux + fichiers JSON).
 
 ## Limites connues

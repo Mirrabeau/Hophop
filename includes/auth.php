@@ -77,6 +77,8 @@ function hophop_session_payload(): array
         $payload['login_url'] = hophop_forum_login_url();
         $payload['logout_url'] = hophop_forum_logout_url();
         $payload['brewrecipes_share_url'] = hophop_brewrecipes_share_url();
+        $payload['brewrecipes_style_guides_url'] = hophop_brewrecipes_style_guides_url();
+        $payload['brewrecipes_styles_url'] = hophop_brewrecipes_styles_url();
         $payload['avatar_url'] = hophop_forum_avatar_url();
         $payload['mysql_ready'] = hophop_storage() !== 'mysql' || hophop_mysql_store_ready();
     }
