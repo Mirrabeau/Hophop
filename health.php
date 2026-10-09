@@ -30,11 +30,11 @@ try {
             $report['bootstrap_error'] = hophop_last_bootstrap_error();
         } else {
             global $table_prefix;
+            $report['session_started'] = false;
             $report['table_prefix'] = $table_prefix ?? '(missing)';
             $report['hophop_table'] = ($table_prefix ?? '') . 'hophop_store';
             $report['mysql_store_ready'] = hophop_storage() === 'mysql' ? hophop_mysql_store_ready() : null;
-            $fu = hophop_forum_user();
-            $report['forum_user'] = $fu ? $fu['username'] : null;
+            $report['forum_user'] = '(session non démarrée en mode diagnostic — tester api.php connecté au forum)';
         }
     }
 } catch (\Throwable $e) {

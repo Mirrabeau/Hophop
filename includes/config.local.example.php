@@ -13,4 +13,7 @@ return [
 
     // null = ../ depuis hophop/ (phpBB334/hophop → phpBB334). Chemin absolu optionnel (ex. D:/…/phpBB334/).
     'phpbb_root' => null,
+
+    // Préfixe des tables phpBB (identique à $table_prefix dans config.php du forum).
+    'table_prefix' => 'phpbb_',
 ];

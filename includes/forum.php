@@ -46,6 +46,35 @@ function hophop_app_root(): string
     return dirname(__DIR__);
 }
 
+/** Préfixe tables phpBB (config.local), ex. phpbb_ — aligné sur config.php du forum. */
+function hophop_phpbb_table_prefix_override(): ?string
+{
+    if (!function_exists('hophop_local_config')) {
+        return null;
+    }
+
+    $prefix = hophop_local_config()['table_prefix'] ?? null;
+
+    return is_string($prefix) && $prefix !== '' ? $prefix : null;
+}
+
+function hophop_patch_config_php_file(\phpbb\config_php_file $config): void
+{
+    $prefix = hophop_phpbb_table_prefix_override();
+
+    if ($prefix === null) {
+        return;
+    }
+
+    $config->get_all();
+    $ref = new \ReflectionClass($config);
+    $prop = $ref->getProperty('config_data');
+    $prop->setAccessible(true);
+    $data = $prop->getValue($config);
+    $data['table_prefix'] = $prefix;
+    $prop->setValue($config, $data);
+}
+
 function hophop_bootstrap_phpbb(): bool
 {
     if (defined('HOPHOP_PHPBB_BOOTSTRAPPED')) {
@@ -61,38 +90,29 @@ function hophop_bootstrap_phpbb(): bool
     global $phpbb_root_path, $phpEx;
     $phpEx = 'php';
 
-    $cfg = hophop_local_config();
-    $configured = $cfg['phpbb_root'] ?? null;
-    $common_file = null;
+    $forum_root = hophop_phpbb_root();
 
-    if (is_string($configured) && $configured !== '') {
-        $abs = rtrim(str_replace('\\', '/', $configured), '/') . '/';
-        if (!is_file($abs . 'common.php')) {
-            $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = 'common.php introuvable : ' . $abs;
+    if ($forum_root === null) {
+        $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = 'common.php introuvable (hophop dans phpBB334/hophop/, ou phpbb_root en config.local).';
 
-            return false;
-        }
-        if (!@chdir($abs)) {
-            $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = 'Impossible de se placer dans phpbb_root : ' . $abs;
-
-            return false;
-        }
-        $phpbb_root_path = './';
-        $common_file = $abs . 'common.php';
-    } else {
-        // phpBB 3.3 : $phpbb_root_path relatif depuis hophop/ (api.php), pas un chemin absolu.
-        $hophop = hophop_app_root();
-        $common_file = realpath($hophop . '/../common.php');
-        if ($common_file === false || !is_file($common_file)) {
-            $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = 'common.php introuvable à côté de hophop/ (attendu : phpBB334/hophop/).';
-
-            return false;
-        }
-        $phpbb_root_path = '../';
+        return false;
     }
 
+    // Sous Apache/IIS le cwd n’est pas hophop/ : ../ serait interprété depuis un mauvais dossier → DI cache cassé.
+    $forum_dir = rtrim(str_replace('\\', '/', $forum_root), '/');
+
+    if (!@chdir($forum_dir)) {
+        $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = 'Impossible de chdir vers la racine phpBB : ' . $forum_dir;
+
+        return false;
+    }
+
+    $phpbb_root_path = './';
+
+    $with_session = !defined('HOPHOP_DIAGNOSTIC');
+
     try {
-        require $common_file;
+        hophop_bootstrap_phpbb_web_stack($with_session);
     } catch (\Throwable $e) {
         $GLOBALS['HOPHOP_PHPBB_BOOTSTRAP_ERROR'] = $e->getMessage();
         error_log('HopHop phpBB bootstrap: ' . $e->getMessage());
@@ -107,6 +127,69 @@ function hophop_bootstrap_phpbb(): bool
     define('HOPHOP_PHPBB_BOOTSTRAPPED', true);
 
     return true;
+}
+
+/**
+ * Bootstrap phpBB sans common.php (évite cache.driver + $phpbb_container global null).
+ * Puis session forum comme index.php.
+ */
+function hophop_bootstrap_phpbb_web_stack(bool $start_session = true): void
+{
+    global $phpbb_root_path, $phpEx, $phpbb_container, $user, $auth, $table_prefix;
+
+    require $phpbb_root_path . 'includes/startup.' . $phpEx;
+    require $phpbb_root_path . 'phpbb/class_loader.' . $phpEx;
+
+    $phpbb_class_loader = new \phpbb\class_loader('phpbb\\', $phpbb_root_path . 'phpbb/', $phpEx);
+    $phpbb_class_loader->register();
+
+    $phpbb_config_php_file = new \phpbb\config_php_file($phpbb_root_path, $phpEx);
+    hophop_patch_config_php_file($phpbb_config_php_file);
+    extract($phpbb_config_php_file->get_all());
+
+    $prefix_override = hophop_phpbb_table_prefix_override();
+
+    if ($prefix_override !== null) {
+        $table_prefix = $prefix_override;
+    } elseif (empty($table_prefix) && isset($dbprefix) && $dbprefix !== '') {
+        $table_prefix = $dbprefix;
+    }
+
+    if (!defined('PHPBB_ENVIRONMENT')) {
+        @define('PHPBB_ENVIRONMENT', 'production');
+    }
+
+    if (!defined('PHPBB_INSTALLED')) {
+        throw new \RuntimeException('phpBB n’est pas installé (PHPBB_INSTALLED absent).');
+    }
+
+    require $phpbb_root_path . 'includes/constants.' . $phpEx;
+    require $phpbb_root_path . 'includes/functions.' . $phpEx;
+    require $phpbb_root_path . 'includes/functions_content.' . $phpEx;
+    require $phpbb_root_path . 'includes/functions_compatibility.' . $phpEx;
+    require $phpbb_root_path . 'includes/utf/utf_tools.' . $phpEx;
+
+    set_error_handler(defined('PHPBB_MSG_HANDLER') ? PHPBB_MSG_HANDLER : 'msg_handler');
+
+    $phpbb_class_loader_ext = new \phpbb\class_loader('\\', $phpbb_root_path . 'ext/', $phpEx);
+    $phpbb_class_loader_ext->register();
+
+    $phpbb_container_builder = new \phpbb\di\container_builder($phpbb_root_path, $phpEx);
+    $phpbb_container = $phpbb_container_builder->with_config($phpbb_config_php_file)->get_container();
+
+    $phpbb_container->get('request')->enable_super_globals();
+    require $phpbb_root_path . 'includes/compatibility_globals.' . $phpEx;
+    register_compatibility_globals();
+
+    if ($prefix_override !== null) {
+        $table_prefix = $prefix_override;
+    }
+
+    if ($start_session) {
+        $user->session_begin();
+        $auth->acl($user->data);
+        $user->setup();
+    }
 }
 
 /**
