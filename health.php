@@ -25,6 +25,10 @@ try {
     $report['data_dir_writable'] = is_dir(DATA_DIR) && is_writable(DATA_DIR);
     $report['hophop_api_log'] = DATA_DIR . '/hophop-api.log';
     $report['brewrecipes_share_url'] = hophop_brewrecipes_share_url();
+    $report['import_preview'] = (isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'https')
+        . '://' . ($_SERVER['HTTP_HOST'] ?? '')
+        . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/hophop')), '/')
+        . '/import_preview.php';
     $report['phpbb_root_guess'] = hophop_phpbb_root();
 
     if (hophop_uses_phpbb()) {

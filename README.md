@@ -92,6 +92,8 @@ Au premier accès, si un ancien fichier `data/store/<pseudo>.json` existe pour l
 
 Dans l’éditeur recette, **Partager sur BrewRecipes** envoie le BeerXML vers l’extension BrewRecipes (route `hophop/preview`, `import_source = hophop` en file d’import) puis ouvre l’aperçu d’import habituel. Nécessite BrewRecipes à jour sur le forum et une session membre.
 
+Sens inverse : BrewRecipes peut **POST** le BeerXML vers `hophop/import_preview.php` (même contrat : `application/xml`, cookies forum) → redirection HopHop → import dans l’éditeur.
+
 Sans `config.local.php`, HopHop reste en mode **standalone** (comptes locaux + fichiers JSON).
 
 ## Limites connues

@@ -33,6 +33,7 @@ register_shutdown_function(static function (): void {
 
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/brewrecipes_import.php';
 
 function json_fail(string $msg, int $code = 400): void
 {
@@ -108,6 +109,28 @@ try {
             }
             hophop_save_user_data($in['data']);
             json_ok();
+            break;
+
+        case 'consume_brewrecipes_import':
+            require_login();
+            $ctx = hophop_user_context();
+            $uid = (int) ($ctx['user_id'] ?? 0);
+
+            if ($uid < 1) {
+                $uid = (int) sprintf('%u', crc32((string) ($ctx['username'] ?? '')));
+
+                if ($uid < 1) {
+                    $uid = 1;
+                }
+            }
+
+            $pending = hophop_brewrecipes_import_consume($uid);
+
+            if ($pending === null) {
+                json_fail('Aucun import BrewRecipes en attente.', 404);
+            }
+
+            json_ok($pending);
             break;
 
         case 'delete_account':

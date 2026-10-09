@@ -425,6 +425,35 @@ async function enterApp(name) {
   applyPrefs();
   ui.view = 'recipes';
   render();
+  await maybeConsumeBrewRecipesImport();
+}
+/** BeerXML en attente après POST import_preview.php (BrewRecipes → HopHop). */
+async function maybeConsumeBrewRecipesImport() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('brewrecipes_import') !== '1') return;
+  try {
+    const pending = await api('consume_brewrecipes_import');
+    const added = importBeerXML(pending.beerxml);
+    if (added.length === 1) {
+      if (pending.brewrecipes_id) added[0].brewrecipesId = pending.brewrecipes_id;
+      ui.rid = added[0].id;
+      ui.view = 'editor';
+      renderMain();
+      window.scrollTo(0, 0);
+    } else {
+      renderMain(true);
+    }
+    const saved = await saveNow();
+    toast(saved
+      ? (added.length > 1 ? `${added.length} recettes importées depuis BrewRecipes` : 'Recette ouverte depuis BrewRecipes')
+      : 'Recette à l’écran mais non enregistrée sur le serveur.');
+  } catch (e) {
+    toast(e.message || 'Import BrewRecipes impossible.');
+  }
+  params.delete('brewrecipes_import');
+  params.delete('brewrecipes_id');
+  const qs = params.toString();
+  history.replaceState(null, '', qs ? (location.pathname + '?' + qs) : location.pathname);
 }
 async function logout() {
   if (AUTH.mode === 'phpbb' && AUTH.logout_url) { window.location.href = AUTH.logout_url; return; }
