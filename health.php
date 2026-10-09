@@ -39,6 +39,10 @@ try {
             $report['table_prefix'] = $table_prefix ?? '(missing)';
             $report['hophop_table'] = ($table_prefix ?? '') . 'hophop_store';
             $report['mysql_store_ready'] = hophop_storage() === 'mysql' ? hophop_mysql_store_ready() : null;
+            global $db;
+            $report['db_class'] = isset($db) && is_object($db) ? get_class($db) : null;
+            $mysqli = hophop_phpbb_mysqli();
+            $report['mysqli_ready'] = $mysqli instanceof \mysqli;
             $report['forum_user'] = '(session non démarrée en mode diagnostic — tester api.php connecté au forum)';
         }
     }

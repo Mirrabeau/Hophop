@@ -206,42 +206,12 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
         }
     }
 
-    hophop_store_debug_log('save_mysql fallback sql_build_array uid=' . $user_id);
+    // sql_build_array / sql_escape sur un gros JSON provoque souvent un fatal PHP (503 HTML) :
+    // sans mysqli préparé, on refuse clairement plutôt que de retenter ce chemin.
+    $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = 'Connexion MySQLi phpBB introuvable (requêtes préparées indisponibles).';
+    hophop_store_debug_log('save_mysql FAIL no_mysqli uid=' . $user_id . ' db=' . (isset($db) ? get_class($db) : 'none'));
 
-    try {
-        $sql = 'SELECT user_id
-            FROM ' . $table . '
-            WHERE user_id = ' . $user_id;
-        $result = $db->sql_query($sql);
-        $exists = (bool) $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-
-        $row = [
-            'store_json' => $json,
-            'updated' => $now,
-        ];
-
-        if ($exists) {
-            $sql = 'UPDATE ' . $table . '
-                SET ' . $db->sql_build_array('UPDATE', $row) . '
-                WHERE user_id = ' . $user_id;
-        } else {
-            $row['user_id'] = $user_id;
-            $sql = 'INSERT INTO ' . $table . ' ' . $db->sql_build_array('INSERT', $row);
-        }
-
-        $db->sql_query($sql);
-    } catch (\Throwable $e) {
-        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = $e->getMessage();
-        error_log('HopHop store save: ' . $e->getMessage());
-        hophop_store_debug_log('save_mysql FAIL uid=' . $user_id . ' len=' . strlen($json) . ' ' . $e->getMessage());
-
-        return false;
-    }
-
-    hophop_store_debug_log('save_mysql OK uid=' . $user_id . ' len=' . strlen($json));
-
-    return true;
+    return false;
 }
 
 function hophop_store_debug_log(string $line): void
@@ -266,15 +236,91 @@ function hophop_store_debug_log(string $line): void
 /** Connexion MySQLi sous-jacente phpBB (requêtes préparées, gros JSON). */
 function hophop_phpbb_mysqli(): ?\mysqli
 {
-    global $db;
+    global $db, $phpbb_container;
 
-    if (!isset($db) || !is_object($db)) {
+    // API publique (factory et driver) — $db global est souvent phpbb\db\driver\factory.
+    if (isset($db) && is_object($db) && method_exists($db, 'get_db_connect_id')) {
+        $link = $db->get_db_connect_id();
+
+        if ($link instanceof \mysqli) {
+            return $link;
+        }
+    }
+
+    // Driver réel derrière la factory DI.
+    if (isset($phpbb_container) && is_object($phpbb_container)
+        && method_exists($phpbb_container, 'has')
+        && $phpbb_container->has('dbal.conn.driver')
+    ) {
+        try {
+            $driver = $phpbb_container->get('dbal.conn.driver');
+
+            if (is_object($driver) && method_exists($driver, 'get_db_connect_id')) {
+                $link = $driver->get_db_connect_id();
+
+                if ($link instanceof \mysqli) {
+                    return $link;
+                }
+            }
+
+            $from_prop = hophop_mysqli_from_object_property($driver, ['db_connect_id', 'conn']);
+
+            if ($from_prop instanceof \mysqli) {
+                return $from_prop;
+            }
+        } catch (\Throwable $e) {
+            hophop_store_debug_log('mysqli via container: ' . $e->getMessage());
+        }
+    }
+
+    if (isset($db) && is_object($db)) {
+        // factory::$driver (protected) puis db_connect_id sur le driver.
+        $inner = hophop_mysqli_from_object_property($db, ['driver']);
+
+        if ($inner instanceof \mysqli) {
+            return $inner;
+        }
+
+        if (is_object($inner)) {
+            if (method_exists($inner, 'get_db_connect_id')) {
+                $link = $inner->get_db_connect_id();
+
+                if ($link instanceof \mysqli) {
+                    return $link;
+                }
+            }
+
+            $from_prop = hophop_mysqli_from_object_property($inner, ['db_connect_id', 'conn']);
+
+            if ($from_prop instanceof \mysqli) {
+                return $from_prop;
+            }
+        }
+
+        $from_prop = hophop_mysqli_from_object_property($db, ['db_connect_id', 'conn']);
+
+        if ($from_prop instanceof \mysqli) {
+            return $from_prop;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param object|null $object
+ * @param list<string> $props
+ * @return mixed
+ */
+function hophop_mysqli_from_object_property($object, array $props)
+{
+    if (!is_object($object)) {
         return null;
     }
 
-    foreach (['db_connect_id', 'conn'] as $prop) {
+    foreach ($props as $prop) {
         try {
-            $ref = new \ReflectionObject($db);
+            $ref = new \ReflectionObject($object);
 
             if (!$ref->hasProperty($prop)) {
                 continue;
@@ -282,11 +328,8 @@ function hophop_phpbb_mysqli(): ?\mysqli
 
             $property = $ref->getProperty($prop);
             $property->setAccessible(true);
-            $link = $property->getValue($db);
 
-            if ($link instanceof \mysqli) {
-                return $link;
-            }
+            return $property->getValue($object);
         } catch (\ReflectionException $e) {
             continue;
         }
