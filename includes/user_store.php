@@ -17,13 +17,23 @@ function hophop_mysql_store_ready(): bool
 
     global $db;
 
-    $table = hophop_store_table();
-    $sql = 'SHOW TABLES LIKE \'' . $db->sql_escape($table) . '\'';
-    $result = $db->sql_query($sql);
-    $row = $db->sql_fetchrow($result);
-    $db->sql_freeresult($result);
+    if (!isset($db) || !is_object($db)) {
+        return false;
+    }
 
-    return (bool) $row;
+    try {
+        $table = hophop_store_table();
+        $sql = 'SHOW TABLES LIKE \'' . $db->sql_escape($table) . '\'';
+        $result = $db->sql_query($sql);
+        $row = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+
+        return (bool) $row;
+    } catch (\Throwable $e) {
+        error_log('HopHop mysql_store_ready: ' . $e->getMessage());
+
+        return false;
+    }
 }
 
 /**

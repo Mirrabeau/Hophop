@@ -310,10 +310,16 @@ function ebcColor(ebc) {
 /* ---------- 2. API & SESSION ---------- */
 async function api(action, payload = {}) {
   let res, j;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 60000);
   try {
-    res = await fetch('api.php', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action, ...payload})});
-  } catch { throw new Error('Serveur injoignable — vérifiez votre connexion.'); }
-  try { j = await res.json(); } catch { throw new Error('Réponse invalide du serveur.'); }
+    res = await fetch('api.php', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action, ...payload}), signal: ctrl.signal});
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? 'Délai dépassé — le serveur ne répond pas (session forum bloquée ?). Actualisez la page.' : 'Serveur injoignable — vérifiez votre connexion.');
+  } finally { clearTimeout(t); }
+  try { j = await res.json(); } catch {
+    throw new Error('Réponse invalide du serveur (HTTP ' + res.status + '). Vérifiez les logs PHP / phpBB.');
+  }
   if (!j.ok) throw new Error(j.error || 'Erreur inconnue.');
   return j;
 }
@@ -404,11 +410,12 @@ function applyPrefs() {
   html.setAttribute('data-density', D?.prefs?.density || 'classic');
 }
 async function enterApp(name) {
-  USER = name;
   const r = await api('load');
+  USER = name;
   D = normalizeData(r.data);
   applyPrefs();
-  ui.view = 'recipes'; render();
+  ui.view = 'recipes';
+  render();
 }
 async function logout() {
   if (AUTH.mode === 'phpbb' && AUTH.logout_url) { window.location.href = AUTH.logout_url; return; }
@@ -941,7 +948,7 @@ function viewAccount() {
 /* --- Rendu général --- */
 function render() {
   const app = $('#app');
-  if (!USER) { app.innerHTML = authHTML(); return; }
+  if (!USER || !D) { app.innerHTML = authHTML(); return; }
   app.innerHTML = shellHTML(); renderMain();
 }
 function renderMain(keep) {
@@ -1619,9 +1626,19 @@ function toBeerJSON(r) {
   try {
     const s = await api('session');
     applySessionMeta(s);
-    if (s.username) await enterApp(s.username);
-    else render();
-  } catch { render(); }
+    if (s.username) {
+      try { await enterApp(s.username); }
+      catch (e) {
+        USER = D = null;
+        toast(e.message || 'Impossible de charger vos données.');
+        render();
+      }
+    } else render();
+  } catch (e) {
+    USER = D = null;
+    toast(e.message || 'Impossible de contacter le serveur.');
+    render();
+  }
 })();
 </script>
 </body>

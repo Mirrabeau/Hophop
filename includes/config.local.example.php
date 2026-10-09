@@ -11,6 +11,6 @@ return [
     // file = JSON dans data/ | mysql = table {prefix}hophop_store (nécessite bootstrap phpBB)
     'storage' => 'mysql',
 
-    // null = détection auto (forum/hophop → racine forum). Sinon chemin absolu vers le dossier forum.
+    // null = ../ depuis hophop/ (phpBB334/hophop → phpBB334). Chemin absolu optionnel (ex. D:/…/phpBB334/).
     'phpbb_root' => null,
 ];

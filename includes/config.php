@@ -17,7 +17,17 @@ function hophop_local_config(): array
     $local = __DIR__ . '/config.local.php';
 
     if (is_file($local)) {
-        $loaded = require $local;
+        try {
+            $loaded = require $local;
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'ok' => false,
+                'error' => 'config.local.php invalide : ' . $e->getMessage(),
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
         if (is_array($loaded)) {
             $cfg = $loaded;
@@ -46,12 +56,14 @@ function hophop_uses_phpbb(): bool
     return hophop_auth_mode() === 'phpbb' || hophop_storage() === 'mysql';
 }
 
-if (hophop_uses_phpbb() && !hophop_bootstrap_phpbb()) {
+if (hophop_uses_phpbb() && !defined('HOPHOP_DIAGNOSTIC') && !hophop_bootstrap_phpbb()) {
     http_response_code(503);
     header('Content-Type: application/json; charset=utf-8');
+    $detail = hophop_last_bootstrap_error();
     echo json_encode([
         'ok' => false,
-        'error' => 'HopHop : impossible de charger phpBB (vérifiez phpbb_root et le chemin forum/hophop).',
+        'error' => 'HopHop : impossible de charger phpBB.'
+            . ($detail !== '' ? ' ' . $detail : ' Vérifiez phpbb_root et le chemin phpbb334/hophop.'),
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -64,6 +76,9 @@ if (hophop_auth_mode() === 'standalone') {
     }
     session_set_cookie_params(['samesite' => 'Lax']);
     session_start();
+} elseif (session_status() === PHP_SESSION_ACTIVE) {
+    // Ancienne session HopHop (standalone) : ne pas laisser un cookie PHP par défaut verrouiller phpBB.
+    session_write_close();
 }
 
 define('DATA_DIR', __DIR__ . '/../data');
@@ -71,9 +86,18 @@ define('STORE_DIR', DATA_DIR . '/store');
 define('USERS_FILE', DATA_DIR . '/users.json');
 define('MAX_SAVE_BYTES', 8 * 1024 * 1024);
 
+$data_dirs_required = hophop_auth_mode() === 'standalone' || hophop_storage() === 'file';
+
 foreach ([DATA_DIR, STORE_DIR] as $d) {
-    if (!is_dir($d) && !mkdir($d, 0775, true) && !is_dir($d)) {
+    if (is_dir($d)) {
+        continue;
+    }
+    if (!$data_dirs_required) {
+        continue;
+    }
+    if (!@mkdir($d, 0775, true) && !is_dir($d)) {
         http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
         die(json_encode(['ok' => false, 'error' => "Impossible de créer le dossier de données ($d)."]));
     }
 }
