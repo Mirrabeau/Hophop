@@ -140,28 +140,56 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
     }
 
     $now = time();
+    $table = hophop_store_table();
 
     try {
-        $insert = [
-            'user_id' => $user_id,
+        // Une seule passe sql_escape sur le JSON (évite OOM / fatal phpBB sur gros blob).
+        $sql = 'SELECT user_id
+            FROM ' . $table . '
+            WHERE user_id = ' . $user_id;
+        $result = $db->sql_query($sql);
+        $exists = (bool) $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+
+        $row = [
             'store_json' => $json,
             'updated' => $now,
         ];
-        $update = [
-            'store_json' => $json,
-            'updated' => $now,
-        ];
-        $sql = 'INSERT INTO ' . hophop_store_table() . ' ' . $db->sql_build_array('INSERT', $insert)
-            . ' ON DUPLICATE KEY UPDATE ' . $db->sql_build_array('UPDATE', $update);
+
+        if ($exists) {
+            $sql = 'UPDATE ' . $table . '
+                SET ' . $db->sql_build_array('UPDATE', $row) . '
+                WHERE user_id = ' . $user_id;
+        } else {
+            $row['user_id'] = $user_id;
+            $sql = 'INSERT INTO ' . $table . ' ' . $db->sql_build_array('INSERT', $row);
+        }
+
         $db->sql_query($sql);
     } catch (\Throwable $e) {
         $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = $e->getMessage();
         error_log('HopHop store save: ' . $e->getMessage());
+        hophop_store_debug_log('save_mysql FAIL uid=' . $user_id . ' len=' . strlen($json) . ' ' . $e->getMessage());
 
         return false;
     }
 
+    hophop_store_debug_log('save_mysql OK uid=' . $user_id . ' len=' . strlen($json));
+
     return true;
+}
+
+function hophop_store_debug_log(string $line): void
+{
+    if (!defined('DATA_DIR') || !is_dir(DATA_DIR)) {
+        return;
+    }
+
+    @file_put_contents(
+        DATA_DIR . '/hophop-api.log',
+        gmdate('c') . ' ' . $line . "\n",
+        FILE_APPEND | LOCK_EX
+    );
 }
 
 function hophop_user_store_delete_mysql(int $user_id): void
