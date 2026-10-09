@@ -1,0 +1,9 @@
+# Données runtime (comptes, recettes) — voir README
+/data/users.json
+/data/store/*.json
+!/data/store/.gitkeep
+
+# macOS / éditeur
+.DS_Store
+.idea/
+.vscode/
