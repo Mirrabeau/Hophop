@@ -151,8 +151,19 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
     $mysqli = hophop_phpbb_mysqli();
 
     if ($mysqli instanceof \mysqli) {
+        // phpBB est souvent en utf8mb3 ; la table HopHop est utf8mb4 → bind_param refuse sinon.
+        $charset_prev = $mysqli->character_set_name() ?: 'utf8mb3';
+
         try {
-            hophop_store_debug_log('save_mysql prepared uid=' . $user_id . ' len=' . strlen($json));
+            hophop_store_debug_log(
+                'save_mysql prepared uid=' . $user_id
+                . ' len=' . strlen($json)
+                . ' charset=' . $charset_prev . '→utf8mb4'
+            );
+
+            if (!$mysqli->set_charset('utf8mb4')) {
+                throw new \RuntimeException('set_charset utf8mb4 : ' . $mysqli->error);
+            }
 
             $check = $mysqli->prepare('SELECT user_id FROM ' . $table . ' WHERE user_id = ?');
 
@@ -203,6 +214,10 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
             hophop_store_debug_log('save_mysql FAIL prepared ' . $e->getMessage());
 
             return false;
+        } finally {
+            if ($charset_prev !== '' && strcasecmp($charset_prev, 'utf8mb4') !== 0) {
+                @$mysqli->set_charset($charset_prev);
+            }
         }
     }
 
