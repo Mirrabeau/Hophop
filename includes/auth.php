@@ -218,6 +218,12 @@ function hophop_save_user_data(array $data): void
         json_fail('Session expirée, reconnectez-vous.', 401);
     }
 
+    hophop_store_debug_log(
+        'save requested uid=' . (int) $ctx['user_id']
+        . ' storage=' . hophop_storage()
+        . ' bytes=' . strlen(json_encode($data, JSON_UNESCAPED_UNICODE) ?: '')
+    );
+
     if (hophop_storage() === 'mysql' && !hophop_mysql_store_ready()) {
         json_fail('Stockage MySQL non configuré : exécutez docs/sql/hophop_store.sql sur la base du forum.', 503);
     }

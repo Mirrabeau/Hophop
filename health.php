@@ -20,6 +20,10 @@ try {
 
     $report['auth_mode'] = hophop_auth_mode();
     $report['storage'] = hophop_storage();
+    $report['data_dir'] = DATA_DIR;
+    $report['data_dir_exists'] = is_dir(DATA_DIR);
+    $report['data_dir_writable'] = is_dir(DATA_DIR) && is_writable(DATA_DIR);
+    $report['hophop_api_log'] = DATA_DIR . '/hophop-api.log';
     $report['brewrecipes_share_url'] = hophop_brewrecipes_share_url();
     $report['phpbb_root_guess'] = hophop_phpbb_root();
 

@@ -110,19 +110,27 @@ define('STORE_DIR', DATA_DIR . '/store');
 define('USERS_FILE', DATA_DIR . '/users.json');
 define('MAX_SAVE_BYTES', 8 * 1024 * 1024);
 
-$data_dirs_required = hophop_auth_mode() === 'standalone' || hophop_storage() === 'file';
+$needs_store_files = hophop_auth_mode() === 'standalone' || hophop_storage() === 'file';
 
-foreach ([DATA_DIR, STORE_DIR] as $d) {
-    if (is_dir($d)) {
-        continue;
+if (!is_dir(DATA_DIR)) {
+    @mkdir(DATA_DIR, 0775, true);
+}
+
+if (!is_dir(DATA_DIR) && $needs_store_files) {
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    die(json_encode(['ok' => false, 'error' => 'Impossible de créer le dossier de données (' . DATA_DIR . ').']));
+}
+
+if ($needs_store_files) {
+    if (!is_dir(STORE_DIR)) {
+        @mkdir(STORE_DIR, 0775, true);
     }
-    if (!$data_dirs_required) {
-        continue;
-    }
-    if (!@mkdir($d, 0775, true) && !is_dir($d)) {
+
+    if (!is_dir(STORE_DIR)) {
         http_response_code(500);
         header('Content-Type: application/json; charset=utf-8');
-        die(json_encode(['ok' => false, 'error' => "Impossible de créer le dossier de données ($d)."]));
+        die(json_encode(['ok' => false, 'error' => 'Impossible de créer le dossier store (' . STORE_DIR . ').']));
     }
 }
 

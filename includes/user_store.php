@@ -246,15 +246,21 @@ function hophop_user_store_save_mysql(int $user_id, array $data): bool
 
 function hophop_store_debug_log(string $line): void
 {
-    if (!defined('DATA_DIR') || !is_dir(DATA_DIR)) {
-        return;
+    $entry = gmdate('c') . ' ' . $line . "\n";
+
+    if (defined('DATA_DIR')) {
+        if (!is_dir(DATA_DIR)) {
+            @mkdir(DATA_DIR, 0775, true);
+        }
+
+        if (is_dir(DATA_DIR) && is_writable(DATA_DIR)) {
+            if (@file_put_contents(DATA_DIR . '/hophop-api.log', $entry, FILE_APPEND | LOCK_EX) !== false) {
+                return;
+            }
+        }
     }
 
-    @file_put_contents(
-        DATA_DIR . '/hophop-api.log',
-        gmdate('c') . ' ' . $line . "\n",
-        FILE_APPEND | LOCK_EX
-    );
+    error_log('HopHop: ' . $line);
 }
 
 /** Connexion MySQLi sous-jacente phpBB (requêtes préparées, gros JSON). */
