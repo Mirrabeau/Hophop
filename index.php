@@ -407,10 +407,15 @@ function resizeAvatarImage(file) {
 }
 const AVATAR_PICKS = ['🍺', '🍻', '🌾', '🍯', '🔥', '🧉', '🍋', '🫐'];
 function avatarHTML(cls) {
-  const p = D.prefs;
-  return p.avatarType === 'image' && p.avatarImage
-    ? `<span class="avatar ${cls || ''}"><img src="${p.avatarImage}" alt=""></span>`
-    : `<span class="avatar ${cls || ''}">${esc(p.avatarEmoji || '🍺')}</span>`;
+  const p = D?.prefs || {};
+  // Mode forum : avatar phpBB par défaut ; photo HopHop locale si l’utilisateur en a importé une.
+  if (p.avatarType === 'image' && p.avatarImage) {
+    return `<span class="avatar ${cls || ''}"><img src="${p.avatarImage}" alt=""></span>`;
+  }
+  if (AUTH.mode === 'phpbb' && AUTH.avatar_url) {
+    return `<span class="avatar ${cls || ''}"><img src="${esc(AUTH.avatar_url)}" alt=""></span>`;
+  }
+  return `<span class="avatar ${cls || ''}">${esc(p.avatarEmoji || '🍺')}</span>`;
 }
 const THEMES = [['vert', 'Vert nature'], ['ambre', 'Ambre'], ['ble', 'Blé doré'], ['myrtille', 'Myrtille'], ['sombre', 'Sombre']];
 function applyPrefs() {
@@ -468,6 +473,7 @@ function applySessionMeta(s) {
   AUTH.login_url = s.login_url || '';
   AUTH.logout_url = s.logout_url || '';
   AUTH.brewrecipes_share_url = s.brewrecipes_share_url || '';
+  AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
 }
 /** URL POST BrewRecipes (session phpBB ou repli dev /forum/). */
@@ -966,13 +972,20 @@ function viewAccount() {
       ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
       : '<button class="btn ghost sm" data-act="logout">Se déconnecter</button>'}</div></div>
   <div class="card"><h2>Avatar</h2>
-    <p class="sub" style="margin-top:0">Choisissez un emoji ou importez une photo (recadrée et réduite automatiquement).</p>
+    ${AUTH.mode === 'phpbb'
+      ? `<p class="sub" style="margin-top:0">Avatar du compte forum${AUTH.avatar_url ? '' : ' (aucun avatar défini sur le forum)'}. Vous pouvez le changer dans le profil phpBB, ou importer une photo locale HopHop ci-dessous.</p>
+        <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0">
+          <button class="btn ghost sm" data-act="avatarUpload">Importer une photo HopHop</button>
+          <input type="file" id="avatarFile" accept="image/*" style="display:none">
+          ${D.prefs.avatarType === 'image' ? '<button class="btn ghost sm" data-act="avatarReset">Revenir à l’avatar forum</button>' : ''}
+        </div>`
+      : `<p class="sub" style="margin-top:0">Choisissez un emoji ou importez une photo (recadrée et réduite automatiquement).</p>
     <div class="avatar-picks">${AVATAR_PICKS.map(e => `<button data-act="setAvatarEmoji" data-v="${e}" aria-pressed="${D.prefs.avatarType === 'emoji' && D.prefs.avatarEmoji === e}">${e}</button>`).join('')}</div>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0">
       <button class="btn ghost sm" data-act="avatarUpload">Importer une photo</button>
       <input type="file" id="avatarFile" accept="image/*" style="display:none">
       ${D.prefs.avatarType === 'image' ? '<button class="btn ghost sm" data-act="avatarReset">Revenir à l’emoji</button>' : ''}
-    </div></div>
+    </div>`}</div>
   <div class="card"><h2>Apparence</h2>
     <h3>Thème</h3><div class="seg">${THEMES.map(([k, l]) => `<button data-act="setTheme" data-v="${k}" aria-pressed="${D.prefs.theme === k}">${l}</button>`).join('')}</div>
     <h3>Mode d’affichage</h3><div class="seg">

@@ -218,6 +218,84 @@ function hophop_forum_user(): ?array
     return ['user_id' => $user_id, 'username' => $username];
 }
 
+/** URL absolue de l’avatar phpBB du membre connecté (vide si aucun). */
+function hophop_forum_avatar_url(): string
+{
+    if (!hophop_bootstrap_phpbb()) {
+        return '';
+    }
+
+    global $user, $phpbb_container;
+
+    $src = '';
+
+    try {
+        if (isset($phpbb_container) && is_object($phpbb_container)
+            && method_exists($phpbb_container, 'has')
+            && $phpbb_container->has('avatar.helper')
+        ) {
+            $helper = $phpbb_container->get('avatar.helper');
+            $data = $helper->get_user_avatar($user->data, (string) ($user->data['username'] ?? ''), true, false);
+            $src = (string) ($data['src'] ?? '');
+        }
+    } catch (\Throwable $e) {
+        $src = '';
+    }
+
+    if ($src === '' && function_exists('phpbb_get_user_avatar')) {
+        $html = phpbb_get_user_avatar($user->data, (string) ($user->data['username'] ?? ''), true, false);
+
+        if (is_string($html) && preg_match('/\bsrc=(["\'])(.*?)\1/i', $html, $m)) {
+            $src = html_entity_decode($m[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+    }
+
+    return hophop_absolutize_board_url($src);
+}
+
+/** Rend une URL forum (relative ou absolue) utilisable depuis /hophop/. */
+function hophop_absolutize_board_url(string $url): string
+{
+    $url = trim($url);
+
+    if ($url === '' || $url === './images/no_avatar.gif') {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $url)) {
+        return $url;
+    }
+
+    try {
+        $board = rtrim(generate_board_url(false), '/');
+    } catch (\Throwable $e) {
+        $board = '';
+    }
+
+    if ($board === '') {
+        return $url;
+    }
+
+    if (str_starts_with($url, '//')) {
+        $scheme = parse_url($board, PHP_URL_SCHEME) ?: 'https';
+
+        return $scheme . ':' . $url;
+    }
+
+    if (str_starts_with($url, '/')) {
+        $parts = parse_url($board);
+        $origin = ($parts['scheme'] ?? 'https') . '://' . ($parts['host'] ?? '');
+
+        if (!empty($parts['port'])) {
+            $origin .= ':' . $parts['port'];
+        }
+
+        return $origin . $url;
+    }
+
+    return $board . '/' . ltrim($url, './');
+}
+
 function hophop_forum_login_url(): string
 {
     if (!hophop_bootstrap_phpbb()) {
