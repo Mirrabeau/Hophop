@@ -3,6 +3,9 @@
 /data/store/*.json
 !/data/store/.gitkeep
 
+# Config serveur forum (SSO / MySQL)
+/includes/config.local.php
+
 # macOS / éditeur
 .DS_Store
 .idea/

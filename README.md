@@ -53,10 +53,13 @@ location ~ ^/(data|includes)/ { deny all; return 404; }
   stockés en clair.
 - Servez l'application en HTTPS : le cookie de session est marqué
   automatiquement `Secure` dès que `$_SERVER['HTTPS']` est détecté.
-- `data/` contient des données personnelles (recettes, éventuellement des
-  identifiants) : vérifiez que le `.htaccess` fonctionne bien (tentez
-  d'ouvrir `https://votre-domaine/.../data/users.json` — vous devez obtenir
-  une erreur 403/404) ou utilisez la règle Nginx ci-dessus.
+- `data/` contient des données personnelles (recettes ; en mode standalone,
+  aussi `users.json`) : chaque niveau est protégé par `.htaccess`
+  (`data/`, `data/store/`). Test : ouvrir `…/hophop/data/users.json` ou
+  `…/hophop/data/store/un-fichier.json` → **403/404**. Sous Nginx, bloquer
+  `…/hophop/data/` explicitement (les `.htaccess` sont ignorés).
+- En mode forum + MySQL, les recettes ne devraient plus être servies depuis
+  `data/` ; ce dossier peut rester vide ou pour migration legacy uniquement.
 - Il n'y a pas de limite de tentatives de connexion intégrée. Si votre
   application est exposée publiquement, envisagez une protection
   complémentaire (fail2ban, limite au niveau du serveur web).
@@ -77,11 +80,21 @@ location ~ ^/(data|includes)/ { deny all; return 404; }
 
 Unités européennes partout (L, kg, g, °C, EBC, densité SG).
 
+## Intégration phpBB (BrassageAmateur)
+
+Pour le forum (`/forum/hophop/`) : session forum (SSO) + stockage MySQL (JSON par `user_id`).
+
+1. Copier `includes/config.local.example.php` → `includes/config.local.php` (`auth_mode` = `phpbb`, `storage` = `mysql`).
+2. Exécuter `docs/sql/hophop_store.sql` sur la base phpBB (adapter le préfixe de table).
+3. Vérifier que `https://…/forum/hophop/data/users.json` renvoie **403/404** (voir sécurité ci-dessous).
+
+Au premier accès, si un ancien fichier `data/store/<pseudo>.json` existe pour le même pseudo forum, il est importé une fois en MySQL.
+
+Sans `config.local.php`, HopHop reste en mode **standalone** (comptes locaux + fichiers JSON).
+
 ## Limites connues
 
-- Un fichier JSON par compte : convient très bien à un usage personnel ou
-  amateur ; pour un très grand nombre de comptes actifs simultanément, une
-  vraie base de données serait plus adaptée (au-delà du cadre proposé ici).
+- Mode standalone : un fichier JSON par compte. Mode forum : blob JSON MySQL par `user_id`.
 - Pas de récupération de mot de passe oublié par e-mail (pas de serveur SMTP
   supposé disponible) : en cas d'oubli, un administrateur du serveur peut
   supprimer l'entrée correspondante dans `data/users.json` pour permettre

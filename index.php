@@ -318,6 +318,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', mysql_ready: true};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -410,10 +411,18 @@ async function enterApp(name) {
   ui.view = 'recipes'; render();
 }
 async function logout() {
+  if (AUTH.mode === 'phpbb' && AUTH.logout_url) { window.location.href = AUTH.logout_url; return; }
   try { await api('logout'); } catch {}
   USER = D = null; ui.auth = 'login';
   document.documentElement.removeAttribute('data-theme'); document.documentElement.removeAttribute('data-density');
   render();
+}
+function applySessionMeta(s) {
+  AUTH.mode = s.auth_mode || 'standalone';
+  AUTH.features = s.features || AUTH.features;
+  AUTH.login_url = s.login_url || '';
+  AUTH.logout_url = s.logout_url || '';
+  AUTH.mysql_ready = s.mysql_ready !== false;
 }
 
 /* ---------- 3. LIBELLÉS & GABARITS ---------- */
@@ -550,11 +559,24 @@ const libOpts = (t, sel) => {
 };
 
 function authHTML() {
-  const reg = ui.auth === 'register';
+  if (AUTH.mode === 'phpbb') {
+    const loginBtn = AUTH.login_url
+      ? `<a class="btn" href="${esc(AUTH.login_url)}" style="width:100%;text-align:center;text-decoration:none;display:inline-block;box-sizing:border-box">Se connecter au forum</a>`
+      : '<p class="err">Connexion forum indisponible.</p>';
+    const dbWarn = AUTH.mysql_ready === false
+      ? '<p class="err" role="alert">Stockage MySQL : créez la table <code>hophop_store</code> (voir docs/sql/hophop_store.sql).</p>' : '';
+    return `<div class="authscreen"><div class="auth-bg" aria-hidden="true">${LOGO_SVG}</div><div class="wrap"><div class="auth card">
+    <h1 style="text-align:center;display:flex;align-items:center;justify-content:center;gap:.5rem"><span class="brand-logo" style="width:2.2rem;height:2.2rem">${LOGO_SVG}</span>HopHop</h1>
+    <p class="sub" style="text-align:center">Atelier recettes BrassageAmateur — utilisez votre compte forum.</p>
+    ${dbWarn}${loginBtn}
+    <p class="sub" style="margin-bottom:0">Une fois connecté au forum, rouvrez cette page ou actualisez.</p>
+  </div></div></div>`;
+  }
+  const reg = ui.auth === 'register' && AUTH.features.register;
   return `<div class="authscreen"><div class="auth-bg" aria-hidden="true">${LOGO_SVG}</div><div class="wrap"><div class="auth card">
     <h1 style="text-align:center;display:flex;align-items:center;justify-content:center;gap:.5rem"><span class="brand-logo" style="width:2.2rem;height:2.2rem">${LOGO_SVG}</span>HopHop</h1>
     <p class="sub" style="text-align:center">Créez et calculez vos recettes de bière.</p>
-    <div class="seg"><button data-act="authMode" data-m="login" aria-pressed="${!reg}">Connexion</button><button data-act="authMode" data-m="register" aria-pressed="${reg}">Créer un compte</button></div>
+    ${AUTH.features.register ? `<div class="seg"><button data-act="authMode" data-m="login" aria-pressed="${!reg}">Connexion</button><button data-act="authMode" data-m="register" aria-pressed="${reg}">Créer un compte</button></div>` : ''}
     <div class="fgrid" style="grid-template-columns:1fr">
       ${fld('Identifiant', '<input id="a-user" autocomplete="username" autocapitalize="off">')}
       ${fld('Mot de passe', '<input id="a-pw" type="password" autocomplete="' + (reg ? 'new-password' : 'current-password') + '">')}
@@ -912,7 +934,7 @@ function viewAccount() {
     <p class="sub" style="margin-bottom:0">La formule linéaire convient à la plupart des densités ; la cubique est recommandée au-delà d’environ 1,080 de densité initiale (bières fortes).</p></div>
   <div class="card"><h2>Sauvegarde</h2><p class="sub" style="margin-top:0">Vos données vivent sur ce serveur. Exportez tout de même une sauvegarde JSON de temps en temps, et importez-la pour restaurer un état antérieur.</p>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button class="btn ghost sm" data-act="backup">Exporter la sauvegarde</button><button class="btn ghost sm" data-act="restore">Importer une sauvegarde</button><input type="file" id="restoreFile" accept=".json,application/json" style="display:none"></div></div>
-  <div class="card"><h2>Zone sensible</h2><button class="btn danger sm" data-act="delAccount">Supprimer ce compte et ses données</button></div>
+  ${AUTH.features.delete_account ? '<div class="card"><h2>Zone sensible</h2><button class="btn danger sm" data-act="delAccount">Supprimer ce compte et ses données</button></div>' : ''}
   <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 
@@ -1554,7 +1576,8 @@ function toBeerXML(r) {
   const yeasts = r.yeast.map(x => { const y = lib('yeast', x.ref); return y && `<YEAST>${X('NAME', y.name)}${X('VERSION', 1)}${X('TYPE', y.type === 'lager' ? 'Lager' : 'Ale')}${X('FORM', y.form === 'liquid' ? 'Liquid' : 'Dry')}${X('AMOUNT', rnd(N(x.qty) * 0.0115, 4))}${X('AMOUNT_IS_WEIGHT', 'TRUE')}${X('ATTENUATION', y.att)}${X('MIN_TEMPERATURE', y.tmin)}${X('MAX_TEMPERATURE', y.tmax)}</YEAST>`; }).filter(Boolean);
   const steps = r.mash.map((s, i) => `<MASH_STEP>${X('NAME', s.name)}${X('VERSION', 1)}${X('TYPE', i === 0 ? 'Infusion' : {infusion: 'Infusion', direct: 'Temperature', decoction: 'Decoction'}[s.method || 'infusion'])}${X('STEP_TEMP', N(s.temp))}${X('STEP_TIME', N(s.time))}</MASH_STEP>`);
   const notes = (recipeStyleName(r) ? 'Style : ' + recipeStyleName(r) + '\n' : '') + r.notes;
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<RECIPES>\n<RECIPE>${X('VERSION', 1)}${X('NAME', r.name)}${X('TYPE', r.ferm.some(x => lib('ferm', x.ref)?.type === 'grain') ? 'All Grain' : 'Extract')}${X('BREWER', USER)}
+  const xmlDecl = '<' + '?xml version="1.0" encoding="UTF-8"?>';
+  return `${xmlDecl}\n<RECIPES>\n<RECIPE>${X('VERSION', 1)}${X('NAME', r.name)}${X('TYPE', r.ferm.some(x => lib('ferm', x.ref)?.type === 'grain') ? 'All Grain' : 'Extract')}${X('BREWER', USER)}
 ${X('BATCH_SIZE', rnd(c.V, 2))}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BOIL_TIME', P.boil)}${X('EFFICIENCY', rnd(c.effPct, 0))}
 ${sec('HOPS', hops)}${sec('FERMENTABLES', ferm)}${sec('MISCS', miscs)}${sec('YEASTS', yeasts)}
 <EQUIPMENT>${X('NAME', P.name)}${X('VERSION', 1)}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BATCH_SIZE', rnd(c.V, 2))}${X('TRUB_CHILLER_LOSS', P.trub)}${X('EVAP_RATE', rnd(P.evap / c.preboil * 100, 2))}${X('BOIL_TIME', P.boil)}</EQUIPMENT>
@@ -1595,6 +1618,7 @@ function toBeerJSON(r) {
 (async function init() {
   try {
     const s = await api('session');
+    applySessionMeta(s);
     if (s.username) await enterApp(s.username);
     else render();
   } catch { render(); }
