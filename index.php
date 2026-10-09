@@ -1339,18 +1339,28 @@ function importLibraryXML(doc, guide) {
     upsertIng('misc', nm, {unit: xtext(el, 'AMOUNT_IS_WEIGHT').toLowerCase() === 'true' ? 'g' : 'mL'}); counts.misc++;
   });
   doc.querySelectorAll('STYLE').forEach(el => {
-    const nm = xtext(el, 'NAME'); if (!nm) return;
-    const category = (xtext(el, 'CATEGORY_NUMBER') + xtext(el, 'STYLE_LETTER')) || xtext(el, 'CATEGORY');
-    const type = {Lager: 'lager', Ale: 'ale', Mead: 'mead', Wheat: 'ale', Mixed: 'mixed', Cider: 'cider'}[xtext(el, 'TYPE')] || 'other';
-    upsertStyle(nm, guide, {category, type,
-      ogMin: rnd(xnum(el, 'OG_MIN', 1.040), 3), ogMax: rnd(xnum(el, 'OG_MAX', 1.050), 3),
-      fgMin: rnd(xnum(el, 'FG_MIN', 1.008), 3), fgMax: rnd(xnum(el, 'FG_MAX', 1.012), 3),
-      ibuMin: rnd(xnum(el, 'IBU_MIN', 0), 0), ibuMax: rnd(xnum(el, 'IBU_MAX', 0), 0),
-      colorMin: rnd(xnum(el, 'COLOR_MIN', 0) * 1.97, 1), colorMax: rnd(xnum(el, 'COLOR_MAX', 0) * 1.97, 1),
-      abvMin: rnd(xnum(el, 'ABV_MIN', 0), 1), abvMax: rnd(xnum(el, 'ABV_MAX', 0), 1),
-      note: xtext(el, 'NOTES')}); counts.style++;
+    if (upsertStyleFromBeerXmlEl(el, guide)) counts.style++;
   });
   return counts;
+}
+
+/** Crée / met à jour un style HopHop depuis une balise BeerXML STYLE (guide = STYLE_GUIDE ou repli). */
+function upsertStyleFromBeerXmlEl(el, guideFallback) {
+  if (!el) return null;
+  const nm = xtext(el, 'NAME');
+  if (!nm) return null;
+  const guide = xtext(el, 'STYLE_GUIDE') || (guideFallback || '');
+  const category = (xtext(el, 'CATEGORY_NUMBER') + xtext(el, 'STYLE_LETTER')) || xtext(el, 'CATEGORY');
+  const type = {Lager: 'lager', Ale: 'ale', Mead: 'mead', Wheat: 'ale', Mixed: 'mixed', Cider: 'cider'}[xtext(el, 'TYPE')] || 'other';
+  return upsertStyle(nm, guide, {
+    category, type,
+    ogMin: rnd(xnum(el, 'OG_MIN', 1.040), 3), ogMax: rnd(xnum(el, 'OG_MAX', 1.050), 3),
+    fgMin: rnd(xnum(el, 'FG_MIN', 1.008), 3), fgMax: rnd(xnum(el, 'FG_MAX', 1.012), 3),
+    ibuMin: rnd(xnum(el, 'IBU_MIN', 0), 0), ibuMax: rnd(xnum(el, 'IBU_MAX', 0), 0),
+    colorMin: rnd(xnum(el, 'COLOR_MIN', 0) * 1.97, 1), colorMax: rnd(xnum(el, 'COLOR_MAX', 0) * 1.97, 1),
+    abvMin: rnd(xnum(el, 'ABV_MIN', 0), 1), abvMax: rnd(xnum(el, 'ABV_MAX', 0), 1),
+    note: xtext(el, 'NOTES'),
+  });
 }
 
 function importLibraryJSON(data, guide) {
@@ -1450,10 +1460,13 @@ function importBeerXML(text) {
 
   return recipeEls.map(rec => {
     const name = xtext(rec, 'NAME') || 'Recette importée';
-    const style = xtext(rec, 'STYLE > NAME');
+    const styleEl = rec.querySelector(':scope > STYLE') || rec.querySelector('STYLE');
+    const style = styleEl ? xtext(styleEl, 'NAME') : '';
     const equipEl = rec.querySelector('EQUIPMENT');
     const r = newRecipe();
     r.id = uid(); r.name = name; r.style = style;
+    const st = upsertStyleFromBeerXmlEl(styleEl, '');
+    if (st) r.styleId = st.id;
     r.profileId = ensureProfileFromEquipment(equipEl, rec, name);
     const rprof = D.profiles.find(x => x.id === r.profileId) || DEFAULT_P;
     r.ratio = rprof.ratio; r.eff = rprof.eff; r.infusionTemp = rprof.infusionTemp;
