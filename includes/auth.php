@@ -223,6 +223,11 @@ function hophop_save_user_data(array $data): void
     }
 
     if (!hophop_user_store_save($ctx, $data)) {
-        json_fail('Échec de l’enregistrement côté serveur.', 500);
+        $detail = hophop_last_store_error();
+        json_fail(
+            'Échec de l’enregistrement côté serveur.'
+            . ($detail !== '' ? ' ' . $detail : ''),
+            500
+        );
     }
 }

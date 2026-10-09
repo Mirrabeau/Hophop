@@ -331,12 +331,21 @@ const R = () => D && D.recipes.find(r => r.id === ui.rid);
 let saveT, saveBusy = false, saveQueued = false;
 function setSaveState(s) { const el = $('#savestate'); if (el) el.textContent = s; }
 async function saveNow() {
-  if (!USER) return;
-  if (saveBusy) { saveQueued = true; return; }
+  if (!USER) return false;
+  if (saveBusy) { saveQueued = true; return false; }
   saveBusy = true; setSaveState('Enregistrement…');
-  try { await api('save', {data: D}); setSaveState('Enregistré'); }
-  catch (e) { setSaveState('Non enregistré'); toast('Échec de l’enregistrement : ' + e.message); }
-  finally { saveBusy = false; if (saveQueued) { saveQueued = false; saveNow(); } }
+  try {
+    await api('save', {data: D});
+    setSaveState('Enregistré');
+    return true;
+  } catch (e) {
+    setSaveState('Non enregistré');
+    toast('Échec de l’enregistrement : ' + e.message);
+    return false;
+  } finally {
+    saveBusy = false;
+    if (saveQueued) { saveQueued = false; saveNow(); }
+  }
 }
 const persist = () => { setSaveState('Modifié…'); clearTimeout(saveT); saveT = setTimeout(saveNow, 800); };
 
@@ -1172,13 +1181,16 @@ document.addEventListener('change', e => {
   }
   if (t.id === 'importBeerXMLFile' && t.files[0]) {
     const fr = new FileReader();
-    fr.onload = () => {
+    fr.onload = async () => {
       let added;
       try { added = importBeerXML(fr.result); }
       catch (e) { toast(e.message); return; }
-      persist(); toast(added.length > 1 ? `${added.length} recettes importées` : 'Recette importée');
       if (added.length === 1) { ui.rid = added[0].id; ui.view = 'editor'; renderMain(); window.scrollTo(0, 0); }
       else renderMain(true);
+      const saved = await saveNow();
+      toast(saved
+        ? (added.length > 1 ? `${added.length} recettes importées` : 'Recette importée')
+        : 'Recette ajoutée à l’écran mais non enregistrée sur le serveur.');
     };
     fr.readAsText(t.files[0]); t.value = '';
   }

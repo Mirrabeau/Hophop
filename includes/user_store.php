@@ -9,6 +9,11 @@ function hophop_store_table(): string
     return $table_prefix . 'hophop_store';
 }
 
+function hophop_last_store_error(): string
+{
+    return (string) ($GLOBALS['HOPHOP_LAST_STORE_ERROR'] ?? '');
+}
+
 function hophop_mysql_store_ready(): bool
 {
     if (!hophop_bootstrap_phpbb()) {
@@ -107,29 +112,54 @@ function hophop_user_store_load_mysql(int $user_id, string $username): ?array
 
 function hophop_user_store_save_mysql(int $user_id, array $data): bool
 {
+    $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = '';
+
     if (!hophop_mysql_store_ready()) {
+        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = 'table MySQL absente ou phpBB non chargé.';
+
         return false;
     }
 
     global $db;
 
     $user_id = (int) $user_id;
-    $json = json_encode($data, JSON_UNESCAPED_UNICODE);
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
 
     if ($json === false) {
+        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = 'json_encode : ' . json_last_error_msg();
+
+        return false;
+    }
+
+    $max_mediumtext = 16 * 1024 * 1024;
+
+    if (strlen($json) > $max_mediumtext) {
+        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = 'Données trop volumineuses pour store_json (MEDIUMTEXT).';
+
         return false;
     }
 
     $now = time();
-    $escaped = $db->sql_escape($json);
 
-    $sql = 'INSERT INTO ' . hophop_store_table() . ' (user_id, store_json, updated)
-        VALUES (' . $user_id . ", '" . $escaped . "', " . $now . ')
-        ON DUPLICATE KEY UPDATE
-            store_json = VALUES(store_json),
-            updated = VALUES(updated)';
+    try {
+        $insert = [
+            'user_id' => $user_id,
+            'store_json' => $json,
+            'updated' => $now,
+        ];
+        $update = [
+            'store_json' => $json,
+            'updated' => $now,
+        ];
+        $sql = 'INSERT INTO ' . hophop_store_table() . ' ' . $db->sql_build_array('INSERT', $insert)
+            . ' ON DUPLICATE KEY UPDATE ' . $db->sql_build_array('UPDATE', $update);
+        $db->sql_query($sql);
+    } catch (\Throwable $e) {
+        $GLOBALS['HOPHOP_LAST_STORE_ERROR'] = $e->getMessage();
+        error_log('HopHop store save: ' . $e->getMessage());
 
-    $db->sql_query($sql);
+        return false;
+    }
 
     return true;
 }
