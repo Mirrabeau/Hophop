@@ -671,7 +671,7 @@ function viewEditor() {
       <button class="btn ghost sm" data-act="exp" data-k="xml">Exporter BeerXML</button><button class="btn ghost sm" data-act="exp" data-k="json">Exporter BeerJSON</button>
       <button class="btn ghost sm" data-act="dupRecipe">Dupliquer</button><button class="btn danger sm" data-act="delRecipe">Supprimer</button></div></section>
   </div><aside class="stats" id="stats"></aside></div>
-  <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+  <p class="sub" style="text-align:center">HopHop © claude.ai & Penn-Maen — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 const libProfiles = sel => D.profiles.length ? opts([...D.profiles].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(p => [p.id, p.name]), sel) : '<option value="">(aucun profil — valeurs par défaut)</option>';
 
@@ -814,7 +814,7 @@ function viewBrews() {
       <dt>Alcool réel</dt><dd>${k.abv === null ? '–' : f(k.abv, 1) + ' %'}</dd><dt>Atténuation</dt><dd>${k.att === null ? '–' : f(k.att, 0) + ' %'}</dd><dt>Rendement réel</dt><dd>${k.eff === null ? '–' : f(k.eff, 0) + ' %'}</dd></dl>
     ${b.notes ? `<p class="sub" style="white-space:pre-wrap">${esc(b.notes)}</p>` : ''}
     <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editBrew" data-id="${b.id}">Modifier</button><button class="btn danger sm" data-act="delBrew" data-id="${b.id}">Supprimer</button></div></div>`; }).join('')}</div>`
-    : '<div class="empty">Aucun brassage enregistré.<br>Depuis une recette, utilisez « Enregistrer un brassage ».</div>'}<p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    : '<div class="empty">Aucun brassage enregistré.<br>Depuis une recette, utilisez « Enregistrer un brassage ».</div>'}<p class="sub" style="text-align:center">HopHop © claude.ai & Penn-Maen — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 
 /* --- Bibliothèque d'ingrédients --- */
@@ -866,7 +866,7 @@ function viewIngs() {
   ${showArch ? '<p class="sub" style="margin-top:-.4rem">Retirés de la bibliothèque active, mais toujours utilisables dans les recettes qui les référencent déjà. Restaurez-les pour les proposer à nouveau.</p>' : ''}
   ${l.length ? `<div class="scroll"><table class="tbl"><thead><tr><th data-act="ingSort" data-k="name" style="cursor:pointer">Nom${ingSortArrow('name')}</th>${C.slice(1).map(c => `<th>${c[0]}</th>`).join('')}${stockable ? `<th data-act="ingSort" data-k="stock" style="cursor:pointer">Stock${ingSortArrow('stock')}</th>` : ''}<th></th></tr></thead>${sortIng(l, stockable).map(x => `<tr>${C.map(c => `<td>${c[1](x)}</td>`).join('')}${stockable ? `<td><input inputmode="decimal" data-stock="${x.id}" value="${D.stock[x.id] === undefined ? '' : esc(D.stock[x.id])}" placeholder="—" aria-label="Stock ${esc(x.name)}" style="max-width:6.5rem"></td>` : ''}<td style="white-space:nowrap;text-align:right">${showArch
     ? `<button class="btn ghost sm" data-act="restoreIng" data-id="${x.id}">Restaurer</button>`
-    : `<button class="btn ghost sm" data-act="editIng" data-id="${x.id}">Modifier</button> <button class="btn ghost sm" data-act="dupIng" data-id="${x.id}">Copier</button> <button class="ico" data-act="delIng" data-id="${x.id}" aria-label="Retirer">✕</button>`}</td></tr>`).join('')}</table></div>` : ''}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    : `<button class="btn ghost sm" data-act="editIng" data-id="${x.id}">Modifier</button> <button class="btn ghost sm" data-act="dupIng" data-id="${x.id}">Copier</button> <button class="ico" data-act="delIng" data-id="${x.id}" aria-label="Retirer">✕</button>`}</td></tr>`).join('')}</table></div>` : ''}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Penn-Maen — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 
 /* --- Profils matériel --- */
@@ -878,7 +878,7 @@ function viewProfiles() {
   <div class="cards">${D.profiles.map(p => `<div class="card" style="margin:0"><h2>${esc(p.name)}</h2>
     <dl class="kv"><dt>Volume final</dt><dd>${f(p.batch, 1)} L</dd><dt>Ébullition</dt><dd>${f(p.boil, 0)} min</dd><dt>Évaporation</dt><dd>${f(p.evap, 1)} L/h</dd><dt>Pertes trub</dt><dd>${f(p.trub, 1)} L</dd><dt>Pertes empâtage</dt><dd>${f(p.mashLoss, 1)} L</dd>
     <dt>Absorption drêches</dt><dd>${f(p.absorb, 2)} L/kg</dd><dt>Rapport eau/grain</dt><dd>${f(p.ratio, 1)} L/kg</dd><dt>Eau d’infusion</dt><dd>${f(p.infusionTemp, 0)} °C</dd><dt>Contraction</dt><dd>${f(p.shrink, 1)} %</dd><dt>Rendement</dt><dd>${f(p.eff, 0)} %</dd></dl>
-    <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editProfile" data-id="${p.id}">Modifier</button><button class="btn ghost sm" data-act="dupProfile" data-id="${p.id}">Dupliquer</button><button class="btn danger sm" data-act="delProfile" data-id="${p.id}">Supprimer</button></div></div>`).join('') || '<div class="empty">Aucun profil.</div>'}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editProfile" data-id="${p.id}">Modifier</button><button class="btn ghost sm" data-act="dupProfile" data-id="${p.id}">Dupliquer</button><button class="btn danger sm" data-act="delProfile" data-id="${p.id}">Supprimer</button></div></div>`).join('') || '<div class="empty">Aucun profil.</div>'}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Penn-Maen — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 
 /* --- Compte --- */
@@ -913,7 +913,7 @@ function viewAccount() {
   <div class="card"><h2>Sauvegarde</h2><p class="sub" style="margin-top:0">Vos données vivent sur ce serveur. Exportez tout de même une sauvegarde JSON de temps en temps, et importez-la pour restaurer un état antérieur.</p>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button class="btn ghost sm" data-act="backup">Exporter la sauvegarde</button><button class="btn ghost sm" data-act="restore">Importer une sauvegarde</button><input type="file" id="restoreFile" accept=".json,application/json" style="display:none"></div></div>
   <div class="card"><h2>Zone sensible</h2><button class="btn danger sm" data-act="delAccount">Supprimer ce compte et ses données</button></div>
-  <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+  <p class="sub" style="text-align:center">HopHop © claude.ai & Penn-Maen — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 
 /* --- Rendu général --- */
