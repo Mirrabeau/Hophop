@@ -1,0 +1,901 @@
+{
+  "beerjson": {
+    "version": 1.0,
+    "hop_varieties": [
+      {
+        "name": "Admiral",
+        "alpha_acid": "14.75",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Agnus",
+        "alpha_acid": "10.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Ahtanum",
+        "alpha_acid": "6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Amarillo",
+        "alpha_acid": "8.8",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Amarillo Gold",
+        "alpha_acid": "8.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Apollo",
+        "alpha_acid": "17",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Aquila",
+        "alpha_acid": "6.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Atlas _Styrian Atlas_",
+        "alpha_acid": "9.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Aurora",
+        "alpha_acid": "8.25",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Azacca",
+        "alpha_acid": "12.3",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Banner",
+        "alpha_acid": "10",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Belma",
+        "alpha_acid": "9.8",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Boadicea",
+        "alpha_acid": "8.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Bobek _Styrian Golding B_",
+        "alpha_acid": "5.25",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Bramling Cross",
+        "alpha_acid": "6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Bravo",
+        "alpha_acid": "15.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Brewer's Gold",
+        "alpha_acid": "8.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Bullion",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Calypso",
+        "alpha_acid": "13",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Cascade",
+        "alpha_acid": "8",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Celeia",
+        "alpha_acid": "4.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Centennial",
+        "alpha_acid": "10",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Challenger",
+        "alpha_acid": "7.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Chelan",
+        "alpha_acid": "13.25",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Chinook",
+        "alpha_acid": "12.6",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Citra",
+        "alpha_acid": "9.9",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Cluster",
+        "alpha_acid": "7",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Columbia",
+        "alpha_acid": "5.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Columbus _Tomahawk_",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Columbus/Tomahawk/Zeus _CTZ_",
+        "alpha_acid": "15.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Comet",
+        "alpha_acid": "9.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Crystal",
+        "alpha_acid": "3.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Delta",
+        "alpha_acid": "6",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "East Kent Goldings _EKG_",
+        "alpha_acid": "5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Ekuanot",
+        "alpha_acid": "14",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "El Dorado",
+        "alpha_acid": "13.4",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Ella _aka Stella_",
+        "alpha_acid": "15",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Eroica",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Falconer's Flight",
+        "alpha_acid": "11",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Falconer's Flight 7C's Blend",
+        "alpha_acid": "9.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "First Gold",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Fuggle Organic",
+        "alpha_acid": "4",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Fuggles",
+        "alpha_acid": "4.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Galaxy",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Galena",
+        "alpha_acid": "12.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "German Tradition",
+        "alpha_acid": "6",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Glacier",
+        "alpha_acid": "5.6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Goldings",
+        "alpha_acid": "8.3",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Goldings East Kent",
+        "alpha_acid": "5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Goldings East Kent",
+        "alpha_acid": "5.49",
+        "type": "aroma",
+        "form": "cônes"
+      },
+      {
+        "name": "Green Bullet",
+        "alpha_acid": "13.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Greenburg",
+        "alpha_acid": "5.2",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertau",
+        "alpha_acid": "4.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertau Magnum",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertau Taurus",
+        "alpha_acid": "14.8",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertauer",
+        "alpha_acid": "4.8",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertauer Hersbrucker",
+        "alpha_acid": "4.13",
+        "type": "aroma",
+        "form": "cônes"
+      },
+      {
+        "name": "Hallertauer Mittelfrueh",
+        "alpha_acid": "4",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Hallertauer New Zealand",
+        "alpha_acid": "8.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Harmonie",
+        "alpha_acid": "6.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Helga _Southern Hallertau_",
+        "alpha_acid": "5.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Herald",
+        "alpha_acid": "12",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Herkules",
+        "alpha_acid": "14.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Hersbrucker",
+        "alpha_acid": "2.75",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Horizon",
+        "alpha_acid": "12",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Huell Melon",
+        "alpha_acid": "6.6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Liberty",
+        "alpha_acid": "4.3",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Lublin _Lubelski_",
+        "alpha_acid": "4",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Magnum",
+        "alpha_acid": "14.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Mandarina Bavaria",
+        "alpha_acid": "9.8",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Marynka",
+        "alpha_acid": "10.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Merkur _Hallertauer Merkur_",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Millenium",
+        "alpha_acid": "14.25",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Mosaic _HBC 369_",
+        "alpha_acid": "12.25",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Motueka",
+        "alpha_acid": "7",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Moutere",
+        "alpha_acid": "15.6",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Mt. Hood",
+        "alpha_acid": "6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Mt. Rainier",
+        "alpha_acid": "7",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Nelson Sauvin",
+        "alpha_acid": "12",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Newport",
+        "alpha_acid": "13.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Northdown",
+        "alpha_acid": "8.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Northern Brewer",
+        "alpha_acid": "10.6",
+        "type": "aroma/bittering",
+        "form": "cônes"
+      },
+      {
+        "name": "Nugget",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Olympic",
+        "alpha_acid": "11.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Opal",
+        "alpha_acid": "6.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Orion",
+        "alpha_acid": "7.25",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pacific Gem",
+        "alpha_acid": "15",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pacific Hallertau _aka Pacifica_",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Pacific Jade",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pacifica",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Palisade",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Perle",
+        "alpha_acid": "10",
+        "type": "bittering",
+        "form": "cônes"
+      },
+      {
+        "name": "Phoenix",
+        "alpha_acid": "8",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pilgrim",
+        "alpha_acid": "11.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pilot",
+        "alpha_acid": "11.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pioneer",
+        "alpha_acid": "9",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Polaris",
+        "alpha_acid": "21",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Premiant",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Pride of Ringwood",
+        "alpha_acid": "9",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Progress",
+        "alpha_acid": "6.25",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Rakau _Alpharoma_",
+        "alpha_acid": "10.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Riwaka",
+        "alpha_acid": "5.25",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Rubin",
+        "alpha_acid": "12.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Saaz",
+        "alpha_acid": "3.9",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Santiam",
+        "alpha_acid": "6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Saphir",
+        "alpha_acid": "3.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Satus",
+        "alpha_acid": "13.25",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Select Spalt",
+        "alpha_acid": "4.75",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Simcoe",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Sladek",
+        "alpha_acid": "5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Smaragd _Emerald_",
+        "alpha_acid": "5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Solero",
+        "alpha_acid": "8.3",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Sorachi Ace",
+        "alpha_acid": "12",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Southern Cross",
+        "alpha_acid": "13",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Sovereign",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Spalt Spalter",
+        "alpha_acid": "3",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Spalter",
+        "alpha_acid": "4.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Spalter Select",
+        "alpha_acid": "4.75",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Sterling",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Sticklebract",
+        "alpha_acid": "13.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Strisslespalt",
+        "alpha_acid": "4",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Styrian Aurora _Super Styrian_",
+        "alpha_acid": "7.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Styrian Bobek",
+        "alpha_acid": "5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Styrian Celeja",
+        "alpha_acid": "4.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Styrian Golding _Savinja Golding_",
+        "alpha_acid": "5.25",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Styrian Goldings",
+        "alpha_acid": "3.9",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Summer _Summer Saaz_",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Summit",
+        "alpha_acid": "17",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Sun",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Super Alpha",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Super Galena",
+        "alpha_acid": "14.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Super Pride",
+        "alpha_acid": "14.25",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Sylva",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Target",
+        "alpha_acid": "11",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Tettnang _Tettnang Tettnager",
+        "alpha_acid": "4.8",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Tillicum",
+        "alpha_acid": "13.25",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Tomahawk",
+        "alpha_acid": "15.5",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Topaz",
+        "alpha_acid": "17",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Tradition",
+        "alpha_acid": "6",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Ultra",
+        "alpha_acid": "3",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Vanguard",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Vic Secret",
+        "alpha_acid": "15.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Victoria",
+        "alpha_acid": "13",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Wakatu _Hallertau Aroma_",
+        "alpha_acid": "7.5",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Warrior",
+        "alpha_acid": "15",
+        "type": "aroma/bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Whitbread Golding Variety _WGV_",
+        "alpha_acid": "6",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Willamette",
+        "alpha_acid": "5.5",
+        "type": "aroma",
+        "form": "pellets"
+      },
+      {
+        "name": "Zeus",
+        "alpha_acid": "14",
+        "type": "bittering",
+        "form": "pellets"
+      },
+      {
+        "name": "Zythos",
+        "alpha_acid": "10.9",
+        "type": "bittering",
+        "form": "pellets"
+      }
+    ]
+  }
+}

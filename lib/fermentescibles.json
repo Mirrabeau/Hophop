@@ -1,0 +1,2366 @@
+{
+  "beerjson": {
+    "version": 1.0,
+    "fermentables": [
+      {
+        "name": "Acid Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 58.7
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Amber Extrait liquide",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 24.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Amber Extrait sec",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 24.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Amber Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 43.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Aromatic",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 51.2
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Avoine flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 30.0
+        }
+      },
+      {
+        "name": "Avoine Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Biscuit",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 79.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 50.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Blé Caramel Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 90.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Blé Chocolat Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 71.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 788.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Blé Extrait liquide",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 15.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Blé Extrait sec",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 15.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Blé flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 77.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.2
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 40.0
+        }
+      },
+      {
+        "name": "Blé grillé",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 54.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 837.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Blé Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 81.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 60.0
+        }
+      },
+      {
+        "name": "Blé Malt Brewferm",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 81.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 4.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 60.0
+        }
+      },
+      {
+        "name": "Blé Malt Dark",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 84.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 17.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Blé torréfié",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 79.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 40.0
+        }
+      },
+      {
+        "name": "Brown Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 128.1
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Café",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 500.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Café light",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 240.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Candi sirop D-180",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 354.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Candi sirop D-45",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 88.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Candi sirop D-90",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 177.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Candi sirop Golden",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 9.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Candi sirop Simplicity",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Cara 20 ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 45.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "Cara 45 ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 92.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "CARA 50",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 50.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Cara 8 ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 65.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 14.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "Cara-Pils/Dextrine",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caraamber",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 59.1
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caraaroma",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 256.1
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Carafa I",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 663.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafa II",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 811.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafa III",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 1034.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafa Special I ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 77.9
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 630.4
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafa Special II ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 77.9
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 817.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafa Special III ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.74
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 925.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Carafoam",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Carahell ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.74
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 25.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 30.0
+        }
+      },
+      {
+        "name": "Caramalt ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.39
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 29.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Caramel Ambré",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 110.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel Munich",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 150.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel Rye ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 69.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt -120L / 230EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 230.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 10L / 20EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 20.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 20L / 40EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 39.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 30L / 57EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 57.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 40L / 75EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 76.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 60L / 110EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 114.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 80L / 150EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 152.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt – 90L / 170EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 170.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 0.0
+        }
+      },
+      {
+        "name": "Caramel/Crystal Malt 150 L / 290EBC",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 290.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caramunich I ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 77.9
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 100.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Caramunich II ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.74
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 124.1
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Caramunich III ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.07
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 139.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Caramunich Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 71.7
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 110.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Carared",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 50.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Caravienne Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 73.9
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 43.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Chocolat _ 700 EBC_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 60.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 689.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Chocolat _1000 EBC_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 1000.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Chocolat _850 EBC _",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 73.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 886.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Chocolat Brewferm (800/1000 EBC)",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 900.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Cosse d’orge",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 0.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Cosse de riz",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 0.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Dark Extrait liquide",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 34.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Dark Extrait sec",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 34.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Dememera Sucre",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Extra Light Extrait sec",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Fumé à la tourbe Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Fumé Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 17.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Lactose",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 76.1
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Light Extrait sec",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 15.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Maïs flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 40.0
+        }
+      },
+      {
+        "name": "Maïs sirop",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Maïs Sucre _Dextrose_",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Maple sirop",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 65.2
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 69.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Melanoïd Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 39.4
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Melasse",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 157.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Miel",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Mild Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 7.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Munich I ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 82.23
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 14.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Munich II ",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 82.23
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 16.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Munich Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 16.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "Munich Malt - 10L",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 77.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 19.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "Munich Malt - 20L",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 39.4
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 80.0
+        }
+      },
+      {
+        "name": "Orge cru",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 60.9
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Orge flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Orge grillé _ 600 EBC_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 55.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 591.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Orge grillé _1000 EBC_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 998.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Orge grillé _1200 EBC_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 74.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 1199.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Orge torréfié",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 79.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 40.0
+        }
+      },
+      {
+        "name": "Pale Ale",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 80.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 6.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pale Ale Bio Yeched Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 9.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pale Extrait liquide",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 15.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pale Malt Maris Otter",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 82.5
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pilsner _2 R_ Bel",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 79.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pilsner _2 R_ Ger",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 81.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pilsner _2 R_ UK",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pilsner Extrait liquide",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 6.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Pilsner Yec’hed Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 4.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Riz Extrait sirop",
+        "type": "extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 69.6
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 13.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Riz flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 70.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 25.0
+        }
+      },
+      {
+        "name": "Sarrasin _malt_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 55.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 100.0
+        }
+      },
+      {
+        "name": "Sarrasin non malté",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 55.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 5.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 30.0
+        }
+      },
+      {
+        "name": "Sarrasin non malté grillé",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 40.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 50.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Sarrasin non malté torréfié",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 40.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 500.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Seigle Chocolat Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 67.5
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 492.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 5.0
+        }
+      },
+      {
+        "name": "Seigle flocons",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 3.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Seigle Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 63.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 9.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Sinamar _Wyermann_",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 42.5
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 301.4
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 0.0
+        }
+      },
+      {
+        "name": "Soft Candi Sucre Blanc _White_",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 91.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Soft Candi Sucre Brun Foncé _Dark_",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 91.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 43.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Soft Candi Sucre Brun Léger _Light_",
+        "type": "dry extract",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 91.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 12.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Special B",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 65.2
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 354.6
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Special Roast",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 72.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 98.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Special W",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 65.2
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 300.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Sucre candi ambré",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 147.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Sucre candi clair",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 1.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Sucre candi foncé",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.3
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 541.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 20.0
+        }
+      },
+      {
+        "name": "Sucre de canne",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 7.0
+        }
+      },
+      {
+        "name": "Sucre de table _Sucrose_",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 2.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Sucre inverti",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 0.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Sucre roux clair",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 15.8
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Sucre roux foncé",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 100.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 98.5
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Toasted Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 71.7
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 53.2
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Tourambré",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 75.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 50.0
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Turbinado",
+        "type": "other",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 95.7
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 19.7
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 10.0
+        }
+      },
+      {
+        "name": "Victory Malt",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 73.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 49.3
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 15.0
+        }
+      },
+      {
+        "name": "Vienna",
+        "type": "grain",
+        "yield": {
+          "fine_grind": {
+            "unit": "%",
+            "value": 78.0
+          }
+        },
+        "color": {
+          "unit": "EBC",
+          "value": 6.9
+        },
+        "max_in_batch": {
+          "unit": "%",
+          "value": 90.0
+        }
+      }
+
+    ]
+  }
+}
