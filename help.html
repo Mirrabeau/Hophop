@@ -236,14 +236,14 @@ th { background: var(--okbg); color: var(--head); }
     <li><strong>Matériel</strong> — profils d’équipement</li>
     <li><strong>Compte</strong> — avatar, thème, unités, sauvegarde</li>
   </ul>
-  <p>L’enregistrement est automatique après quelques secondes (« Enregistré » en haut à droite). Un toast signale les erreurs éventuelles.</p>
+  <p>L’enregistrement est automatique après quelques secondes (« Enregistré » en haut à droite). Une notification signale les erreurs éventuelles.</p>
 
   <h2 id="recettes">2. Recettes et éditeur</h2>
   <div class="card">
     <ul>
       <li><strong>+ Nouvelle recette</strong> — crée une fiche vide avec le premier profil matériel.</li>
       <li><strong>Importer BeerXML / BeerJSON</strong> — ajoute une ou plusieurs recettes (et crée au besoin les ingrédients et le profil d’équipement).</li>
-      <li>Cliquez une carte pour ouvrir l’<strong>éditeur</strong> : nom, style, volume, rendement, eau/grain, fermentescibles, houblons, levure, divers, empâtage, fermentation, notes.</li>
+      <li>Cliquez une <strong>fiche recette</strong> pour ouvrir l’éditeur : nom, style, volume, rendement, eau/grain, fermentescibles, houblons, levure, divers, empâtage, fermentation, notes.</li>
       <li><strong>Redimensionner</strong> — multiplie les quantités pour un nouveau volume final (sur place ou en copie).</li>
       <li><strong>Dupliquer / Supprimer</strong> — en bas de l’éditeur.</li>
       <li><strong>Fiche recette</strong> — vue imprimable ; <strong>Enregistrer un brassage</strong> — bascule vers l’historique.</li>
@@ -256,7 +256,7 @@ th { background: var(--okbg); color: var(--head); }
     <li>densités (DI / DF), ABV, IBU (Tinseth), couleur (EBC / Morey)</li>
     <li>volumes d’eau (empâtage, rinçage, pré-ébullition…)</li>
     <li>sucre de conditionnement selon le CO₂ visé</li>
-    <li>coût estimé si des prix sont renseignés en bibliothèque</li>
+    <li>prix de revient estimé si des prix sont renseignés en bibliothèque</li>
   </ul>
   <p class="muted">Unités européennes : L, kg, g, °C, EBC, densité en SG (et Brix en affichage secondaire selon vos préférences).</p>
 
@@ -279,7 +279,7 @@ th { background: var(--okbg); color: var(--head); }
 
   <h2 id="fiche">7. Fiche recette et exports</h2>
   <ul>
-    <li><strong>Fiche recette</strong> — mise en page pour impression (avec ou sans étapes, coût optionnel).</li>
+    <li><strong>Fiche recette</strong> — mise en page pour impression (avec ou sans étapes, prix de revient optionnel).</li>
     <li><strong>Exporter BeerXML 1.0</strong> / <strong>BeerJSON 1.0</strong> — copie ou téléchargement du fichier.</li>
   </ul>
 
@@ -301,7 +301,7 @@ th { background: var(--okbg); color: var(--head); }
       <li>Vous êtes connecté avec votre <strong>compte forum</strong> (pas de compte HopHop séparé).</li>
       <li>Vos recettes sont stockées en <strong>MySQL</strong>, une fiche JSON par membre.</li>
       <li>Vous pouvez <strong>envoyer</strong> une recette vers BrewRecipes et <strong>ouvrir</strong> une fiche BrewRecipes dans HopHop.</li>
-      <li>Les <strong>styles</strong> du catalogue BrewRecipes (BJCP, etc.) sont disponibles à la demande dans l’éditeur.</li>
+      <li>Les <strong>styles</strong> du catalogue BrewRecipes sont disponibles à la demande pour être ajoutés à une recette dans HopHop.</li>
     </ul>
   </div>
 
