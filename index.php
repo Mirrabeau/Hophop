@@ -57,26 +57,29 @@ $LOGO_SVG = is_file($logoPath) ? file_get_contents($logoPath) : '';
   --danger:#9c3324; --dangerbg:#fbeee9; --okbg:#e6def2;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--sans);-webkit-text-size-adjust:100%}
-h1,h2,h3{font-family:var(--serif);color:var(--head);margin:0;font-weight:600;letter-spacing:.005em}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+h1,h2,h3{font-family:var(--serif);color:var(--head);margin:0;font-weight:600;letter-spacing:.005em;overflow-wrap:anywhere}
 h1{font-size:1.6rem} h2{font-size:1.2rem;margin-bottom:.6rem} h3{font-size:1rem;margin:.9rem 0 .3rem}
 button{font:inherit;cursor:pointer}
-.wrap{max-width:1120px;margin:0 auto;padding:1rem}
+.wrap{max-width:1120px;margin:0 auto;padding:1rem;min-width:0}
 
-.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
-.top .in{max-width:1120px;margin:0 auto;padding:.6rem 1rem 0;display:flex;align-items:center;gap:.8rem}
-.brand{font-family:var(--serif);font-size:1.35rem;color:var(--head);display:flex;align-items:center;gap:.5rem;font-weight:700}
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);max-width:100%}
+.top .in{max-width:1120px;margin:0 auto;padding:.6rem 1rem 0;display:flex;flex-wrap:wrap;align-items:center;gap:.45rem .7rem}
+.top-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:.4rem .55rem;margin-left:auto;min-width:0;max-width:100%}
+.top-tools .btn{white-space:normal;text-align:center;max-width:100%}
+.brand{font-family:var(--serif);font-size:1.35rem;color:var(--head);display:flex;align-items:center;gap:.5rem;font-weight:700;flex:none}
 .brand-logo{width:1.7rem;height:1.7rem;display:inline-flex;flex:none;color:var(--head)}
 .brand-logo svg{width:100%;height:100%;display:block}
 .grow{flex:1}
-.who{font-size:.9rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.who{font-size:.9rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;min-width:0;max-width:100%}
+.uname{display:inline-block;overflow-wrap:anywhere}
 .avatar{width:1.8rem;height:1.8rem;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none;overflow:hidden;line-height:1}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.lg{width:4.5rem;height:4.5rem;font-size:2.2rem}
 .avatar-picks{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
 .avatar-picks button{width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:1.2rem;display:flex;align-items:center;justify-content:center;padding:0}
 .avatar-picks button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--soft)}
-.savestate{font-size:.78rem;color:var(--muted);min-width:5.5em;text-align:right}
+.savestate{font-size:.78rem;color:var(--muted);min-width:0;text-align:right}
 nav.tabs{max-width:1120px;margin:0 auto;display:flex;gap:.25rem;overflow-x:auto;padding:.3rem .6rem 0;scrollbar-width:none}
 nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:.55rem .8rem;white-space:nowrap;font-weight:500}
 nav.tabs button[aria-current="page"]{color:var(--head);border-bottom-color:var(--accent);font-weight:700}
@@ -97,11 +100,11 @@ textarea{min-height:5rem;resize:vertical}
 .fld>span{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 output{padding:.55rem 0;font-weight:600;color:var(--head)}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}
-.fld.span2{grid-column:span 2}
-.bar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:1rem}
-.search{max-width:260px}
+.fld.span2{grid-column:1 / -1}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:1rem;min-width:0}
+.search{max-width:min(260px,100%)}
 
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem;min-width:0;max-width:100%}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
 .rcard{cursor:pointer;display:flex;flex-direction:column;gap:.5rem;text-align:left;width:100%;color:inherit;margin:0}
 .rcard:hover{border-color:var(--accent)}
@@ -112,12 +115,24 @@ output{padding:.55rem 0;font-weight:600;color:var(--head)}
 .empty{text-align:center;color:var(--muted);padding:2.5rem 1rem;border:2px dashed var(--line);border-radius:14px}
 .sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);display:inline-block;vertical-align:middle}
 
-.editor{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;align-items:start}
-.stats{position:sticky;top:112px}
-@media (max-width:860px){.editor{grid-template-columns:1fr}.stats{position:static;order:-1}}
+.editor{display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"identity stats" "rest stats";gap:1rem;align-items:start}
+.recipe-identity{grid-area:identity;margin-bottom:0;min-width:0}
+.editor-rest{grid-area:rest;min-width:0}
+.stats{grid-area:stats;position:sticky;top:112px;min-width:0}
+.style-line{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.style-line select{flex:1 1 12rem;min-width:0;width:auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;min-width:0}
+.sheet-head > div{min-width:0}
+.account-id{display:flex;gap:.8rem;align-items:center;min-width:0}
+.account-id > div{min-width:0}
+@media (max-width:860px){
+  .editor{grid-template-columns:minmax(0,1fr);grid-template-areas:"identity" "stats" "rest"}
+  .stats{position:static}
+}
 .namefield{font-family:var(--serif);font-size:1.4rem;font-weight:600}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:.6rem;align-items:end;padding:.7rem 0;border-top:1px solid var(--line)}
-.row .rowhead{grid-column:1/-1;display:flex;gap:.5rem}
+.row .rowhead{grid-column:1/-1;display:flex;gap:.5rem;min-width:0}
+.row .rowhead select,.row .rowhead input{flex:1;min-width:0;width:auto}
 .row .hint{grid-column:1/-1;min-height:0}
 .row .hint:empty{display:none}
 .secthead{display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem}
@@ -138,7 +153,7 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:600;text-align:right}
 .tbl th{text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;padding:.4rem .5rem;border-bottom:2px solid var(--line)}
 .tbl td{padding:.5rem;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl input{padding:.35rem .5rem;max-width:110px}
-.scroll{overflow-x:auto}
+.scroll{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 .seg{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
 .seg button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:99px;padding:.35rem .9rem}
 .seg button[aria-pressed="true"]{background:var(--btn);color:var(--btnfg);border-color:var(--btn)}
@@ -148,7 +163,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:600;text-align:right}
 
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);padding:1.2rem;width:min(560px,94vw);max-height:90vh;overflow:auto}
 dialog::backdrop{background:rgba(20,30,20,.5)}
-.dlg-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem}
+.dlg-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.6rem;margin-top:1rem}
+.br-style-row{display:flex;gap:.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:1.2rem;background:var(--head);color:var(--bg);padding:.6rem 1rem;border-radius:10px;z-index:99;display:none;max-width:90vw;font-size:.92rem}
 .authscreen{position:relative;min-height:100vh;overflow:hidden}
 .auth-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--soft);opacity:.22;pointer-events:none;z-index:0}
@@ -194,6 +210,7 @@ dialog::backdrop{background:rgba(20,30,20,.5)}
 :root[data-density="compact"] h2{font-size:1.05rem;margin-bottom:.4rem}
 :root[data-density="compact"] h3{font-size:.92rem;margin:.6rem 0 .25rem}
 :root[data-density="compact"] .card{padding:.65rem;margin-bottom:.6rem;border-radius:10px}
+:root[data-density="compact"] .recipe-identity{margin-bottom:0}
 :root[data-density="compact"] .bar{gap:.4rem;margin-bottom:.6rem}
 :root[data-density="compact"] .fgrid{gap:.5rem}
 :root[data-density="compact"] .btn{padding:.4rem .75rem}
@@ -211,6 +228,19 @@ dialog::backdrop{background:rgba(20,30,20,.5)}
 :root[data-density="compact"] dialog{padding:.8rem}
 :root[data-density="compact"] .seg{gap:.3rem;margin-bottom:.6rem}
 :root[data-density="compact"] .sub{font-size:.85rem}
+
+@media (max-width:720px){
+  .wrap{padding:.75rem}
+  .top .in{padding:.5rem .7rem 0}
+  .top-tools{flex-basis:100%;justify-content:flex-start}
+  .search{max-width:none;flex:1 1 12rem}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .seg{max-width:100%}
+  .seg button{white-space:normal;text-align:center}
+  nav.tabs{flex-wrap:wrap;overflow-x:visible;padding:.3rem .4rem 0}
+  nav.tabs button{padding:.4rem .55rem;font-size:.92rem}
+}
 </style>
 </head>
 <body>
@@ -661,8 +691,8 @@ function shellHTML() {
   const forumBack = AUTH.mode === 'phpbb'
     ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
     : '<button class="btn ghost sm" data-act="logout">Déconnexion</button>';
-  return `<header class="top"><div class="in"><div class="brand"><span class="brand-logo">${LOGO_SVG}</span>HopHop</div><div class="grow"></div>
-    <span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}${esc(USER)}</span>${forumBack}</div>
+  return `<header class="top"><div class="in"><div class="brand"><span class="brand-logo">${LOGO_SVG}</span>HopHop</div>
+    <div class="top-tools"><span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}<span class="uname">${esc(USER)}</span></span>${forumBack}</div></div>
     <nav class="tabs" aria-label="Navigation principale">${T.map(([v, l]) => `<button data-act="go" data-v="${v}" ${cur === v ? 'aria-current="page"' : ''}>${l}</button>`).join('')}</nav></header>
     <main class="wrap" id="main"></main>`;
 }
@@ -736,10 +766,10 @@ function viewEditor() {
   const r = R(); if (!r) { ui.view = 'recipes'; return viewRecipes(); }
   return `<div class="bar"><button class="btn ghost sm" data-act="go" data-v="recipes">← Recettes</button><div class="grow"></div>
     <button class="btn ghost sm" data-act="sheet">Fiche recette</button><button class="btn sm" data-act="brewFrom">Enregistrer un brassage</button></div>
-  <div class="editor"><div>
-    <section class="card"><input class="namefield" data-b="name" value="${esc(r.name)}" aria-label="Nom de la recette" style="margin-bottom:.8rem">
+  <div class="editor">
+    <section class="card recipe-identity"><input class="namefield" data-b="name" value="${esc(r.name)}" aria-label="Nom de la recette" style="margin-bottom:.8rem">
       <div class="fgrid">
-        ${fld('Style', `<div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap"><select data-b="styleId" style="flex:1;min-width:12rem">${styleSelectOpts(r.styleId)}</select>${brewrecipesStyleGuidesUrl() ? '<button type="button" class="btn ghost sm" data-act="pickBrewRecipesStyle">Depuis BrewRecipes…</button>' : ''}</div>`, 'span2')}
+        ${fld('Style', `<div class="style-line"><select data-b="styleId">${styleSelectOpts(r.styleId)}</select>${brewrecipesStyleGuidesUrl() ? '<button type="button" class="btn ghost sm" data-act="pickBrewRecipesStyle">Depuis BrewRecipes…</button>' : ''}</div>`, 'span2')}
         ${fld('Profil matériel', `<select data-b="profileId">${libProfiles(r.profileId)}</select>`)}
         ${fld('Volume final (L)', bi('batch', r.batch, 1))}
         ${fld('Rapport eau/grain (L/kg)', bi('ratio', r.ratio, 1))}
@@ -748,6 +778,7 @@ function viewEditor() {
         ${fld('Température des grains (°C)', bi('grainTemp', r.grainTemp, 1))}
         ${fld('CO₂ visé (vol.)', bi('co2', r.co2, 1))}
       </div></section>
+    <div class="editor-rest">
     ${sectionHTML('Fermentescibles', 'ferm', r.ferm.map(rowFerm), 'Ajouter')}
     ${sectionHTML('Houblons', 'hops', r.hops.map(rowHop), 'Ajouter')}
     ${sectionHTML('Levure', 'yeast', r.yeast.map(rowYeast), 'Ajouter')}
@@ -763,7 +794,8 @@ function viewEditor() {
       ${brewrecipesShareUrl() ? '<button class="btn sm" data-act="shareBrewRecipes">Partager sur BrewRecipes</button>' : ''}
       <button class="btn ghost sm" data-act="exp" data-k="xml">Exporter BeerXML</button><button class="btn ghost sm" data-act="exp" data-k="json">Exporter BeerJSON</button>
       <button class="btn ghost sm" data-act="dupRecipe">Dupliquer</button><button class="btn danger sm" data-act="delRecipe">Supprimer</button></div></section>
-  </div><aside class="stats" id="stats"></aside></div>
+    </div>
+  <aside class="stats" id="stats"></aside></div>
   <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 }
 const libProfiles = sel => D.profiles.length ? opts([...D.profiles].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(p => [p.id, p.name]), sel) : '<option value="">(aucun profil — valeurs par défaut)</option>';
@@ -868,7 +900,7 @@ function viewSheet() {
     <div class="seg noprint" style="margin:0"><button data-act="sheetMode" data-v="1" aria-pressed="${ui.sheetSteps}">Avec étapes</button><button data-act="sheetMode" data-v="0" aria-pressed="${!ui.sheetSteps}">Sans étapes</button></div>
     <label class="sub noprint" style="display:flex;align-items:center;gap:.35rem;margin:0 .2rem"><input type="checkbox" data-act="toggleSheetCost" style="width:auto" ${ui.sheetCost ? 'checked' : ''}> Coût estimé</label>
     <button class="btn sm" data-act="print">Imprimer</button></div>
-  <div class="sheet"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:1rem"><div><h1>${esc(r.name)}</h1><div class="sub">${esc(recipeStyleName(r)) || 'Style non précisé'} · ${f(c.V, 1)} L · matériel : ${esc(P.name)}</div></div><span class="sw" style="width:44px;height:44px;background:${ebcColor(c.ebc)}"></span></div>
+  <div class="sheet"><div class="card"><div class="sheet-head"><div><h1>${esc(r.name)}</h1><div class="sub">${esc(recipeStyleName(r)) || 'Style non précisé'} · ${f(c.V, 1)} L · matériel : ${esc(P.name)}</div></div><span class="sw" style="width:44px;height:44px;flex:none;background:${ebcColor(c.ebc)}"></span></div>
     <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr));margin-top:1rem">
       <div class="kpi"><b>${gKpi(c.og).primary}</b><span>Densité init.</span><div class="kpi-sub">${gKpi(c.og).secondary}</div></div><div class="kpi"><b>${gKpi(c.fg).primary}</b><span>Densité fin.</span><div class="kpi-sub">${gKpi(c.fg).secondary}</div></div><div class="kpi"><b>${f(c.abv, 1)} %</b><span>Alcool</span></div>
       <div class="kpi"><b>${f(c.ibu, 0)}</b><span>IBU</span></div><div class="kpi"><b>${f(c.ebc, 0)}</b><span>EBC</span></div><div class="kpi"><b>${f(c.bugu, 2)}</b><span>IBU/DI</span></div></div>
@@ -977,7 +1009,7 @@ function viewProfiles() {
 /* --- Compte --- */
 function viewAccount() {
   return `<div class="bar"><h1>Compte</h1></div>
-  <div class="card"><div style="display:flex;gap:.8rem;align-items:center">${avatarHTML('lg')}<div><h2 style="margin:0">${esc(USER)}</h2><p class="sub" style="margin:.1rem 0 0">${D.recipes.length} recette(s) · ${D.brews.length} brassage(s) · ${D.profiles.length} profil(s) matériel</p></div></div>
+  <div class="card"><div class="account-id">${avatarHTML('lg')}<div><h2 style="margin:0">${esc(USER)}</h2><p class="sub" style="margin:.1rem 0 0">${D.recipes.length} recette(s) · ${D.brews.length} brassage(s) · ${D.profiles.length} profil(s) matériel</p></div></div>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:.8rem 0 0">${AUTH.mode === 'phpbb'
       ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
       : '<button class="btn ghost sm" data-act="logout">Se déconnecter</button>'}</div></div>
@@ -1191,6 +1223,7 @@ document.addEventListener('input', e => {
   if (t.dataset.b) {                                   // champ de la recette en cours d'édition
     const r = R(); if (!r) return;
     setPath(r, t.dataset.b, t.hasAttribute('data-n') ? N(t.value) : t.value);
+    if (t.dataset.b === 'styleId') { const st = styleById(r.styleId); r.style = st ? st.name : ''; }
     r.updated = Date.now(); persist(); updateStats();
     if (t.dataset.b === 'batch') { const nv = $('#newvol'); if (nv) nv.value = t.value; }
     if (t.dataset.b === 'profileId') {                   // reprend les valeurs du nouveau profil (volume, ratio, rendement, eau d'infusion…)
@@ -1733,8 +1766,8 @@ async function loadBrewRecipesStylesList(guide, listEl, stylesUrl) {
       return;
     }
     listEl.innerHTML = `<div style="max-height:16rem;overflow:auto;display:flex;flex-direction:column;gap:.35rem;margin-top:.2rem">`
-      + styles.map((s, i) => `<div style="display:flex;gap:.5rem;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem">
-          <span style="font-size:.9rem">${esc(s.label || s.name)}</span>
+      + styles.map((s, i) => `<div class="br-style-row">
+          <span style="font-size:.9rem;min-width:0">${esc(s.label || s.name)}</span>
           <button type="button" class="btn sm" data-br-style="${i}">Choisir ce style</button>
         </div>`).join('')
       + `</div>`;
@@ -1768,6 +1801,56 @@ function applyBrewRecipesStyle(style) {
   renderMain(true);
   toast('Style « ' + styleComposite(st) + ' » associé à la recette.');
 }
+/** « 21A » → numéro + lettre. `category` stocke ce code, ou un nom de catégorie s’il n’y a pas de code. */
+function splitStyleCode(category) {
+  const c = String(category || '').trim();
+  const m = c.match(/^(\d{1,3})\s*([A-Za-z])$/);
+  if (m) return {number: m[1], letter: m[2].toUpperCase(), label: ''};
+  if (/^\d{1,3}$/.test(c)) return {number: c, letter: '', label: ''};
+  return {number: '', letter: '', label: c};
+}
+const STYLE_XML_TYPE = {ale: 'Ale', lager: 'Lager', mixed: 'Mixed', cider: 'Cider', mead: 'Mead', other: 'Ale'};
+/** Bloc BeerXML <STYLE> : nom, code (CATEGORY_NUMBER + STYLE_LETTER) et guide, pour que BrewRecipes retrouve le style. */
+function beerXmlStyle(r, X) {
+  const st = recipeStyleRef(r);
+  const name = (st && st.name) || String(r.style || '').trim();
+  if (!name) return '';
+  const code = splitStyleCode(st ? st.category : '');
+  const srm = v => rnd(N(v) / 1.97, 1);
+  let inner = X('NAME', name) + X('VERSION', 1) + X('CATEGORY', code.label);
+  if (code.number) inner += X('CATEGORY_NUMBER', code.number);
+  if (code.letter) inner += X('STYLE_LETTER', code.letter);
+  if (st && st.guide) inner += X('STYLE_GUIDE', st.guide);
+  inner += X('TYPE', STYLE_XML_TYPE[st && st.type] || 'Ale');
+  if (st) {
+    inner += X('OG_MIN', st.ogMin) + X('OG_MAX', st.ogMax) + X('FG_MIN', st.fgMin) + X('FG_MAX', st.fgMax)
+      + X('IBU_MIN', st.ibuMin) + X('IBU_MAX', st.ibuMax)
+      + X('COLOR_MIN', srm(st.colorMin)) + X('COLOR_MAX', srm(st.colorMax))
+      + X('ABV_MIN', st.abvMin) + X('ABV_MAX', st.abvMax);
+    if (st.note) inner += X('NOTES', st.note);
+  }
+  return `<STYLE>${inner}</STYLE>`;
+}
+function beerJsonStyle(r) {
+  const st = recipeStyleRef(r);
+  const name = (st && st.name) || String(r.style || '').trim();
+  if (!name) return null;
+  const code = splitStyleCode(st ? st.category : '');
+  const range = (a, b, unit) => ({minimum: {value: rnd(N(a), 4), unit}, maximum: {value: rnd(N(b), 4), unit}});
+  const style = {name, type: (st && (st.type === 'mead' || st.type === 'cider')) ? st.type : 'beer', category: code.label || name};
+  if (st && st.guide) style.style_guide = st.guide;
+  if (code.number) style.category_number = Number(code.number);
+  if (code.letter) style.style_letter = code.letter;
+  if (st) {
+    style.original_gravity = range(st.ogMin, st.ogMax, 'sg');
+    style.final_gravity = range(st.fgMin, st.fgMax, 'sg');
+    style.international_bitterness_units = range(st.ibuMin, st.ibuMax, 'IBUs');
+    style.color = range(st.colorMin, st.colorMax, 'EBC');
+    style.alcohol_by_volume = range(st.abvMin, st.abvMax, '%');
+    if (st.note) style.notes = st.note;
+  }
+  return style;
+}
 function showExport(kind) {
   const r = R(), xml = kind === 'xml', txt = xml ? toBeerXML(r) : toBeerJSON(r), name = slug(r.name) + (xml ? '.xml' : '.json');
   dlgSave = null;
@@ -1787,22 +1870,24 @@ function toBeerXML(r) {
     return `<MISC>${X('NAME', m.name)}${X('VERSION', 1)}${X('TYPE', 'Other')}${X('USE', {mash: 'Mash', boil: 'Boil', ferm: 'Primary', bottle: 'Bottling'}[x.use])}${X('TIME', N(x.time))}${X('AMOUNT', m.unit === 'g' ? kg(q) : m.unit === 'mL' ? rnd(q / 1000, 5) : q)}${X('AMOUNT_IS_WEIGHT', w ? 'TRUE' : 'FALSE')}</MISC>`; }).filter(Boolean);
   const yeasts = r.yeast.map(x => { const y = lib('yeast', x.ref); return y && `<YEAST>${X('NAME', y.name)}${X('VERSION', 1)}${X('TYPE', y.type === 'lager' ? 'Lager' : 'Ale')}${X('FORM', y.form === 'liquid' ? 'Liquid' : 'Dry')}${X('AMOUNT', rnd(N(x.qty) * 0.0115, 4))}${X('AMOUNT_IS_WEIGHT', 'TRUE')}${X('ATTENUATION', y.att)}${X('MIN_TEMPERATURE', y.tmin)}${X('MAX_TEMPERATURE', y.tmax)}</YEAST>`; }).filter(Boolean);
   const steps = r.mash.map((s, i) => `<MASH_STEP>${X('NAME', s.name)}${X('VERSION', 1)}${X('TYPE', i === 0 ? 'Infusion' : {infusion: 'Infusion', direct: 'Temperature', decoction: 'Decoction'}[s.method || 'infusion'])}${X('STEP_TEMP', N(s.temp))}${X('STEP_TIME', N(s.time))}</MASH_STEP>`);
-  const notes = (recipeStyleName(r) ? 'Style : ' + recipeStyleName(r) + '\n' : '') + r.notes;
   const xmlDecl = '<' + '?xml version="1.0" encoding="UTF-8"?>';
   return `${xmlDecl}\n<RECIPES>\n<RECIPE>${X('VERSION', 1)}${X('NAME', r.name)}${X('TYPE', r.ferm.some(x => lib('ferm', x.ref)?.type === 'grain') ? 'All Grain' : 'Extract')}${X('BREWER', USER)}
+${beerXmlStyle(r, X)}
 ${X('BATCH_SIZE', rnd(c.V, 2))}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BOIL_TIME', P.boil)}${X('EFFICIENCY', rnd(c.effPct, 0))}
 ${sec('HOPS', hops)}${sec('FERMENTABLES', ferm)}${sec('MISCS', miscs)}${sec('YEASTS', yeasts)}
 <EQUIPMENT>${X('NAME', P.name)}${X('VERSION', 1)}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BATCH_SIZE', rnd(c.V, 2))}${X('TRUB_CHILLER_LOSS', P.trub)}${X('EVAP_RATE', rnd(P.evap / c.preboil * 100, 2))}${X('BOIL_TIME', P.boil)}</EQUIPMENT>
 <MASH>${X('NAME', 'Empâtage')}${X('VERSION', 1)}${X('GRAIN_TEMP', N(r.grainTemp))}<MASH_STEPS>${steps.join('')}</MASH_STEPS></MASH>
-${X('NOTES', notes)}${X('OG', rnd(c.og, 4))}${X('FG', rnd(c.fg, 4))}${X('IBU', rnd(c.ibu, 1))}${X('EST_ABV', rnd(c.abv, 2))}${X('CARBONATION', N(r.co2))}${X('FERMENTATION_STAGES', r.ferment.length)}
+${X('NOTES', r.notes || '')}${X('OG', rnd(c.og, 4))}${X('FG', rnd(c.fg, 4))}${X('IBU', rnd(c.ibu, 1))}${X('EST_ABV', rnd(c.abv, 2))}${X('CARBONATION', N(r.co2))}${X('FERMENTATION_STAGES', r.ferment.length)}
 ${r.ferment[0] ? X('PRIMARY_AGE', N(r.ferment[0].days)) + X('PRIMARY_TEMP', N(r.ferment[0].temp)) : ''}
 </RECIPE>\n</RECIPES>\n`;
 }
 function toBeerJSON(r) {
   const c = calc(r), P = c.P, q = (v, unit) => ({value: rnd(+v, 4), unit});
   const use = {mash: 'add_to_mash', boil: 'add_to_boil', ferm: 'add_to_fermentation', bottle: 'add_to_package'};
+  const style = beerJsonStyle(r);
   const rec = {
     name: r.name, type: r.ferm.some(x => lib('ferm', x.ref)?.type === 'grain') ? 'all grain' : 'extract', author: USER,
+    ...(style ? {style} : {}),
     batch_size: q(c.V, 'l'), efficiency: {brewhouse: q(c.effPct, '%')},
     boil: {name: 'Ébullition', pre_boil_size: q(c.preboil, 'l'), boil_time: q(P.boil, 'min')},
     ingredients: {
@@ -1821,7 +1906,7 @@ function toBeerJSON(r) {
     mash: {name: 'Empâtage', grain_temperature: q(N(r.grainTemp), 'C'), mash_steps: r.mash.map((s, i) => ({name: s.name, type: i === 0 ? 'infusion' : {infusion: 'infusion', direct: 'temperature', decoction: 'decoction'}[s.method || 'infusion'], step_temperature: q(N(s.temp), 'C'), step_time: q(N(s.time), 'min')}))},
     fermentation: {name: 'Fermentation', fermentation_steps: r.ferment.map(s => ({name: s.name, start_temperature: q(N(s.temp), 'C'), step_time: q(N(s.days), 'day')}))},
     original_gravity: q(c.og, 'sg'), final_gravity: q(c.fg, 'sg'), alcohol_by_volume: q(c.abv, '%'), ibu_estimate: {value: rnd(c.ibu, 1), unit: 'IBUs'}, color_estimate: q(c.ebc, 'EBC'),
-    carbonation: N(r.co2), notes: (recipeStyleName(r) ? 'Style : ' + recipeStyleName(r) + '\n' : '') + r.notes
+    carbonation: N(r.co2), notes: r.notes || ''
   };
   return JSON.stringify({beerjson: {version: 1, recipes: [rec]}}, null, 2);
 }
