@@ -1020,7 +1020,9 @@ function viewProfiles() {
 function viewAccount() {
   return `<div class="bar"><h1>Compte</h1></div>
   <div class="card"><div class="account-id">${avatarHTML('lg')}<div><h2 style="margin:0">${esc(USER)}</h2><p class="sub" style="margin:.1rem 0 0">${D.recipes.length} recette(s) · ${D.brews.length} brassage(s) · ${D.profiles.length} profil(s) matériel</p></div></div>
-    <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:.8rem 0 0">${AUTH.mode === 'phpbb'
+    <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:.8rem 0 0">
+      <a class="btn ghost sm" href="help.html" style="text-decoration:none">Aide</a>
+      ${AUTH.mode === 'phpbb'
       ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
       : '<button class="btn ghost sm" data-act="logout">Se déconnecter</button>'}</div></div>
   <div class="card"><h2>Avatar</h2>
