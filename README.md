@@ -19,6 +19,10 @@ toutes les données sont stockées dans des fichiers JSON, sous `data/`.
 4. Ouvrez `https://votre-domaine/chemin/vers/hophop/` dans un
    navigateur : la page de connexion s'affiche. Créez un compte, c'est prêt.
 
+5. Importez dans "Ingrédients" les fichiers du répertoire `lib` pour peupler vos bibliothèques
+
+6. Pour obtenir les styles BJCP et BA, importez les fichiers JSON disponibles sur [https://github.com/beerjson/bjcp-json/tree/main/styles](https://github.com/beerjson/bjcp-json/tree/main/styles)
+
 Aucune étape de build, aucune dépendance à installer (`composer`, `npm`…) :
 les 6 fichiers du dossier suffisent.
 
