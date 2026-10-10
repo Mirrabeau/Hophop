@@ -1,6 +1,9 @@
 <?php
 /**
  * Configuration HopHop — auto-hébergé (fichiers) ou intégré phpBB (SSO + MySQL).
+ *
+ * Sans includes/config.local.php, ou sans auth_mode = phpbb : mode standalone
+ * (comptes locaux + JSON). MySQL et BrewRecipes ne s’activent qu’avec phpbb.
  */
 
 require_once __DIR__ . '/forum.php';
@@ -37,6 +40,7 @@ function hophop_local_config(): array
     return $cfg;
 }
 
+/** true si config.local.php demande explicitement l’auth forum. */
 function hophop_auth_mode(): string
 {
     $mode = (string) (hophop_local_config()['auth_mode'] ?? 'standalone');
@@ -44,16 +48,25 @@ function hophop_auth_mode(): string
     return $mode === 'phpbb' ? 'phpbb' : 'standalone';
 }
 
+/**
+ * Stockage des recettes. MySQL uniquement si auth phpbb + storage=mysql
+ * (sinon pas d’identifiants DB) — sinon fichiers JSON.
+ */
 function hophop_storage(): string
 {
+    if (hophop_auth_mode() !== 'phpbb') {
+        return 'file';
+    }
+
     $storage = (string) (hophop_local_config()['storage'] ?? 'file');
 
     return $storage === 'mysql' ? 'mysql' : 'file';
 }
 
+/** Intégration forum active (SSO ; éventuellement MySQL + BrewRecipes). */
 function hophop_uses_phpbb(): bool
 {
-    return hophop_auth_mode() === 'phpbb' || hophop_storage() === 'mysql';
+    return hophop_auth_mode() === 'phpbb';
 }
 
 /** URL POST vers BrewRecipes (aperçu import). Vide hors intégration forum. */

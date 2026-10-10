@@ -57,16 +57,18 @@ $LOGO_SVG = is_file($logoPath) ? file_get_contents($logoPath) : '';
   --danger:#9c3324; --dangerbg:#fbeee9; --okbg:#e6def2;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+html{max-width:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--sans);-webkit-text-size-adjust:100%;max-width:100%;overflow-x:hidden}
+#app{max-width:100%;min-width:0;overflow-x:hidden}
 h1,h2,h3{font-family:var(--serif);color:var(--head);margin:0;font-weight:600;letter-spacing:.005em;overflow-wrap:anywhere}
 h1{font-size:1.6rem} h2{font-size:1.2rem;margin-bottom:.6rem} h3{font-size:1rem;margin:.9rem 0 .3rem}
 button{font:inherit;cursor:pointer}
-.wrap{max-width:1120px;margin:0 auto;padding:1rem;min-width:0}
+.wrap{max-width:1120px;margin:0 auto;padding:1rem;min-width:0;width:100%;box-sizing:border-box}
 
 .top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);max-width:100%}
 .top .in{max-width:1120px;margin:0 auto;padding:.6rem 1rem 0;display:flex;flex-wrap:wrap;align-items:center;gap:.45rem .7rem}
-.top-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:.4rem .55rem;margin-left:auto;min-width:0;max-width:100%}
-.top-tools .btn{white-space:normal;text-align:center;max-width:100%}
+.top-user{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:.4rem .55rem;margin-left:auto;min-width:0}
+.top-forum{flex:none;white-space:normal;text-align:center;text-decoration:none;box-sizing:border-box}
 .brand{font-family:var(--serif);font-size:1.35rem;color:var(--head);display:flex;align-items:center;gap:.5rem;font-weight:700;flex:none}
 .brand-logo{width:1.7rem;height:1.7rem;display:inline-flex;flex:none;color:var(--head)}
 .brand-logo svg{width:100%;height:100%;display:block}
@@ -104,7 +106,7 @@ output{padding:.55rem 0;font-weight:600;color:var(--head)}
 .bar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:1rem;min-width:0}
 .search{max-width:min(260px,100%)}
 
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem;min-width:0;max-width:100%}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem;min-width:0;max-width:100%;overflow-x:hidden}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
 .rcard{cursor:pointer;display:flex;flex-direction:column;gap:.5rem;text-align:left;width:100%;color:inherit;margin:0}
 .rcard:hover{border-color:var(--accent)}
@@ -135,7 +137,7 @@ output{padding:.55rem 0;font-weight:600;color:var(--head)}
 .row .rowhead select,.row .rowhead input{flex:1;min-width:0;width:auto}
 .row .hint{grid-column:1/-1;min-height:0}
 .row .hint:empty{display:none}
-.secthead{display:flex;align-items:center;gap:.6rem;margin-bottom:.2rem}
+.secthead{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:.2rem;min-width:0}
 .beer{display:flex;gap:1rem;align-items:center;margin-bottom:.6rem}
 .glass{width:54px;height:76px;border:2px solid var(--head);border-radius:6px 6px 14px 14px;overflow:hidden;position:relative;background:var(--surface);flex:none}
 .glass .foam{height:14px;background:#fffdf5;border-bottom:1px solid var(--line)}
@@ -153,13 +155,17 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:600;text-align:right}
 .tbl th{text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;padding:.4rem .5rem;border-bottom:2px solid var(--line)}
 .tbl td{padding:.5rem;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl input{padding:.35rem .5rem;max-width:110px}
-.scroll{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+.scroll{display:block;width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll .tbl{width:max-content;max-width:none}
 .seg{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
 .seg button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:99px;padding:.35rem .9rem}
 .seg button[aria-pressed="true"]{background:var(--btn);color:var(--btnfg);border-color:var(--btn)}
 
+.sheet{min-width:0;max-width:100%}
 .sheet h1{font-size:1.9rem}
 .sheet ol{padding-left:1.3rem} .sheet li{margin:.4rem 0}
+.editor,.editor-rest,.stats,.recipe-identity{min-width:0;max-width:100%}
+.bar > .btn,.bar > .seg{max-width:100%}
 
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);padding:1.2rem;width:min(560px,94vw);max-height:90vh;overflow:auto}
 dialog::backdrop{background:rgba(20,30,20,.5)}
@@ -231,8 +237,17 @@ dialog::backdrop{background:rgba(20,30,20,.5)}
 
 @media (max-width:720px){
   .wrap{padding:.75rem}
-  .top .in{padding:.5rem .7rem 0}
-  .top-tools{flex-basis:100%;justify-content:flex-start}
+  .top .in{
+    padding:.5rem .7rem 0;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand user" "forum forum";
+    align-items:center;
+    gap:.45rem .6rem;
+  }
+  .brand{grid-area:brand;min-width:0}
+  .top-user{grid-area:user;margin-left:0;justify-self:end}
+  .top-forum{grid-area:forum;width:100%}
   .search{max-width:none;flex:1 1 12rem}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cards{grid-template-columns:minmax(0,1fr)}
@@ -508,19 +523,10 @@ function applySessionMeta(s) {
   AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
 }
-/** URL POST BrewRecipes (session phpBB ou repli dev /forum/). */
-function brewrecipesShareUrl() {
-  if (AUTH.brewrecipes_share_url) return AUTH.brewrecipes_share_url;
-  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/preview' : '';
-}
-function brewrecipesStyleGuidesUrl() {
-  if (AUTH.brewrecipes_style_guides_url) return AUTH.brewrecipes_style_guides_url;
-  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/style-guides' : '';
-}
-function brewrecipesStylesUrl() {
-  if (AUTH.brewrecipes_styles_url) return AUTH.brewrecipes_styles_url;
-  return AUTH.mode === 'phpbb' ? '/forum/app.php/brewrecipes/hophop/styles' : '';
-}
+/** URLs BrewRecipes fournies par la session (vides hors intégration phpBB). */
+function brewrecipesShareUrl() { return AUTH.brewrecipes_share_url || ''; }
+function brewrecipesStyleGuidesUrl() { return AUTH.brewrecipes_style_guides_url || ''; }
+function brewrecipesStylesUrl() { return AUTH.brewrecipes_styles_url || ''; }
 
 /* ---------- 3. LIBELLÉS & GABARITS ---------- */
 const FTYPE = {grain: 'Grain (empâté)', sugar: 'Sucre', extract: 'Extrait'};
@@ -689,10 +695,10 @@ function shellHTML() {
   const cur = ['editor', 'sheet'].includes(ui.view) ? 'recipes' : ui.view;
   const T = [['recipes', 'Recettes'], ['brews', 'Brassins'], ['ings', 'Ingrédients'], ['profiles', 'Matériel'], ['account', 'Compte']];
   const forumBack = AUTH.mode === 'phpbb'
-    ? '<a class="btn ghost sm" href="/forum/" style="text-decoration:none">Retour sur le forum</a>'
-    : '<button class="btn ghost sm" data-act="logout">Déconnexion</button>';
+    ? '<a class="btn ghost sm top-forum" href="/forum/">Retour sur le forum</a>'
+    : '<button class="btn ghost sm top-forum" data-act="logout">Déconnexion</button>';
   return `<header class="top"><div class="in"><div class="brand"><span class="brand-logo">${LOGO_SVG}</span>HopHop</div>
-    <div class="top-tools"><span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}<span class="uname">${esc(USER)}</span></span>${forumBack}</div></div>
+    <div class="top-user"><span class="savestate" id="savestate"></span><span class="who">${avatarHTML()}<span class="uname">${esc(USER)}</span></span></div>${forumBack}</div>
     <nav class="tabs" aria-label="Navigation principale">${T.map(([v, l]) => `<button data-act="go" data-v="${v}" ${cur === v ? 'aria-current="page"' : ''}>${l}</button>`).join('')}</nav></header>
     <main class="wrap" id="main"></main>`;
 }

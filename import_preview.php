@@ -12,6 +12,13 @@ require_once __DIR__ . '/includes/brewrecipes_import.php';
 
 header('X-Content-Type-Options: nosniff');
 
+if (hophop_auth_mode() !== 'phpbb') {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Import BrewRecipes indisponible (HopHop en mode autonome).';
+    exit;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     header('Content-Type: text/plain; charset=utf-8');

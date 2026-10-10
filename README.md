@@ -80,9 +80,24 @@ location ~ ^/(data|includes)/ { deny all; return 404; }
 
 Unités européennes partout (L, kg, g, °C, EBC, densité SG).
 
+## Mode autonome (défaut — GitHub, auto-hébergement)
+
+Sans `includes/config.local.php`, ou si `auth_mode` n’est pas `phpbb` :
+
+- authentification locale (création de compte / connexion HopHop) ;
+- stockage JSON sous `data/` (pas de MySQL) ;
+- pas de bouton forum, pas de partage BrewRecipes, pas de catalogue de styles BrewRecipes.
+
+`config.local.php` est dans `.gitignore` : un dépôt public peut contenir le code enrichi (UI, calculs, exports) sans la config forum.
+
+Pour forcer explicitement le mode autonome tout en gardant un fichier local :
+```php
+return ['auth_mode' => 'standalone']; // storage mysql est ignoré
+```
+
 ## Intégration phpBB (BrassageAmateur)
 
-Pour le forum (`/forum/hophop/`) : session forum (SSO) + stockage MySQL (JSON par `user_id`).
+Optionnelle. Active SSO forum, MySQL et BrewRecipes uniquement si `auth_mode` = `phpbb`.
 
 1. Copier `includes/config.local.example.php` → `includes/config.local.php` (`auth_mode` = `phpbb`, `storage` = `mysql`).
 2. Exécuter `docs/sql/hophop_store.sql` sur la base phpBB (adapter le préfixe de table).
@@ -92,11 +107,9 @@ Au premier accès, si un ancien fichier `data/store/<pseudo>.json` existe pour l
 
 Dans l’éditeur recette, **Partager sur BrewRecipes** envoie le BeerXML vers l’extension BrewRecipes (route `hophop/preview`, `import_source = hophop` en file d’import) puis ouvre l’aperçu d’import habituel. Nécessite BrewRecipes à jour sur le forum et une session membre.
 
-Sens inverse : BrewRecipes peut **POST** le BeerXML vers `hophop/import_preview.php` (même contrat : `application/xml`, cookies forum) → redirection HopHop → import dans l’éditeur.
+Sens inverse : BrewRecipes peut **POST** le BeerXML vers `hophop/import_preview.php` (même contrat : `application/xml`, cookies forum) → redirection HopHop → import dans l’éditeur. Indisponible en mode autonome.
 
 Dans l’éditeur, **Depuis BrewRecipes…** charge le catalogue de styles (guides AJAX) et copie le style choisi dans la bibliothèque + la recette.
-
-Sans `config.local.php`, HopHop reste en mode **standalone** (comptes locaux + fichiers JSON).
 
 ## Limites connues
 
