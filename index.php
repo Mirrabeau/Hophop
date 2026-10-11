@@ -101,10 +101,14 @@ details.brew-extra>summary::-webkit-details-marker{color:var(--accent)}
 details.brew-extra[open]>summary{margin-bottom:.55rem}
 details.brew-extra h3{margin:.75rem 0 .35rem;font-size:.95rem}
 details.brew-extra .fgrid{margin-top:.2rem}
-details.brew-extra .brew-xn-tbl{font-size:.88rem;margin:.25rem 0 .4rem}
-details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle}
-details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem}
-details.brew-extra .brew-xn-tbl .xn-planned{color:var(--muted);white-space:nowrap}
+details.brew-extra .scroll{overflow-x:visible}
+details.brew-extra .scroll .brew-xn-tbl,details.brew-extra .brew-xn-tbl{width:100%;max-width:100%;table-layout:fixed;font-size:.88rem;margin:.25rem 0 .4rem}
+details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle;overflow-wrap:anywhere}
+details.brew-extra .brew-xn-tbl .xn-planned{width:6.5rem;color:var(--muted);white-space:nowrap}
+details.brew-extra .brew-xn-tbl .xn-actual{width:7.5rem}
+details.brew-extra .brew-xn-tbl .xn-actions{width:2.6rem;text-align:center;padding-left:.2rem;padding-right:.2rem}
+details.brew-extra .brew-xn-tbl .xn-actual input,details.brew-extra .brew-xn-tbl td.xn-actual input{width:100%;max-width:none;padding:.35rem .45rem;font-size:.88rem;box-sizing:border-box}
+details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem;max-width:none}
 details.brew-extra .brew-xn-rec{font-size:.72rem;color:var(--muted);font-weight:400;line-height:1.25}
 .brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
 .brew-extra-hint{font-size:.9rem;color:var(--muted);margin:.5rem 0 .75rem;padding:.55rem .8rem;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
@@ -1094,9 +1098,9 @@ function brewXnNum(attrs, val) {
 function brewExtraQtyExtraRow(x = {}) {
   return `<tr data-xn-extra>
     <td><input data-xn-en placeholder="Ingrédient" aria-label="Ingrédient ajouté" value="${esc(x.name || '')}"></td>
-    <td style="white-space:nowrap"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}" style="width:4.2rem"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}" style="width:2.8rem"></td>
-    <td><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
-    <td><button type="button" class="ico" data-act="xnRmQty" aria-label="Retirer">✕</button></td>
+    <td class="xn-planned" style="white-space:nowrap"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}" style="width:3.6rem"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}" style="width:2.2rem"></td>
+    <td class="xn-actual"><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
+    <td class="xn-actions"><button type="button" class="ico" data-act="xnRmQty" aria-label="Retirer">✕</button></td>
   </tr>`;
 }
 /** Sous-formulaire dépliable « Autres notes » (si activé dans Compte). */
@@ -1108,44 +1112,44 @@ function brewExtraNotesHTML(b) {
   const qtyBody = qtyRows.map(row => `<tr>
       <td>${esc(row.label)}</td>
       <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td>${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
-      <td></td>
+      <td class="xn-actual">${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
+      <td class="xn-actions"></td>
     </tr>`).join('') + qtyExtras.map(brewExtraQtyExtraRow).join('');
   const tempBody = brewExtraTempPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
       <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td>${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
+      <td class="xn-actual">${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
     </tr>`).join('');
   const volBody = brewExtraVolPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
       <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td>${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
+      <td class="xn-actual">${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
     </tr>`).join('');
   const sgBody = brewExtraSgPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
       <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td>${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
+      <td class="xn-actual">${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
     </tr>`).join('');
   const phBody = BREW_PH_ROWS.map(row => `<tr>
       <td>${esc(row.label)}<div class="brew-xn-rec">${esc(row.rec)}</div></td>
-      <td>${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
+      <td class="xn-actual">${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
     </tr>`).join('');
   return `<details class="brew-extra"${open}>
     <summary>Autres notes</summary>
     <p class="sub" style="margin:.2rem 0 .5rem">Relevés optionnels du jour de brassage. Les densités principales (DI / DF mesurées) restent ci-dessus. Les valeurs « prévu » viennent de la recette enregistrée.</p>
     <h3>Quantités</h3>
-    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Ingrédient</th><th>Q prévu</th><th>Q réel</th><th></th></tr></thead>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Ingrédient</th><th class="xn-planned">Q prévu</th><th class="xn-actual">Q réel</th><th class="xn-actions"></th></tr></thead>
       <tbody id="xn-qty-body">${qtyBody}</tbody></table></div>
     <div class="dlg-actions" style="justify-content:flex-start;margin:.2rem 0 .5rem"><button type="button" class="btn ghost sm" data-act="xnAddQty">+ Ingrédient</button></div>
     <h3>Températures (°C)</h3>
-    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Étape</th><th>T° prévu</th><th>T° réel</th></tr></thead><tbody>${tempBody}</tbody></table></div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Étape</th><th class="xn-planned">T° prévu</th><th class="xn-actual">T° réel</th></tr></thead><tbody>${tempBody}</tbody></table></div>
     <h3>pH</h3>
     <p class="sub" style="margin:.1rem 0 .35rem">Mesures à température ambiante (~20 °C). Recommandations indicatives (brassage amateur).</p>
-    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>pH réel</th></tr></thead><tbody>${phBody}</tbody></table></div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-actual">pH réel</th></tr></thead><tbody>${phBody}</tbody></table></div>
     <h3>Densités</h3>
-    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>Prévu</th><th>Réel</th></tr></thead><tbody>${sgBody}</tbody></table></div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-planned">Prévu</th><th class="xn-actual">Réel</th></tr></thead><tbody>${sgBody}</tbody></table></div>
     <h3>Volumes (L)</h3>
-    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>Vol. prévu</th><th>Vol. réel</th></tr></thead><tbody>${volBody}</tbody></table></div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-planned">Vol. prévu</th><th class="xn-actual">Vol. réel</th></tr></thead><tbody>${volBody}</tbody></table></div>
     <h3>Autres notes de brassage</h3>
     <div class="fgrid"><label class="fld full"><span>Notes libres</span><textarea id="xn-free" data-f="xn.free">${esc(e.free)}</textarea></label></div>
   </details>`;
