@@ -121,6 +121,6 @@ Dans l’éditeur, **Depuis BrewRecipes…** charge le catalogue de styles (guid
 
 ## Licence
 
-**Hophop** Penn-Maen & claude.ai — [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr)
+**HopHop** © claude.ai & Penn-Maen + Jean-Luc (intégration phpBB+BrewRecipes) — [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr)
 (Attribution – Pas d'Utilisation Commerciale – Partage dans les Mêmes Conditions).
 Texte complet dans [`LICENSE.md`](LICENSE.md).

@@ -95,6 +95,13 @@ nav.tabs button[aria-current="page"]{color:var(--head);border-bottom-color:var(-
 .ico{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;width:2.2rem;height:2.2rem;flex:none}
 .ico:hover{color:var(--danger);border-color:var(--danger)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+details.brew-extra{margin-top:.85rem;border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;background:var(--bg)}
+details.brew-extra>summary{cursor:pointer;font-weight:600;color:var(--head);font-family:var(--serif);list-style-position:outside}
+details.brew-extra>summary::-webkit-details-marker{color:var(--accent)}
+details.brew-extra[open]>summary{margin-bottom:.55rem}
+details.brew-extra h3{margin:.75rem 0 .35rem;font-size:.95rem}
+details.brew-extra .fgrid{margin-top:.2rem}
+.brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
 
 input,select,textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;min-width:0}
 textarea{min-height:5rem;resize:vertical}
@@ -434,6 +441,8 @@ function normalizeData(d) {
   if (d.prefs.avatarType !== 'image') d.prefs.avatarType = 'emoji';
   if (!d.prefs.avatarEmoji) d.prefs.avatarEmoji = '🍺';
   if (typeof d.prefs.avatarImage !== 'string') d.prefs.avatarImage = '';
+  if (d.prefs.brewExtraNotes !== true) d.prefs.brewExtraNotes = false;
+  d.brews.forEach(normalizeBrewExtraNotes);
   return d;
 }
 // Recadre l'image importée en carré (centre), la réduit à 160×160 et la compresse en JPEG — garde la
@@ -649,6 +658,7 @@ function calc(r) {
 }
 
 /* ---------- 5. VUES ---------- */
+const pageFoot = () => `<p class="sub noprint" style="text-align:center"><a href="help.html" style="color:inherit">Aide</a> — HopHop © claude.ai &amp; Penn-Maen + Jean-Luc (intégration phpBB+BrewRecipes) — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
 const fld = (label, html, cls = '') => `<label class="fld ${cls}"><span>${label}</span>${html}</label>`;
 const bi = (path, val, n) => `<input data-b="${path}" ${n ? 'data-n inputmode="decimal"' : ''} value="${esc(val)}">`;
 const bs = (path, list, val) => `<select data-b="${path}">${opts(list, val)}</select>`;
@@ -728,7 +738,7 @@ function viewRecipes() {
     <input type="file" id="importBeerXMLFile" accept=".xml,text/xml,application/xml" style="display:none">
     <button class="btn ghost" data-act="importRecipeJSON">Importer BeerJSON</button>
     <input type="file" id="importBeerJSONFile" accept=".json,application/json" style="display:none">
-    <button class="btn" data-act="newRecipe">+ Nouvelle recette</button></div><div id="rlist">${recipeListHTML()}</div>`;
+    <button class="btn" data-act="newRecipe">+ Nouvelle recette</button></div><div id="rlist">${recipeListHTML()}</div>${pageFoot()}`;
 }
 
 /* --- Éditeur de recette --- */
@@ -806,7 +816,7 @@ function viewEditor() {
       <button class="btn ghost sm" data-act="dupRecipe">Dupliquer</button><button class="btn danger sm" data-act="delRecipe">Supprimer</button></div></section>
     </div>
   <aside class="stats" id="stats"></aside></div>
-  <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+  ${pageFoot()}`;
 }
 const libProfiles = sel => D.profiles.length ? opts([...D.profiles].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(p => [p.id, p.name]), sel) : '<option value="">(aucun profil — valeurs par défaut)</option>';
 
@@ -928,10 +938,113 @@ function viewSheet() {
   ${ui.sheetCost && c.costTotal > 0 ? `<div class="card"><h2>Coût estimé</h2><dl class="kv"><dt>Fermentescibles</dt><dd>${f(c.costFerm, 2)} €</dd><dt>Houblons</dt><dd>${f(c.costHop, 2)} €</dd><dt>Levure</dt><dd>${f(c.costYeast, 2)} €</dd><dt>Divers</dt><dd>${f(c.costMisc, 2)} €</dd>
     <dt>Total</dt><dd>${f(c.costTotal, 2)} €</dd><dt>Par litre</dt><dd>${f(c.costPerL, 2)} €/L</dd></dl></div>` : ''}
   ${ui.sheetSteps ? `<div class="card"><h2>Étapes de brassage</h2><ol>${brewSteps(r, c).map(s => `<li>${s}</li>`).join('')}</ol></div>` : ''}
-  ${r.notes ? `<div class="card"><h2>Notes</h2><div style="white-space:pre-wrap">${esc(r.notes)}</div></div>` : ''}</div>`;
+  ${r.notes ? `<div class="card"><h2>Notes</h2><div style="white-space:pre-wrap">${esc(r.notes)}</div></div>` : ''}</div>${pageFoot()}`;
 }
 
 /* --- Brassins (historique) --- */
+function emptyBrewExtraNotes() {
+  return {
+    qty: {ferm: '', hop: '', yeast: '', misc: ''},
+    temp: {mash: '', sparge: '', boil: '', postBoil: '', chilled: ''},
+    ph: {mashBefore: '', mashDuring: '', mashEnd: '', spargeWater: '', preBoil: '', postBoil: ''},
+    sg: {preSparge: '', preBoil: '', postBoil: ''},
+    vol: {preSparge: '', spargeWater: '', preBoil: '', postBoil: '', fermenter: '', packaging: ''},
+    free: '',
+  };
+}
+function normalizeBrewExtraNotes(b) {
+  if (!b || typeof b !== 'object') return;
+  const base = emptyBrewExtraNotes();
+  const src = (b.extraNotes && typeof b.extraNotes === 'object') ? b.extraNotes : {};
+  const mergeGroup = (key) => {
+    const out = {...base[key]};
+    const g = (src[key] && typeof src[key] === 'object') ? src[key] : {};
+    Object.keys(out).forEach(k => { if (g[k] != null && g[k] !== '') out[k] = String(g[k]); });
+    return out;
+  };
+  b.extraNotes = {
+    qty: mergeGroup('qty'),
+    temp: mergeGroup('temp'),
+    ph: mergeGroup('ph'),
+    sg: mergeGroup('sg'),
+    vol: mergeGroup('vol'),
+    free: src.free != null ? String(src.free) : '',
+  };
+}
+function brewExtraNotesFilled(b) {
+  if (!b?.extraNotes) return false;
+  const e = b.extraNotes;
+  const groups = [e.qty, e.temp, e.ph, e.sg, e.vol];
+  if (groups.some(g => g && Object.values(g).some(v => String(v || '').trim() !== ''))) return true;
+  return String(e.free || '').trim() !== '';
+}
+function brewExtraNum(id, path, label, val) {
+  return fld(label, `<input id="${id}" data-f="${path}" data-t="n" inputmode="decimal" value="${esc(val ?? '')}">`);
+}
+function brewExtraText(id, path, label, val, full) {
+  return fld(label, `<textarea id="${id}" data-f="${path}">${esc(val ?? '')}</textarea>`, full ? 'full' : '');
+}
+/** Sous-formulaire dépliable « Autres notes » (si activé dans Compte). */
+function brewExtraNotesHTML(b) {
+  normalizeBrewExtraNotes(b);
+  const e = b.extraNotes, open = brewExtraNotesFilled(b) ? ' open' : '';
+  return `<details class="brew-extra"${open}>
+    <summary>Autres notes</summary>
+    <p class="sub" style="margin:.2rem 0 .5rem">Relevés optionnels du jour de brassage. Les densités principales (DI / DF mesurées) restent ci-dessus.</p>
+    <h3>Quantités réelles</h3>
+    <div class="fgrid">
+      ${brewExtraText('xn-ferm', 'xn.qty.ferm', 'Malts / fermentescibles', e.qty.ferm, true)}
+      ${brewExtraText('xn-hop', 'xn.qty.hop', 'Houblons', e.qty.hop, true)}
+      ${brewExtraText('xn-yeast', 'xn.qty.yeast', 'Levure', e.qty.yeast, true)}
+      ${brewExtraText('xn-misc', 'xn.qty.misc', 'Autre (adjuvants, épices…)', e.qty.misc, true)}
+    </div>
+    <h3>Températures (°C)</h3>
+    <div class="fgrid">
+      ${brewExtraNum('xn-tm', 'xn.temp.mash', 'Pendant le brassage', e.temp.mash)}
+      ${brewExtraNum('xn-ts', 'xn.temp.sparge', 'Rinçage', e.temp.sparge)}
+      ${brewExtraNum('xn-tb', 'xn.temp.boil', 'Ébullition', e.temp.boil)}
+      ${brewExtraNum('xn-tpb', 'xn.temp.postBoil', 'Après ébullition', e.temp.postBoil)}
+      ${brewExtraNum('xn-tc', 'xn.temp.chilled', 'Après refroidissement', e.temp.chilled)}
+    </div>
+    <h3>pH</h3>
+    <div class="fgrid">
+      ${brewExtraNum('xn-phmb', 'xn.ph.mashBefore', 'Maische avant brassage', e.ph.mashBefore)}
+      ${brewExtraNum('xn-phmd', 'xn.ph.mashDuring', 'Maische pendant brassage', e.ph.mashDuring)}
+      ${brewExtraNum('xn-phme', 'xn.ph.mashEnd', 'Maische fin de brassage', e.ph.mashEnd)}
+      ${brewExtraNum('xn-phsw', 'xn.ph.spargeWater', 'Eau de rinçage', e.ph.spargeWater)}
+      ${brewExtraNum('xn-phpb', 'xn.ph.preBoil', 'Avant ébullition', e.ph.preBoil)}
+      ${brewExtraNum('xn-phob', 'xn.ph.postBoil', 'Après ébullition', e.ph.postBoil)}
+    </div>
+    <h3>Densités</h3>
+    <div class="fgrid">
+      ${brewExtraNum('xn-sgps', 'xn.sg.preSparge', 'Avant rinçage', e.sg.preSparge)}
+      ${brewExtraNum('xn-sgpb', 'xn.sg.preBoil', 'Avant ébullition', e.sg.preBoil)}
+      ${brewExtraNum('xn-sgob', 'xn.sg.postBoil', 'Après ébullition (= DF)', e.sg.postBoil)}
+    </div>
+    <h3>Volumes (L)</h3>
+    <div class="fgrid">
+      ${brewExtraNum('xn-vps', 'xn.vol.preSparge', 'Avant rinçage', e.vol.preSparge)}
+      ${brewExtraNum('xn-vsw', 'xn.vol.spargeWater', 'Eau de rinçage', e.vol.spargeWater)}
+      ${brewExtraNum('xn-vpb', 'xn.vol.preBoil', 'Avant ébullition', e.vol.preBoil)}
+      ${brewExtraNum('xn-vob', 'xn.vol.postBoil', 'Après ébullition', e.vol.postBoil)}
+      ${brewExtraNum('xn-vf', 'xn.vol.fermenter', 'Dans le fermenteur', e.vol.fermenter)}
+      ${brewExtraNum('xn-vp', 'xn.vol.packaging', 'Final au conditionnement', e.vol.packaging)}
+    </div>
+    <h3>Autres notes de brassage</h3>
+    <div class="fgrid">${brewExtraText('xn-free', 'xn.free', 'Notes libres', e.free, true)}</div>
+  </details>`;
+}
+function readBrewExtraFromDlg() {
+  const e = emptyBrewExtraNotes();
+  document.querySelectorAll('#dlg [data-f^="xn."]').forEach(el => {
+    const path = el.dataset.f.slice(3).split('.'); // after "xn."
+    let t = e;
+    for (let i = 0; i < path.length - 1; i++) t = t[path[i]];
+    const last = path[path.length - 1];
+    t[last] = el.dataset.t === 'n' ? (el.value === '' ? '' : N(el.value)) : el.value;
+  });
+  return e;
+}
 function brewCalc(b) {
   const og = b.ogM, fg = b.fgM, has = og > 1 && fg > 0.99;
   const abv = has ? (og - fg) * 131.25 : null, att = has && og > 1 ? (og - fg) / (og - 1) * 100 : null;
@@ -948,8 +1061,9 @@ function viewBrews() {
       <dt>Réfractomètre non corrigé</dt><dd>≈ ${f(rawBrixAtFG(b.ogM > 1 ? b.ogM : b.stats.og, b.fgM > 0.99 ? b.fgM : b.stats.fg), 1)} °Bx</dd>
       <dt>Alcool réel</dt><dd>${k.abv === null ? '–' : f(k.abv, 1) + ' %'}</dd><dt>Atténuation</dt><dd>${k.att === null ? '–' : f(k.att, 0) + ' %'}</dd><dt>Rendement réel</dt><dd>${k.eff === null ? '–' : f(k.eff, 0) + ' %'}</dd></dl>
     ${b.notes ? `<p class="sub" style="white-space:pre-wrap">${esc(b.notes)}</p>` : ''}
+    ${D.prefs.brewExtraNotes && brewExtraNotesFilled(b) ? '<p class="brew-extra-chip">Autres notes renseignées</p>' : ''}
     <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editBrew" data-id="${b.id}">Modifier</button><button class="btn danger sm" data-act="delBrew" data-id="${b.id}">Supprimer</button></div></div>`; }).join('')}</div>`
-    : '<div class="empty">Aucun brassage enregistré.<br>Depuis une recette, utilisez « Enregistrer un brassage ».</div>'}<p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    : '<div class="empty">Aucun brassage enregistré.<br>Depuis une recette, utilisez « Enregistrer un brassage ».</div>'}${pageFoot()}`;
 }
 
 /* --- Bibliothèque d'ingrédients --- */
@@ -1001,7 +1115,7 @@ function viewIngs() {
   ${showArch ? '<p class="sub" style="margin-top:-.4rem">Retirés de la bibliothèque active, mais toujours utilisables dans les recettes qui les référencent déjà. Restaurez-les pour les proposer à nouveau.</p>' : ''}
   ${l.length ? `<div class="scroll"><table class="tbl"><thead><tr><th data-act="ingSort" data-k="name" style="cursor:pointer">Nom${ingSortArrow('name')}</th>${C.slice(1).map(c => `<th>${c[0]}</th>`).join('')}${stockable ? `<th data-act="ingSort" data-k="stock" style="cursor:pointer">Stock${ingSortArrow('stock')}</th>` : ''}<th></th></tr></thead>${sortIng(l, stockable).map(x => `<tr>${C.map(c => `<td>${c[1](x)}</td>`).join('')}${stockable ? `<td><input inputmode="decimal" data-stock="${x.id}" value="${D.stock[x.id] === undefined ? '' : esc(D.stock[x.id])}" placeholder="—" aria-label="Stock ${esc(x.name)}" style="max-width:6.5rem"></td>` : ''}<td style="white-space:nowrap;text-align:right">${showArch
     ? `<button class="btn ghost sm" data-act="restoreIng" data-id="${x.id}">Restaurer</button>`
-    : `<button class="btn ghost sm" data-act="editIng" data-id="${x.id}">Modifier</button> <button class="btn ghost sm" data-act="dupIng" data-id="${x.id}">Copier</button> <button class="ico" data-act="delIng" data-id="${x.id}" aria-label="Retirer">✕</button>`}</td></tr>`).join('')}</table></div>` : ''}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    : `<button class="btn ghost sm" data-act="editIng" data-id="${x.id}">Modifier</button> <button class="btn ghost sm" data-act="dupIng" data-id="${x.id}">Copier</button> <button class="ico" data-act="delIng" data-id="${x.id}" aria-label="Retirer">✕</button>`}</td></tr>`).join('')}</table></div>` : ''}</div>${pageFoot()}`;
 }
 
 /* --- Profils matériel --- */
@@ -1013,7 +1127,7 @@ function viewProfiles() {
   <div class="cards">${D.profiles.map(p => `<div class="card" style="margin:0"><h2>${esc(p.name)}</h2>
     <dl class="kv"><dt>Volume final</dt><dd>${f(p.batch, 1)} L</dd><dt>Ébullition</dt><dd>${f(p.boil, 0)} min</dd><dt>Évaporation</dt><dd>${f(p.evap, 1)} L/h</dd><dt>Pertes trub</dt><dd>${f(p.trub, 1)} L</dd><dt>Pertes empâtage</dt><dd>${f(p.mashLoss, 1)} L</dd>
     <dt>Absorption drêches</dt><dd>${f(p.absorb, 2)} L/kg</dd><dt>Rapport eau/grain</dt><dd>${f(p.ratio, 1)} L/kg</dd><dt>Eau d’infusion</dt><dd>${f(p.infusionTemp, 0)} °C</dd><dt>Contraction</dt><dd>${f(p.shrink, 1)} %</dd><dt>Rendement</dt><dd>${f(p.eff, 0)} %</dd></dl>
-    <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editProfile" data-id="${p.id}">Modifier</button><button class="btn ghost sm" data-act="dupProfile" data-id="${p.id}">Dupliquer</button><button class="btn danger sm" data-act="delProfile" data-id="${p.id}">Supprimer</button></div></div>`).join('') || '<div class="empty">Aucun profil.</div>'}</div><p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+    <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editProfile" data-id="${p.id}">Modifier</button><button class="btn ghost sm" data-act="dupProfile" data-id="${p.id}">Dupliquer</button><button class="btn danger sm" data-act="delProfile" data-id="${p.id}">Supprimer</button></div></div>`).join('') || '<div class="empty">Aucun profil.</div>'}</div>${pageFoot()}`;
 }
 
 /* --- Compte --- */
@@ -1056,10 +1170,17 @@ function viewAccount() {
       <button data-act="setRefract" data-v="linear" aria-pressed="${D.prefs.refractFormula !== 'cubic'}">Sean Terrill (linéaire)</button>
       <button data-act="setRefract" data-v="cubic" aria-pressed="${D.prefs.refractFormula === 'cubic'}">Cubique</button></div>
     <p class="sub" style="margin-bottom:0">La formule linéaire convient à la plupart des densités ; la cubique est recommandée au-delà d’environ 1,080 de densité initiale (bières fortes).</p></div>
+  <div class="card"><h2>Brassins</h2>
+    <p class="sub" style="margin-top:0">Sous-formulaire « Autres notes » à l’édition d’un brassage : quantités réelles, températures, pH, densités et volumes du jour de brassage.</p>
+    <div class="seg">
+      <button data-act="setBrewExtra" data-v="1" aria-pressed="${D.prefs.brewExtraNotes === true}">Activé</button>
+      <button data-act="setBrewExtra" data-v="0" aria-pressed="${D.prefs.brewExtraNotes !== true}">Désactivé</button>
+    </div>
+    <p class="sub" style="margin-bottom:0">Désactivé par défaut. Les notes déjà saisies restent enregistrées si vous désactivez l’option.</p></div>
   <div class="card"><h2>Sauvegarde</h2><p class="sub" style="margin-top:0">Vos données vivent sur ce serveur. Exportez tout de même une sauvegarde JSON de temps en temps, et importez-la pour restaurer un état antérieur.</p>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button class="btn ghost sm" data-act="backup">Exporter la sauvegarde</button><button class="btn ghost sm" data-act="restore">Importer une sauvegarde</button><input type="file" id="restoreFile" accept=".json,application/json" style="display:none"></div></div>
   ${AUTH.features.delete_account ? '<div class="card"><h2>Zone sensible</h2><button class="btn danger sm" data-act="delAccount">Supprimer ce compte et ses données</button></div>' : ''}
-  <p class="sub" style="text-align:center">HopHop © claude.ai & Kiwi — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+  ${pageFoot()}`;
 }
 
 /* --- Rendu général --- */
@@ -1113,6 +1234,7 @@ const scaleRecipe = (r, nv) => {
 function createBrew(r, date) {
   const c = calc(r);
   const b = {id: uid(), recipeId: r.id, recipeName: r.name, date, status: 'brewed', ogM: 0, fgM: 0, vol: N(r.batch), notes: '', tasting: '',
+    extraNotes: emptyBrewExtraNotes(),
     stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r)};
   D.brews.push(b); persist();
   return b;
@@ -1152,6 +1274,7 @@ const ACT = {
   setDensity: el => { D.prefs.density = el.dataset.v; applyPrefs(); persist(); renderMain(true); },
   setUnit: el => { D.prefs.unitPrimary = el.dataset.v; persist(); renderMain(true); },
   setRefract: el => { D.prefs.refractFormula = el.dataset.v; persist(); renderMain(true); },
+  setBrewExtra: el => { D.prefs.brewExtraNotes = el.dataset.v === '1'; persist(); renderMain(true); },
   setAvatarEmoji: el => { D.prefs.avatarType = 'emoji'; D.prefs.avatarEmoji = el.dataset.v; persist(); renderMain(true); },
   avatarUpload: () => $('#avatarFile').click(),
   avatarReset: () => { D.prefs.avatarType = 'emoji'; D.prefs.avatarImage = ''; persist(); renderMain(true); },
@@ -1201,10 +1324,17 @@ const ACT = {
   },
   editBrew: el => {
     const b = D.brews.find(x => x.id === el.dataset.id);
+    normalizeBrewExtraNotes(b);
+    const extra = `<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>`
+      + (D.prefs.brewExtraNotes ? brewExtraNotesHTML(b) : '');
     openForm(b.recipeName, [{k: 'date', l: 'Date', t: 'date'}, {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)}, {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'}, {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
       {k: 'vol', l: 'Volume obtenu (L)', t: 'number'}, {k: 'notes', l: 'Notes de brassage', t: 'textarea'}, {k: 'tasting', l: 'Dégustation', t: 'textarea'}], b,
-      v => { Object.assign(b, v); persist(); renderMain(true); },
-      `<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>`);
+      v => {
+        b.date = v.date; b.status = v.status; b.ogM = v.ogM; b.fgM = v.fgM; b.vol = v.vol; b.notes = v.notes; b.tasting = v.tasting;
+        if (D.prefs.brewExtraNotes) b.extraNotes = readBrewExtraFromDlg();
+        persist(); renderMain(true);
+      },
+      extra);
   },
   delBrew: el => ask('Supprimer ce brassage de l’historique ?', 'Supprimer', () => { D.brews = D.brews.filter(x => x.id !== el.dataset.id); persist(); renderMain(true); }),
   ingTab: el => { ui.tab = el.dataset.t; renderMain(true); },
