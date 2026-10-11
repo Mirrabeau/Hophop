@@ -132,6 +132,7 @@ output{padding:.55rem 0;font-weight:600;color:var(--head)}
 .chip{display:inline-block;background:var(--okbg);color:var(--head);border-radius:99px;padding:.1rem .6rem;font-size:.8rem;font-weight:600}
 .chip.bad{background:var(--dangerbg);color:var(--danger)}
 .sub{color:var(--muted);font-size:.9rem}
+.foot-usage{text-align:center;color:var(--muted);font-size:.75rem;margin:1.6rem 0 0;opacity:.72}
 .empty{text-align:center;color:var(--muted);padding:2.5rem 1rem;border:2px dashed var(--line);border-radius:14px}
 .sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);display:inline-block;vertical-align:middle}
 
@@ -391,7 +392,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
-const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true, blocked: ''};
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true, blocked: '', brewer_count: null};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -547,6 +548,7 @@ function applySessionMeta(s) {
   AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
   AUTH.blocked = s.blocked || '';
+  AUTH.brewer_count = (AUTH.mode === 'phpbb' && typeof s.brewer_count === 'number' && s.brewer_count >= 0) ? s.brewer_count : null;
 }
 /** URLs BrewRecipes fournies par la session (vides hors intégration phpBB). */
 function brewrecipesShareUrl() { return AUTH.brewrecipes_share_url || ''; }
@@ -670,7 +672,14 @@ function calc(r) {
 }
 
 /* ---------- 5. VUES ---------- */
-const pageFoot = () => `<p class="sub noprint" style="text-align:center"><a href="help.html" style="color:inherit">Aide</a> — HopHop © claude.ai &amp; Penn-Maen + Jean-Luc (intégration phpBB+BrewRecipes) — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+const pageFoot = () => {
+  const n = AUTH.mode === 'phpbb' ? AUTH.brewer_count : null;
+  const usage = (typeof n === 'number')
+    ? `<p class="foot-usage noprint">${(n === 1 ? '1 brasseur' : f(n, 0) + ' brasseurs')} sur HopHop avec au moins une recette</p>`
+    : '';
+  const copyStyle = usage ? 'text-align:center;margin-top:.2rem' : 'text-align:center';
+  return `${usage}<p class="sub noprint" style="${copyStyle}"><a href="help.html" style="color:inherit">Aide</a> — HopHop © claude.ai &amp; Penn-Maen + Jean-Luc (intégration phpBB+BrewRecipes) — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
+};
 const fld = (label, html, cls = '') => `<label class="fld ${cls}"><span>${label}</span>${html}</label>`;
 const bi = (path, val, n) => `<input data-b="${path}" ${n ? 'data-n inputmode="decimal"' : ''} value="${esc(val)}">`;
 const bs = (path, list, val) => `<select data-b="${path}">${opts(list, val)}</select>`;

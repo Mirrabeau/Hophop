@@ -85,6 +85,10 @@ function hophop_session_payload(): array
         $payload['brewrecipes_styles_url'] = hophop_brewrecipes_styles_url();
         $payload['avatar_url'] = hophop_forum_avatar_url();
         $payload['mysql_ready'] = hophop_storage() !== 'mysql' || hophop_mysql_store_ready();
+        $brewer_count = hophop_store_brewer_count();
+        if ($brewer_count !== null) {
+            $payload['brewer_count'] = $brewer_count;
+        }
 
         if (hophop_forum_is_bot()) {
             $payload['blocked'] = 'robot';

@@ -358,6 +358,36 @@ function hophop_store_table_valid(string $table): bool
     return (bool) preg_match('/^[A-Za-z0-9_]+$/', $table);
 }
 
+/** Comptes MySQL dont store_json.recipes contient au moins une recette, ou null hors MySQL. */
+function hophop_store_brewer_count(): ?int
+{
+    if (hophop_storage() !== 'mysql' || !hophop_mysql_store_ready()) {
+        return null;
+    }
+
+    global $db;
+
+    try {
+        $sql = 'SELECT COALESCE(SUM(
+                CASE
+                    WHEN JSON_VALID(store_json) = 0 THEN 0
+                    WHEN JSON_LENGTH(store_json, \'$.recipes\') >= 1 THEN 1
+                    ELSE 0
+                END
+            ), 0) AS n
+            FROM ' . hophop_store_table();
+        $result = $db->sql_query($sql);
+        $row = $db->sql_fetchrow($result);
+        $db->sql_freeresult($result);
+
+        return (int) ($row['n'] ?? 0);
+    } catch (\Throwable $e) {
+        error_log('HopHop store brewer count: ' . $e->getMessage());
+
+        return null;
+    }
+}
+
 function hophop_user_store_delete_mysql(int $user_id): void
 {
     if (!hophop_mysql_store_ready()) {
