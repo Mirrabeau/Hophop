@@ -392,7 +392,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
-const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true, blocked: '', brewer_count: null};
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true, blocked: '', brewer_count: null, visitor_count: null};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -548,7 +548,9 @@ function applySessionMeta(s) {
   AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
   AUTH.blocked = s.blocked || '';
-  AUTH.brewer_count = (AUTH.mode === 'phpbb' && typeof s.brewer_count === 'number' && s.brewer_count >= 0) ? s.brewer_count : null;
+  const usageOk = AUTH.mode === 'phpbb';
+  AUTH.brewer_count = (usageOk && typeof s.brewer_count === 'number' && s.brewer_count >= 0) ? s.brewer_count : null;
+  AUTH.visitor_count = (usageOk && typeof s.visitor_count === 'number' && s.visitor_count >= 0) ? s.visitor_count : null;
 }
 /** URLs BrewRecipes fournies par la session (vides hors intégration phpBB). */
 function brewrecipesShareUrl() { return AUTH.brewrecipes_share_url || ''; }
@@ -672,10 +674,12 @@ function calc(r) {
 }
 
 /* ---------- 5. VUES ---------- */
+const countLabel = (n, one, many) => (n === 1 ? '1 ' + one : f(n, 0) + ' ' + many);
 const pageFoot = () => {
-  const n = AUTH.mode === 'phpbb' ? AUTH.brewer_count : null;
-  const usage = (typeof n === 'number')
-    ? `<p class="foot-usage noprint">${(n === 1 ? '1 brasseur' : f(n, 0) + ' brasseurs')} sur HopHop avec au moins une recette</p>`
+  const brewers = AUTH.mode === 'phpbb' ? AUTH.brewer_count : null;
+  const visitors = AUTH.mode === 'phpbb' ? AUTH.visitor_count : null;
+  const usage = (typeof brewers === 'number' && typeof visitors === 'number')
+    ? `<p class="foot-usage noprint">${countLabel(brewers, 'brasseur', 'brasseurs')} sur HopHop avec au moins une recette, et ${countLabel(visitors, 'visiteur', 'visiteurs')}</p>`
     : '';
   const copyStyle = usage ? 'text-align:center;margin-top:.2rem' : 'text-align:center';
   return `${usage}<p class="sub noprint" style="${copyStyle}"><a href="help.html" style="color:inherit">Aide</a> — HopHop © claude.ai &amp; Penn-Maen + Jean-Luc (intégration phpBB+BrewRecipes) — <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank" rel="noopener" style="color:inherit">CC BY-NC-SA 4.0</a></p>`;
