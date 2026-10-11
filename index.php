@@ -107,7 +107,8 @@ details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem}
 details.brew-extra .brew-xn-tbl .xn-planned{color:var(--muted);white-space:nowrap}
 details.brew-extra .brew-xn-rec{font-size:.72rem;color:var(--muted);font-weight:400;line-height:1.25}
 .brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
-.brew-extra-hint{font-size:.85rem;color:var(--muted);margin:.35rem 0 .6rem}
+.brew-extra-hint{font-size:.9rem;color:var(--muted);margin:.5rem 0 .75rem;padding:.55rem .8rem;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
+.brew-extra-hint button{font:inherit;font-size:inherit;color:var(--head);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
 
 input,select,textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;min-width:0}
 textarea{min-height:5rem;resize:vertical}
@@ -1188,8 +1189,9 @@ function brewCalc(b) {
 }
 function viewBrews() {
   const l = [...D.brews].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const xnOff = D.prefs.brewExtraNotes !== true;
   return `<div class="bar"><h1>Historique de brassage</h1><div class="grow"></div><button class="btn" data-act="newBrew">+ Nouveau brassage</button></div>
-  ${!D.prefs.brewExtraNotes ? '<p class="brew-extra-hint">Autres notes activables dans l’onglet Compte.</p>' : ''}
+  ${xnOff ? '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>' : ''}
   ${l.length ? `<div class="cards">${l.map(b => { const k = brewCalc(b); return `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;gap:.5rem"><h2 style="margin:0">${esc(b.recipeName)}</h2><span class="chip">${STATUS[b.status]}</span></div>
     <div class="sub">${fdate(b.date)} · ${f(b.vol, 1)} L</div>
     <dl class="kv" style="margin-top:.6rem"><dt>Densité initiale</dt><dd>${b.ogM > 1 ? gUnit(b.ogM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.og)})</span></dd><dt>Densité finale</dt><dd>${b.fgM > 0.99 ? gUnit(b.fgM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.fg)})</span></dd>
@@ -1401,6 +1403,31 @@ function openStockDeductDialog(r) {
   }, '<p class="sub">Préremplies avec les quantités de la recette — ajustez si vous avez utilisé plus ou moins, puis validez la sortie de stock.</p>');
 }
 const brewFields = [{k: 'date', l: 'Date de brassage', t: 'date'}, {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'}];
+/** HTML sous le formulaire de création / édition : Autres notes ou rappel Compte. */
+function brewFormExtraNotesHTML(recipeOrBrew) {
+  if (D.prefs.brewExtraNotes === true) {
+    const b = recipeOrBrew.snap
+      ? recipeOrBrew
+      : {snap: clone(recipeOrBrew), extraNotes: emptyBrewExtraNotes()};
+    normalizeBrewExtraNotes(b);
+    return `<div id="xn-create-wrap">${brewExtraNotesHTML(b)}</div>`;
+  }
+  return '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>';
+}
+function applyBrewExtraFromDlg(b) {
+  if (D.prefs.brewExtraNotes !== true || !b) return;
+  b.extraNotes = readBrewExtraFromDlg();
+  persist();
+}
+function bindBrewCreateRecipeChange() {
+  const sel = $('#f-rid'), wrap = $('#xn-create-wrap');
+  if (!sel || !wrap || D.prefs.brewExtraNotes !== true) return;
+  sel.addEventListener('change', () => {
+    const rec = D.recipes.find(r => r.id === sel.value);
+    if (!rec) return;
+    wrap.innerHTML = brewExtraNotesHTML({snap: clone(rec), extraNotes: emptyBrewExtraNotes()});
+  });
+}
 const profDefaults = () => ({name: 'Nouveau profil', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72});
 
 const ACT = {
@@ -1415,7 +1442,7 @@ const ACT = {
   setAvatarEmoji: el => { D.prefs.avatarType = 'emoji'; D.prefs.avatarEmoji = el.dataset.v; persist(); renderMain(true); },
   avatarUpload: () => $('#avatarFile').click(),
   avatarReset: () => { D.prefs.avatarType = 'emoji'; D.prefs.avatarImage = ''; persist(); renderMain(true); },
-  go: el => { ui.view = el.dataset.v; renderMain(); window.scrollTo(0, 0); },
+  go: el => { closeDlg(); ui.view = el.dataset.v; renderMain(); window.scrollTo(0, 0); },
   dlgClose: () => closeDlg(), dlgSave: () => dlgSave && dlgSave(),
   newRecipe: () => { const r = newRecipe(); D.recipes.push(r); ui.rid = r.id; ui.view = 'editor'; persist(); renderMain(); window.scrollTo(0, 0); },
   open: el => { ui.rid = el.dataset.id; ui.view = 'editor'; renderMain(); window.scrollTo(0, 0); },
@@ -1445,30 +1472,38 @@ const ACT = {
   exp: el => showExport(el.dataset.k),
   shareBrewRecipes: () => shareToBrewRecipes(),
   pickBrewRecipesStyle: () => openBrewRecipesStylePicker(),
-  brewFrom: () => openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
-    const r = R(); createBrew(r, v.date || today());
-    if (v.deduct) { openStockDeductDialog(r); return false; }
-    toast('Brassage enregistré');
-  }),
+  brewFrom: () => {
+    const r = R();
+    openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
+      const b = createBrew(r, v.date || today());
+      applyBrewExtraFromDlg(b);
+      if (v.deduct) { openStockDeductDialog(r); return false; }
+      toast('Brassage enregistré');
+    }, brewFormExtraNotesHTML(r));
+  },
   newBrew: () => {
     if (!D.recipes.length) { toast('Créez d’abord une recette.'); return; }
-    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewFields], {rid: D.recipes[0].id, date: today(), deduct: false},
+    const rec0 = D.recipes[0];
+    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewFields], {rid: rec0.id, date: today(), deduct: false},
       v => {
-        const rec = D.recipes.find(r => r.id === v.rid); createBrew(rec, v.date || today()); renderMain(true);
+        const rec = D.recipes.find(r => r.id === v.rid); const b = createBrew(rec, v.date || today());
+        applyBrewExtraFromDlg(b); renderMain(true);
         if (v.deduct) { openStockDeductDialog(rec); return false; }
         toast('Brassage enregistré');
-      });
+      },
+      brewFormExtraNotesHTML(rec0));
+    bindBrewCreateRecipeChange();
   },
   editBrew: el => {
     const b = D.brews.find(x => x.id === el.dataset.id);
     normalizeBrewExtraNotes(b);
     const extra = `<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>`
-      + (D.prefs.brewExtraNotes ? brewExtraNotesHTML(b) : '');
+      + brewFormExtraNotesHTML(b);
     openForm(b.recipeName, [{k: 'date', l: 'Date', t: 'date'}, {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)}, {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'}, {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
       {k: 'vol', l: 'Volume obtenu (L)', t: 'number'}, {k: 'notes', l: 'Notes de brassage', t: 'textarea'}, {k: 'tasting', l: 'Dégustation', t: 'textarea'}], b,
       v => {
         b.date = v.date; b.status = v.status; b.ogM = v.ogM; b.fgM = v.fgM; b.vol = v.vol; b.notes = v.notes; b.tasting = v.tasting;
-        if (D.prefs.brewExtraNotes) b.extraNotes = readBrewExtraFromDlg();
+        if (D.prefs.brewExtraNotes === true) b.extraNotes = readBrewExtraFromDlg();
         persist(); renderMain(true);
       },
       extra);
