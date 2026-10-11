@@ -1372,20 +1372,11 @@ const scaleRecipe = (r, nv) => {
   r.ferm.forEach(x => x.kg = rnd(N(x.kg) * k, 3)); r.hops.forEach(x => x.g = rnd(N(x.g) * k, 1)); r.misc.forEach(x => x.qty = rnd(N(x.qty) * k, 2));
   r.batch = nv; r.updated = Date.now();
 };
-function createBrew(r, v = {}) {
+function createBrew(r, date) {
   const c = calc(r);
-  const b = {
-    id: uid(), recipeId: r.id, recipeName: r.name,
-    date: v.date || today(),
-    status: STATUS[v.status] ? v.status : 'brewed',
-    ogM: v.ogM != null && v.ogM !== '' ? N(v.ogM) : 0,
-    fgM: v.fgM != null && v.fgM !== '' ? N(v.fgM) : 0,
-    vol: v.vol != null && v.vol !== '' ? N(v.vol) : N(r.batch),
-    notes: v.notes != null ? String(v.notes) : '',
-    tasting: v.tasting != null ? String(v.tasting) : '',
+  const b = {id: uid(), recipeId: r.id, recipeName: r.name, date, status: 'brewed', ogM: 0, fgM: 0, vol: N(r.batch), notes: '', tasting: '',
     extraNotes: emptyBrewExtraNotes(),
-    stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r),
-  };
+    stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r)};
   D.brews.push(b); persist();
   return b;
 }
@@ -1415,6 +1406,7 @@ function openStockDeductDialog(r) {
     persist(); toast('Stock mis à jour');
   }, '<p class="sub">Préremplies avec les quantités de la recette — ajustez si vous avez utilisé plus ou moins, puis validez la sortie de stock.</p>');
 }
+const brewFields = [{k: 'date', l: 'Date de brassage', t: 'date'}, {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'}];
 const brewEditFields = [
   {k: 'date', l: 'Date', t: 'date'},
   {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)},
@@ -1424,44 +1416,14 @@ const brewEditFields = [
   {k: 'notes', l: 'Notes de brassage', t: 'textarea'},
   {k: 'tasting', l: 'Dégustation', t: 'textarea'},
 ];
-const brewCreateFields = [
-  {k: 'date', l: 'Date de brassage', t: 'date'},
-  {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)},
-  {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'},
-  {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
-  {k: 'vol', l: 'Volume obtenu (L)', t: 'number'},
-  {k: 'notes', l: 'Notes de brassage', t: 'textarea'},
-  {k: 'tasting', l: 'Dégustation', t: 'textarea'},
-  {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'},
-];
-const brewCreateHelp = '<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>';
-function brewCreateDefaults(r) {
-  return {date: today(), status: 'brewed', ogM: '', fgM: '', vol: N(r.batch), notes: '', tasting: '', deduct: false};
-}
-/** HTML sous le formulaire de création / édition : Autres notes ou rappel Compte. */
-function brewFormExtraNotesHTML(recipeOrBrew) {
+const brewEditHelp = '<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>';
+/** Sous le formulaire d’édition : Autres notes (si activé) ou rappel Compte. */
+function brewFormExtraNotesHTML(b) {
   if (D.prefs.brewExtraNotes === true) {
-    const b = recipeOrBrew.snap
-      ? recipeOrBrew
-      : {snap: clone(recipeOrBrew), extraNotes: emptyBrewExtraNotes()};
     normalizeBrewExtraNotes(b);
-    return `<div id="xn-create-wrap">${brewExtraNotesHTML(b)}</div>`;
+    return brewExtraNotesHTML(b);
   }
   return '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>';
-}
-function applyBrewExtraFromDlg(b) {
-  if (D.prefs.brewExtraNotes !== true || !b) return;
-  b.extraNotes = readBrewExtraFromDlg();
-  persist();
-}
-function bindBrewCreateRecipeChange() {
-  const sel = $('#f-rid'), wrap = $('#xn-create-wrap');
-  if (!sel || !wrap || D.prefs.brewExtraNotes !== true) return;
-  sel.addEventListener('change', () => {
-    const rec = D.recipes.find(r => r.id === sel.value);
-    if (!rec) return;
-    wrap.innerHTML = brewExtraNotesHTML({snap: clone(rec), extraNotes: emptyBrewExtraNotes()});
-  });
 }
 const profDefaults = () => ({name: 'Nouveau profil', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72});
 
@@ -1507,35 +1469,19 @@ const ACT = {
   exp: el => showExport(el.dataset.k),
   shareBrewRecipes: () => shareToBrewRecipes(),
   pickBrewRecipesStyle: () => openBrewRecipesStylePicker(),
-  brewFrom: () => {
-    const r = R();
-    openForm('Enregistrer un brassage', brewCreateFields, brewCreateDefaults(r), v => {
-      const b = createBrew(r, v);
-      applyBrewExtraFromDlg(b);
-      if (v.deduct) { openStockDeductDialog(r); return false; }
-      toast('Brassage enregistré');
-    }, brewCreateHelp + brewFormExtraNotesHTML(r));
-  },
+  brewFrom: () => openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
+    const r = R(); createBrew(r, v.date || today());
+    if (v.deduct) { openStockDeductDialog(r); return false; }
+    toast('Brassage enregistré');
+  }),
   newBrew: () => {
     if (!D.recipes.length) { toast('Créez d’abord une recette.'); return; }
-    const rec0 = D.recipes[0];
-    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewCreateFields], {rid: rec0.id, ...brewCreateDefaults(rec0)},
+    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewFields], {rid: D.recipes[0].id, date: today(), deduct: false},
       v => {
-        const rec = D.recipes.find(r => r.id === v.rid); const b = createBrew(rec, v);
-        applyBrewExtraFromDlg(b); renderMain(true);
+        const rec = D.recipes.find(r => r.id === v.rid); createBrew(rec, v.date || today()); renderMain(true);
         if (v.deduct) { openStockDeductDialog(rec); return false; }
         toast('Brassage enregistré');
-      },
-      brewCreateHelp + brewFormExtraNotesHTML(rec0));
-    bindBrewCreateRecipeChange();
-    const sel = $('#f-rid');
-    if (sel) sel.addEventListener('change', () => {
-      const rec = D.recipes.find(r => r.id === sel.value);
-      const vol = $('#f-vol');
-      if (rec && vol && (!vol.value || vol.dataset.auto === '1')) { vol.value = N(rec.batch); vol.dataset.auto = '1'; }
-    });
-    const vol = $('#f-vol');
-    if (vol) { vol.dataset.auto = '1'; vol.addEventListener('input', () => { vol.dataset.auto = '0'; });
+      });
   },
   editBrew: el => {
     const b = D.brews.find(x => x.id === el.dataset.id);
@@ -1546,7 +1492,7 @@ const ACT = {
         if (D.prefs.brewExtraNotes === true) b.extraNotes = readBrewExtraFromDlg();
         persist(); renderMain(true);
       },
-      brewCreateHelp + brewFormExtraNotesHTML(b));
+      brewEditHelp + brewFormExtraNotesHTML(b));
   },
   delBrew: el => ask('Supprimer ce brassage de l’historique ?', 'Supprimer', () => { D.brews = D.brews.filter(x => x.id !== el.dataset.id); persist(); renderMain(true); }),
   ingTab: el => { ui.tab = el.dataset.t; renderMain(true); },
