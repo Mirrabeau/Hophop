@@ -1372,11 +1372,20 @@ const scaleRecipe = (r, nv) => {
   r.ferm.forEach(x => x.kg = rnd(N(x.kg) * k, 3)); r.hops.forEach(x => x.g = rnd(N(x.g) * k, 1)); r.misc.forEach(x => x.qty = rnd(N(x.qty) * k, 2));
   r.batch = nv; r.updated = Date.now();
 };
-function createBrew(r, date) {
+function createBrew(r, v = {}) {
   const c = calc(r);
-  const b = {id: uid(), recipeId: r.id, recipeName: r.name, date, status: 'brewed', ogM: 0, fgM: 0, vol: N(r.batch), notes: '', tasting: '',
+  const b = {
+    id: uid(), recipeId: r.id, recipeName: r.name,
+    date: v.date || today(),
+    status: STATUS[v.status] ? v.status : 'brewed',
+    ogM: v.ogM != null && v.ogM !== '' ? N(v.ogM) : 0,
+    fgM: v.fgM != null && v.fgM !== '' ? N(v.fgM) : 0,
+    vol: v.vol != null && v.vol !== '' ? N(v.vol) : N(r.batch),
+    notes: v.notes != null ? String(v.notes) : '',
+    tasting: v.tasting != null ? String(v.tasting) : '',
     extraNotes: emptyBrewExtraNotes(),
-    stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r)};
+    stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r),
+  };
   D.brews.push(b); persist();
   return b;
 }
@@ -1406,7 +1415,29 @@ function openStockDeductDialog(r) {
     persist(); toast('Stock mis à jour');
   }, '<p class="sub">Préremplies avec les quantités de la recette — ajustez si vous avez utilisé plus ou moins, puis validez la sortie de stock.</p>');
 }
-const brewFields = [{k: 'date', l: 'Date de brassage', t: 'date'}, {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'}];
+const brewEditFields = [
+  {k: 'date', l: 'Date', t: 'date'},
+  {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)},
+  {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'},
+  {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
+  {k: 'vol', l: 'Volume obtenu (L)', t: 'number'},
+  {k: 'notes', l: 'Notes de brassage', t: 'textarea'},
+  {k: 'tasting', l: 'Dégustation', t: 'textarea'},
+];
+const brewCreateFields = [
+  {k: 'date', l: 'Date de brassage', t: 'date'},
+  {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)},
+  {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'},
+  {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
+  {k: 'vol', l: 'Volume obtenu (L)', t: 'number'},
+  {k: 'notes', l: 'Notes de brassage', t: 'textarea'},
+  {k: 'tasting', l: 'Dégustation', t: 'textarea'},
+  {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'},
+];
+const brewCreateHelp = '<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>';
+function brewCreateDefaults(r) {
+  return {date: today(), status: 'brewed', ogM: '', fgM: '', vol: N(r.batch), notes: '', tasting: '', deduct: false};
+}
 /** HTML sous le formulaire de création / édition : Autres notes ou rappel Compte. */
 function brewFormExtraNotesHTML(recipeOrBrew) {
   if (D.prefs.brewExtraNotes === true) {
@@ -1478,39 +1509,44 @@ const ACT = {
   pickBrewRecipesStyle: () => openBrewRecipesStylePicker(),
   brewFrom: () => {
     const r = R();
-    openForm('Enregistrer un brassage', brewFields, {date: today(), deduct: false}, v => {
-      const b = createBrew(r, v.date || today());
+    openForm('Enregistrer un brassage', brewCreateFields, brewCreateDefaults(r), v => {
+      const b = createBrew(r, v);
       applyBrewExtraFromDlg(b);
       if (v.deduct) { openStockDeductDialog(r); return false; }
       toast('Brassage enregistré');
-    }, brewFormExtraNotesHTML(r));
+    }, brewCreateHelp + brewFormExtraNotesHTML(r));
   },
   newBrew: () => {
     if (!D.recipes.length) { toast('Créez d’abord une recette.'); return; }
     const rec0 = D.recipes[0];
-    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewFields], {rid: rec0.id, date: today(), deduct: false},
+    openForm('Nouveau brassage', [{k: 'rid', l: 'Recette', t: 'select', o: D.recipes.map(r => [r.id, r.name])}, ...brewCreateFields], {rid: rec0.id, ...brewCreateDefaults(rec0)},
       v => {
-        const rec = D.recipes.find(r => r.id === v.rid); const b = createBrew(rec, v.date || today());
+        const rec = D.recipes.find(r => r.id === v.rid); const b = createBrew(rec, v);
         applyBrewExtraFromDlg(b); renderMain(true);
         if (v.deduct) { openStockDeductDialog(rec); return false; }
         toast('Brassage enregistré');
       },
-      brewFormExtraNotesHTML(rec0));
+      brewCreateHelp + brewFormExtraNotesHTML(rec0));
     bindBrewCreateRecipeChange();
+    const sel = $('#f-rid');
+    if (sel) sel.addEventListener('change', () => {
+      const rec = D.recipes.find(r => r.id === sel.value);
+      const vol = $('#f-vol');
+      if (rec && vol && (!vol.value || vol.dataset.auto === '1')) { vol.value = N(rec.batch); vol.dataset.auto = '1'; }
+    });
+    const vol = $('#f-vol');
+    if (vol) { vol.dataset.auto = '1'; vol.addEventListener('input', () => { vol.dataset.auto = '0'; });
   },
   editBrew: el => {
     const b = D.brews.find(x => x.id === el.dataset.id);
     normalizeBrewExtraNotes(b);
-    const extra = `<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>`
-      + brewFormExtraNotesHTML(b);
-    openForm(b.recipeName, [{k: 'date', l: 'Date', t: 'date'}, {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)}, {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'}, {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
-      {k: 'vol', l: 'Volume obtenu (L)', t: 'number'}, {k: 'notes', l: 'Notes de brassage', t: 'textarea'}, {k: 'tasting', l: 'Dégustation', t: 'textarea'}], b,
+    openForm(b.recipeName, brewEditFields, b,
       v => {
         b.date = v.date; b.status = v.status; b.ogM = v.ogM; b.fgM = v.fgM; b.vol = v.vol; b.notes = v.notes; b.tasting = v.tasting;
         if (D.prefs.brewExtraNotes === true) b.extraNotes = readBrewExtraFromDlg();
         persist(); renderMain(true);
       },
-      extra);
+      brewCreateHelp + brewFormExtraNotesHTML(b));
   },
   delBrew: el => ask('Supprimer ce brassage de l’historique ?', 'Supprimer', () => { D.brews = D.brews.filter(x => x.id !== el.dataset.id); persist(); renderMain(true); }),
   ingTab: el => { ui.tab = el.dataset.t; renderMain(true); },
