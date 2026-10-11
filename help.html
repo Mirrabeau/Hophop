@@ -219,7 +219,7 @@ th { background: var(--okbg); color: var(--head); }
       <li><a href="#calculs">Calculs</a></li>
       <li><a href="#ingredients">Ingrédients, styles et stock</a></li>
       <li><a href="#materiel">Profils matériel</a></li>
-      <li><a href="#brassins">Brassins</a></li>
+      <li><a href="#brassins">Brassins</a> (<a href="#autres-notes">Autres notes</a>)</li>
       <li><a href="#fiche">Fiche recette et exports</a></li>
       <li><a href="#compte">Compte et préférences</a></li>
       <li><a href="#integration"><strong>Intégration BrewRecipes et forum</strong></a></li>
@@ -275,8 +275,20 @@ th { background: var(--okbg); color: var(--head); }
   <p>Chaque recette pointe vers un profil ; le rendement et le rapport eau/grain restent modifiables par recette.</p>
 
   <h2 id="brassins">6. Brassins</h2>
-  <p>Depuis une recette, <strong>Enregistrer un brassage</strong> fige les stats visées et permet de saisir DI / DF mesurées, notes, etc. L’onglet Brassins compare le prévu et le réel (ABV, atténuation, rendement).</p>
-  <p>Dans <strong>Compte</strong>, vous pouvez activer le sous-formulaire optionnel <strong>Autres notes</strong> (dépliable à l’édition d’un brassage) : quantités réelles, températures, pH, densités et volumes du jour de brassage, plus des notes libres. Désactivé par défaut ; les saisies déjà faites restent en mémoire si vous désactivez l’option.</p>
+  <p>Depuis une recette, <strong>Enregistrer un brassage</strong> fige les stats visées (et une copie de la recette) puis permet de saisir DI / DF mesurées, volume obtenu, notes et dégustation. L’onglet Brassins compare le prévu et le réel (ABV, atténuation, rendement).</p>
+
+  <h3 id="autres-notes">6.1 Autres notes (optionnel)</h3>
+  <p>Dans <strong>Compte → Brassins</strong>, activez <strong>Autres notes</strong> pour afficher un sous-formulaire dépliable à l’édition d’un brassage. Désactivé par défaut : l’onglet Brassins affiche alors le rappel « Autres notes activables dans l’onglet Compte ». Si vous désactivez l’option plus tard, les saisies déjà enregistrées restent en mémoire.</p>
+  <p>Les colonnes « prévu » viennent de la recette figée au moment de l’enregistrement du brassage. Vous ne saisissez que les valeurs réelles du jour.</p>
+  <ul>
+    <li><strong>Quantités</strong> — un tableau liste les fermentescibles, houblons, levures et divers de la recette (Q prévu / Q réel). Une ligne vide en bas et le bouton <strong>+ Ingrédient</strong> permettent d’ajouter un élément non prévu (nom, unité, quantités).</li>
+    <li><strong>Températures (°C)</strong> — strike, paliers d’empâtage, rinçage (78 °C), ébullition (100 °C), après ébullition, après refroidissement (température de levurage prévue si renseignée).</li>
+    <li><strong>pH</strong> — mesures à température ambiante (~20 °C), avec fourchettes indicatives sous chaque ligne (ex. maische 5,2–5,6 ; eau de rinçage ≤ 6,0). Ce sont des repères de brassage amateur, pas un calcul d’eau HopHop.</li>
+    <li><strong>Densités</strong> — avant rinçage, avant / après ébullition (prévu calculé quand c’est possible).</li>
+    <li><strong>Volumes (L)</strong> — avant rinçage, eau de rinçage, avant / après ébullition, fermenteur, conditionnement.</li>
+    <li><strong>Notes libres</strong> — champ texte pour le reste du journal de brassage.</li>
+  </ul>
+  <p>Les densités principales DI / DF mesurées restent dans la partie haute du formulaire (elles servent au calcul d’ABV, d’atténuation et de rendement réel).</p>
 
   <h2 id="fiche">7. Fiche recette et exports</h2>
   <ul>
@@ -288,6 +300,7 @@ th { background: var(--okbg); color: var(--head); }
   <ul>
     <li>Thème (vert, ambre, blé, myrtille, sombre) et densité d’affichage</li>
     <li>Unité de densité principale (SG ou Brix) et formule réfractomètre</li>
+    <li><strong>Brassins</strong> — activer / désactiver le sous-formulaire <a href="#autres-notes">Autres notes</a></li>
     <li>Avatar (emoji / photo locale ; sur le forum, avatar phpBB par défaut)</li>
     <li>Export / import de la sauvegarde JSON du compte (mode autonome surtout)</li>
   </ul>

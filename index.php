@@ -101,7 +101,13 @@ details.brew-extra>summary::-webkit-details-marker{color:var(--accent)}
 details.brew-extra[open]>summary{margin-bottom:.55rem}
 details.brew-extra h3{margin:.75rem 0 .35rem;font-size:.95rem}
 details.brew-extra .fgrid{margin-top:.2rem}
+details.brew-extra .brew-xn-tbl{font-size:.88rem;margin:.25rem 0 .4rem}
+details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle}
+details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem}
+details.brew-extra .brew-xn-tbl .xn-planned{color:var(--muted);white-space:nowrap}
+details.brew-extra .brew-xn-rec{font-size:.72rem;color:var(--muted);font-weight:400;line-height:1.25}
 .brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
+.brew-extra-hint{font-size:.85rem;color:var(--muted);margin:.35rem 0 .6rem}
 
 input,select,textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;min-width:0}
 textarea{min-height:5rem;resize:vertical}
@@ -944,11 +950,12 @@ function viewSheet() {
 /* --- Brassins (historique) --- */
 function emptyBrewExtraNotes() {
   return {
-    qty: {ferm: '', hop: '', yeast: '', misc: ''},
-    temp: {mash: '', sparge: '', boil: '', postBoil: '', chilled: ''},
+    qtyActual: {},
+    qtyExtra: [],
+    temp: {},
     ph: {mashBefore: '', mashDuring: '', mashEnd: '', spargeWater: '', preBoil: '', postBoil: ''},
     sg: {preSparge: '', preBoil: '', postBoil: ''},
-    vol: {preSparge: '', spargeWater: '', preBoil: '', postBoil: '', fermenter: '', packaging: ''},
+    vol: {},
     free: '',
   };
 }
@@ -956,88 +963,215 @@ function normalizeBrewExtraNotes(b) {
   if (!b || typeof b !== 'object') return;
   const base = emptyBrewExtraNotes();
   const src = (b.extraNotes && typeof b.extraNotes === 'object') ? b.extraNotes : {};
-  const mergeGroup = (key) => {
-    const out = {...base[key]};
-    const g = (src[key] && typeof src[key] === 'object') ? src[key] : {};
-    Object.keys(out).forEach(k => { if (g[k] != null && g[k] !== '') out[k] = String(g[k]); });
+  const mapVals = (obj) => {
+    const out = {};
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      Object.keys(obj).forEach(k => { if (obj[k] != null && obj[k] !== '') out[k] = obj[k]; });
+    }
     return out;
   };
+  const ph = {...base.ph};
+  const phSrc = (src.ph && typeof src.ph === 'object') ? src.ph : {};
+  Object.keys(ph).forEach(k => { if (phSrc[k] != null && phSrc[k] !== '') ph[k] = phSrc[k]; });
+  const sg = {...base.sg};
+  const sgSrc = (src.sg && typeof src.sg === 'object') ? src.sg : {};
+  Object.keys(sg).forEach(k => { if (sgSrc[k] != null && sgSrc[k] !== '') sg[k] = sgSrc[k]; });
+  let free = src.free != null ? String(src.free) : '';
+  // Ancien format (textes libres par catégorie) → basculé dans les notes libres
+  if (src.qty && typeof src.qty === 'object' && !Array.isArray(src.qty) && ('ferm' in src.qty || 'hop' in src.qty)) {
+    const bits = [['Malts', src.qty.ferm], ['Houblons', src.qty.hop], ['Levure', src.qty.yeast], ['Autre', src.qty.misc]]
+      .filter(([, v]) => String(v || '').trim()).map(([l, v]) => l + ' : ' + String(v).trim());
+    if (bits.length) free = (free ? free + '\n\n' : '') + bits.join('\n');
+  }
+  const temp = mapVals(src.temp);
+  // Ancienne clé unique « mash » → premier palier si présent
+  if (temp.mash != null && temp.mash !== '' && temp['mash.0'] == null) temp['mash.0'] = temp.mash;
+  const vol = mapVals(src.vol);
   b.extraNotes = {
-    qty: mergeGroup('qty'),
-    temp: mergeGroup('temp'),
-    ph: mergeGroup('ph'),
-    sg: mergeGroup('sg'),
-    vol: mergeGroup('vol'),
-    free: src.free != null ? String(src.free) : '',
+    qtyActual: mapVals(src.qtyActual),
+    qtyExtra: Array.isArray(src.qtyExtra) ? src.qtyExtra.map(x => ({
+      name: x?.name != null ? String(x.name) : '',
+      unit: x?.unit != null ? String(x.unit) : '',
+      planned: x?.planned != null && x.planned !== '' ? x.planned : '',
+      actual: x?.actual != null && x.actual !== '' ? x.actual : '',
+    })) : [],
+    temp, ph, sg, vol, free,
   };
 }
+function brewExtraHasVal(v) { return v != null && String(v).trim() !== ''; }
 function brewExtraNotesFilled(b) {
   if (!b?.extraNotes) return false;
   const e = b.extraNotes;
-  const groups = [e.qty, e.temp, e.ph, e.sg, e.vol];
-  if (groups.some(g => g && Object.values(g).some(v => String(v || '').trim() !== ''))) return true;
-  return String(e.free || '').trim() !== '';
+  if (Object.values(e.qtyActual || {}).some(brewExtraHasVal)) return true;
+  if ((e.qtyExtra || []).some(x => brewExtraHasVal(x.name) || brewExtraHasVal(x.actual) || brewExtraHasVal(x.planned))) return true;
+  if ([e.temp, e.ph, e.sg, e.vol].some(g => g && Object.values(g).some(brewExtraHasVal))) return true;
+  return brewExtraHasVal(e.free);
 }
-function brewExtraNum(id, path, label, val) {
-  return fld(label, `<input id="${id}" data-f="${path}" data-t="n" inputmode="decimal" value="${esc(val ?? '')}">`);
+function brewSnapCalc(b) {
+  const r = b?.snap && typeof b.snap === 'object' ? b.snap : null;
+  if (!r) return {r: null, c: null};
+  try { return {r, c: calc(r)}; } catch { return {r, c: null}; }
 }
-function brewExtraText(id, path, label, val, full) {
-  return fld(label, `<textarea id="${id}" data-f="${path}">${esc(val ?? '')}</textarea>`, full ? 'full' : '');
+function brewExtraQtyPlan(b) {
+  const {r} = brewSnapCalc(b);
+  if (!r) return [];
+  const rows = [];
+  (r.ferm || []).forEach((x, i) => {
+    const g = lib('ferm', x.ref);
+    rows.push({k: 'ferm.' + i, label: g?.name || 'Fermentescible', planned: N(x.kg), unit: 'kg', plannedTxt: f(N(x.kg), 3) + ' kg'});
+  });
+  (r.hops || []).forEach((x, i) => {
+    const h = lib('hop', x.ref);
+    const use = USE_H[x.use] ? ' · ' + USE_H[x.use] : '';
+    rows.push({k: 'hops.' + i, label: (h?.name || 'Houblon') + use, planned: N(x.g), unit: 'g', plannedTxt: f(N(x.g), 1) + ' g'});
+  });
+  (r.yeast || []).forEach((x, i) => {
+    const y = lib('yeast', x.ref);
+    rows.push({k: 'yeast.' + i, label: y?.name || 'Levure', planned: N(x.qty), unit: '×', plannedTxt: f(N(x.qty), 1) + ' ×'});
+  });
+  (r.misc || []).forEach((x, i) => {
+    const m = lib('misc', x.ref);
+    const unit = m?.unit || '';
+    rows.push({k: 'misc.' + i, label: m?.name || 'Divers', planned: N(x.qty), unit, plannedTxt: f(N(x.qty), 2) + (unit ? ' ' + unit : '')});
+  });
+  return rows;
+}
+function brewExtraTempPlan(b) {
+  const {r, c} = brewSnapCalc(b);
+  const rows = [];
+  if (c && c.kgMash > 0) rows.push({k: 'strike', label: 'Eau d’empâtage (strike)', planned: rnd(c.strike, 0), plannedTxt: f(c.strike, 0) + ' °C'});
+  (r?.mash || []).forEach((s, i) => rows.push({k: 'mash.' + i, label: s.name || ('Palier ' + (i + 1)), planned: N(s.temp), plannedTxt: f(N(s.temp), 0) + ' °C'}));
+  if (c && c.sparge > 0) rows.push({k: 'sparge', label: 'Rinçage', planned: 78, plannedTxt: '78 °C'});
+  rows.push({k: 'boil', label: 'Ébullition', planned: 100, plannedTxt: '100 °C'});
+  rows.push({k: 'postBoil', label: 'Après ébullition', planned: '', plannedTxt: '—'});
+  const ft = r?.ferment?.[0] != null && r.ferment[0].temp !== '' && r.ferment[0].temp != null ? N(r.ferment[0].temp) : '';
+  rows.push({k: 'chilled', label: 'Après refroidissement', planned: ft, plannedTxt: ft === '' ? '—' : f(ft, 0) + ' °C'});
+  return rows;
+}
+function brewExtraVolPlan(b) {
+  const {c} = brewSnapCalc(b);
+  if (!c) {
+    return [
+      {k: 'preSparge', label: 'Avant rinçage', plannedTxt: '—'},
+      {k: 'spargeWater', label: 'Eau de rinçage', plannedTxt: '—'},
+      {k: 'preBoil', label: 'Avant ébullition', plannedTxt: '—'},
+      {k: 'postBoil', label: 'Après ébullition', plannedTxt: '—'},
+      {k: 'fermenter', label: 'Dans le fermenteur', plannedTxt: '—'},
+      {k: 'packaging', label: 'Final au conditionnement', plannedTxt: '—'},
+    ];
+  }
+  const mashVol = c.mashSteps.length ? c.mashSteps[c.mashSteps.length - 1].volume : c.mashWater;
+  const postBoil = (c.V + c.P.trub) / (1 - c.P.shrink / 100);
+  return [
+    {k: 'preSparge', label: 'Avant rinçage', planned: rnd(mashVol, 1), plannedTxt: f(mashVol, 1) + ' L'},
+    {k: 'spargeWater', label: 'Eau de rinçage', planned: rnd(c.sparge, 1), plannedTxt: f(c.sparge, 1) + ' L'},
+    {k: 'preBoil', label: 'Avant ébullition', planned: rnd(c.preboil, 1), plannedTxt: f(c.preboil, 1) + ' L'},
+    {k: 'postBoil', label: 'Après ébullition', planned: rnd(postBoil, 1), plannedTxt: f(postBoil, 1) + ' L'},
+    {k: 'fermenter', label: 'Dans le fermenteur', planned: rnd(c.V, 1), plannedTxt: f(c.V, 1) + ' L'},
+    {k: 'packaging', label: 'Final au conditionnement', planned: rnd(c.V, 1), plannedTxt: f(c.V, 1) + ' L'},
+  ];
+}
+function brewExtraSgPlan(b) {
+  const {c} = brewSnapCalc(b);
+  return [
+    {k: 'preSparge', label: 'Avant rinçage', plannedTxt: '—'},
+    {k: 'preBoil', label: 'Avant ébullition', plannedTxt: c ? gPrimaryText(c.pbSG) : '—'},
+    {k: 'postBoil', label: 'Après ébullition', plannedTxt: c ? gPrimaryText(c.og) : '—'},
+  ];
+}
+const BREW_PH_ROWS = [
+  {k: 'mashBefore', label: 'Maische avant brassage', rec: '—'},
+  {k: 'mashDuring', label: 'Maische pendant (~15 min)', rec: '5,2–5,6 (idéal 5,2–5,4 pâles · 5,4–5,6 foncées)'},
+  {k: 'mashEnd', label: 'Maische fin de brassage', rec: '5,2–5,6'},
+  {k: 'spargeWater', label: 'Eau de rinçage', rec: '≤ 6,0 (souvent 5,5–6,0 acidifiée)'},
+  {k: 'preBoil', label: 'Avant ébullition', rec: '≈ 5,2–5,6'},
+  {k: 'postBoil', label: 'Après ébullition', rec: '≈ 5,0–5,4'},
+];
+function brewXnNum(attrs, val) {
+  return `<input ${attrs} data-t="n" inputmode="decimal" value="${esc(val ?? '')}">`;
+}
+function brewExtraQtyExtraRow(x = {}) {
+  return `<tr data-xn-extra>
+    <td><input data-xn-en placeholder="Ingrédient" aria-label="Ingrédient ajouté" value="${esc(x.name || '')}"></td>
+    <td style="white-space:nowrap"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}" style="width:4.2rem"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}" style="width:2.8rem"></td>
+    <td><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
+    <td><button type="button" class="ico" data-act="xnRmQty" aria-label="Retirer">✕</button></td>
+  </tr>`;
 }
 /** Sous-formulaire dépliable « Autres notes » (si activé dans Compte). */
 function brewExtraNotesHTML(b) {
   normalizeBrewExtraNotes(b);
   const e = b.extraNotes, open = brewExtraNotesFilled(b) ? ' open' : '';
+  const qtyRows = brewExtraQtyPlan(b);
+  const qtyExtras = [...(e.qtyExtra || []), {}];
+  const qtyBody = qtyRows.map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned">${esc(row.plannedTxt)}</td>
+      <td>${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
+      <td></td>
+    </tr>`).join('') + qtyExtras.map(brewExtraQtyExtraRow).join('');
+  const tempBody = brewExtraTempPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned">${esc(row.plannedTxt)}</td>
+      <td>${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
+    </tr>`).join('');
+  const volBody = brewExtraVolPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned">${esc(row.plannedTxt)}</td>
+      <td>${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
+    </tr>`).join('');
+  const sgBody = brewExtraSgPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned">${esc(row.plannedTxt)}</td>
+      <td>${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
+    </tr>`).join('');
+  const phBody = BREW_PH_ROWS.map(row => `<tr>
+      <td>${esc(row.label)}<div class="brew-xn-rec">${esc(row.rec)}</div></td>
+      <td>${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
+    </tr>`).join('');
   return `<details class="brew-extra"${open}>
     <summary>Autres notes</summary>
-    <p class="sub" style="margin:.2rem 0 .5rem">Relevés optionnels du jour de brassage. Les densités principales (DI / DF mesurées) restent ci-dessus.</p>
-    <h3>Quantités réelles</h3>
-    <div class="fgrid">
-      ${brewExtraText('xn-ferm', 'xn.qty.ferm', 'Malts / fermentescibles', e.qty.ferm, true)}
-      ${brewExtraText('xn-hop', 'xn.qty.hop', 'Houblons', e.qty.hop, true)}
-      ${brewExtraText('xn-yeast', 'xn.qty.yeast', 'Levure', e.qty.yeast, true)}
-      ${brewExtraText('xn-misc', 'xn.qty.misc', 'Autre (adjuvants, épices…)', e.qty.misc, true)}
-    </div>
+    <p class="sub" style="margin:.2rem 0 .5rem">Relevés optionnels du jour de brassage. Les densités principales (DI / DF mesurées) restent ci-dessus. Les valeurs « prévu » viennent de la recette enregistrée.</p>
+    <h3>Quantités</h3>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Ingrédient</th><th>Q prévu</th><th>Q réel</th><th></th></tr></thead>
+      <tbody id="xn-qty-body">${qtyBody}</tbody></table></div>
+    <div class="dlg-actions" style="justify-content:flex-start;margin:.2rem 0 .5rem"><button type="button" class="btn ghost sm" data-act="xnAddQty">+ Ingrédient</button></div>
     <h3>Températures (°C)</h3>
-    <div class="fgrid">
-      ${brewExtraNum('xn-tm', 'xn.temp.mash', 'Pendant le brassage', e.temp.mash)}
-      ${brewExtraNum('xn-ts', 'xn.temp.sparge', 'Rinçage', e.temp.sparge)}
-      ${brewExtraNum('xn-tb', 'xn.temp.boil', 'Ébullition', e.temp.boil)}
-      ${brewExtraNum('xn-tpb', 'xn.temp.postBoil', 'Après ébullition', e.temp.postBoil)}
-      ${brewExtraNum('xn-tc', 'xn.temp.chilled', 'Après refroidissement', e.temp.chilled)}
-    </div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Étape</th><th>T° prévu</th><th>T° réel</th></tr></thead><tbody>${tempBody}</tbody></table></div>
     <h3>pH</h3>
-    <div class="fgrid">
-      ${brewExtraNum('xn-phmb', 'xn.ph.mashBefore', 'Maische avant brassage', e.ph.mashBefore)}
-      ${brewExtraNum('xn-phmd', 'xn.ph.mashDuring', 'Maische pendant brassage', e.ph.mashDuring)}
-      ${brewExtraNum('xn-phme', 'xn.ph.mashEnd', 'Maische fin de brassage', e.ph.mashEnd)}
-      ${brewExtraNum('xn-phsw', 'xn.ph.spargeWater', 'Eau de rinçage', e.ph.spargeWater)}
-      ${brewExtraNum('xn-phpb', 'xn.ph.preBoil', 'Avant ébullition', e.ph.preBoil)}
-      ${brewExtraNum('xn-phob', 'xn.ph.postBoil', 'Après ébullition', e.ph.postBoil)}
-    </div>
+    <p class="sub" style="margin:.1rem 0 .35rem">Mesures à température ambiante (~20 °C). Recommandations indicatives (brassage amateur).</p>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>pH réel</th></tr></thead><tbody>${phBody}</tbody></table></div>
     <h3>Densités</h3>
-    <div class="fgrid">
-      ${brewExtraNum('xn-sgps', 'xn.sg.preSparge', 'Avant rinçage', e.sg.preSparge)}
-      ${brewExtraNum('xn-sgpb', 'xn.sg.preBoil', 'Avant ébullition', e.sg.preBoil)}
-      ${brewExtraNum('xn-sgob', 'xn.sg.postBoil', 'Après ébullition (= DF)', e.sg.postBoil)}
-    </div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>Prévu</th><th>Réel</th></tr></thead><tbody>${sgBody}</tbody></table></div>
     <h3>Volumes (L)</h3>
-    <div class="fgrid">
-      ${brewExtraNum('xn-vps', 'xn.vol.preSparge', 'Avant rinçage', e.vol.preSparge)}
-      ${brewExtraNum('xn-vsw', 'xn.vol.spargeWater', 'Eau de rinçage', e.vol.spargeWater)}
-      ${brewExtraNum('xn-vpb', 'xn.vol.preBoil', 'Avant ébullition', e.vol.preBoil)}
-      ${brewExtraNum('xn-vob', 'xn.vol.postBoil', 'Après ébullition', e.vol.postBoil)}
-      ${brewExtraNum('xn-vf', 'xn.vol.fermenter', 'Dans le fermenteur', e.vol.fermenter)}
-      ${brewExtraNum('xn-vp', 'xn.vol.packaging', 'Final au conditionnement', e.vol.packaging)}
-    </div>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th>Vol. prévu</th><th>Vol. réel</th></tr></thead><tbody>${volBody}</tbody></table></div>
     <h3>Autres notes de brassage</h3>
-    <div class="fgrid">${brewExtraText('xn-free', 'xn.free', 'Notes libres', e.free, true)}</div>
+    <div class="fgrid"><label class="fld full"><span>Notes libres</span><textarea id="xn-free" data-f="xn.free">${esc(e.free)}</textarea></label></div>
   </details>`;
 }
 function readBrewExtraFromDlg() {
   const e = emptyBrewExtraNotes();
-  document.querySelectorAll('#dlg [data-f^="xn."]').forEach(el => {
-    const path = el.dataset.f.slice(3).split('.'); // after "xn."
+  document.querySelectorAll('#dlg [data-xn-qty]').forEach(el => {
+    e.qtyActual[el.dataset.xnQty] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg tr[data-xn-extra]').forEach(tr => {
+    const name = tr.querySelector('[data-xn-en]')?.value || '';
+    const unit = tr.querySelector('[data-xn-eu]')?.value || '';
+    const ep = tr.querySelector('[data-xn-ep]');
+    const ea = tr.querySelector('[data-xn-ea]');
+    const planned = ep && ep.value !== '' ? N(ep.value) : '';
+    const actual = ea && ea.value !== '' ? N(ea.value) : '';
+    if (!name.trim() && planned === '' && actual === '' && !unit.trim()) return;
+    e.qtyExtra.push({name, unit, planned, actual});
+  });
+  document.querySelectorAll('#dlg [data-xn-temp]').forEach(el => {
+    e.temp[el.dataset.xnTemp] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg [data-xn-vol]').forEach(el => {
+    e.vol[el.dataset.xnVol] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg [data-f^="xn.ph."], #dlg [data-f^="xn.sg."], #dlg [data-f="xn.free"]').forEach(el => {
+    const path = el.dataset.f.slice(3).split('.');
     let t = e;
     for (let i = 0; i < path.length - 1; i++) t = t[path[i]];
     const last = path[path.length - 1];
@@ -1055,6 +1189,7 @@ function brewCalc(b) {
 function viewBrews() {
   const l = [...D.brews].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   return `<div class="bar"><h1>Historique de brassage</h1><div class="grow"></div><button class="btn" data-act="newBrew">+ Nouveau brassage</button></div>
+  ${!D.prefs.brewExtraNotes ? '<p class="brew-extra-hint">Autres notes activables dans l’onglet Compte.</p>' : ''}
   ${l.length ? `<div class="cards">${l.map(b => { const k = brewCalc(b); return `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;gap:.5rem"><h2 style="margin:0">${esc(b.recipeName)}</h2><span class="chip">${STATUS[b.status]}</span></div>
     <div class="sub">${fdate(b.date)} · ${f(b.vol, 1)} L</div>
     <dl class="kv" style="margin-top:.6rem"><dt>Densité initiale</dt><dd>${b.ogM > 1 ? gUnit(b.ogM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.og)})</span></dd><dt>Densité finale</dt><dd>${b.fgM > 0.99 ? gUnit(b.fgM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.fg)})</span></dd>
@@ -1275,6 +1410,8 @@ const ACT = {
   setUnit: el => { D.prefs.unitPrimary = el.dataset.v; persist(); renderMain(true); },
   setRefract: el => { D.prefs.refractFormula = el.dataset.v; persist(); renderMain(true); },
   setBrewExtra: el => { D.prefs.brewExtraNotes = el.dataset.v === '1'; persist(); renderMain(true); },
+  xnAddQty: () => { const tb = $('#xn-qty-body'); if (tb) tb.insertAdjacentHTML('beforeend', brewExtraQtyExtraRow()); },
+  xnRmQty: el => { const tr = el.closest('tr'); if (tr) tr.remove(); },
   setAvatarEmoji: el => { D.prefs.avatarType = 'emoji'; D.prefs.avatarEmoji = el.dataset.v; persist(); renderMain(true); },
   avatarUpload: () => $('#avatarFile').click(),
   avatarReset: () => { D.prefs.avatarType = 'emoji'; D.prefs.avatarImage = ''; persist(); renderMain(true); },
