@@ -391,7 +391,7 @@ async function api(action, payload = {}) {
   return j;
 }
 let USER = null, D = null;                    // utilisateur courant et ses données
-const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true};
+const AUTH = {mode: 'standalone', features: {register: true, local_login: true, delete_account: true}, login_url: '', logout_url: '', brewrecipes_share_url: '', brewrecipes_style_guides_url: '', brewrecipes_styles_url: '', avatar_url: '', mysql_ready: true, blocked: ''};
 const ui = {view: 'recipes', rid: null, q: '', tab: 'ferm', auth: 'login', showArchivedIng: false, sheetSteps: true, sheetCost: true, ingSort: {key: 'name', dir: 'asc'}};
 const R = () => D && D.recipes.find(r => r.id === ui.rid);
 
@@ -546,6 +546,7 @@ function applySessionMeta(s) {
   AUTH.brewrecipes_styles_url = s.brewrecipes_styles_url || '';
   AUTH.avatar_url = s.avatar_url || '';
   AUTH.mysql_ready = s.mysql_ready !== false;
+  AUTH.blocked = s.blocked || '';
 }
 /** URLs BrewRecipes fournies par la session (vides hors intégration phpBB). */
 function brewrecipesShareUrl() { return AUTH.brewrecipes_share_url || ''; }
@@ -687,6 +688,12 @@ const libOpts = (t, sel) => {
 };
 
 function authHTML() {
+  if (AUTH.mode === 'phpbb' && AUTH.blocked === 'robot') {
+    return `<div class="authscreen"><div class="auth-bg" aria-hidden="true">${LOGO_SVG}</div><div class="wrap"><div class="auth card">
+    <h1 style="text-align:center;display:flex;align-items:center;justify-content:center;gap:.5rem"><span class="brand-logo" style="width:2.2rem;height:2.2rem">${LOGO_SVG}</span>HopHop</h1>
+    <p class="err" role="alert">Les robots du forum ne peuvent pas utiliser HopHop.</p>
+  </div></div></div>`;
+  }
   if (AUTH.mode === 'phpbb') {
     const loginBtn = AUTH.login_url
       ? `<a class="btn" href="${esc(AUTH.login_url)}" style="width:100%;text-align:center;text-decoration:none;display:inline-block;box-sizing:border-box">Se connecter au forum</a>`

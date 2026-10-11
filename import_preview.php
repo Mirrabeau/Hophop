@@ -26,6 +26,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     exit;
 }
 
+if (hophop_forum_is_bot()) {
+    http_response_code(403);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Les robots du forum ne peuvent pas utiliser HopHop.';
+    exit;
+}
+
 $ctx = hophop_user_context();
 
 if (!$ctx) {

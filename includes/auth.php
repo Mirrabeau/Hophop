@@ -54,6 +54,10 @@ function hophop_user_context(): ?array
 
 function require_login(): void
 {
+    if (hophop_auth_mode() === 'phpbb' && hophop_forum_is_bot()) {
+        json_fail('Les robots du forum ne peuvent pas utiliser HopHop.', 403);
+    }
+
     if (!hophop_user_context()) {
         json_fail('Session expirée, reconnectez-vous.', 401);
     }
@@ -81,6 +85,10 @@ function hophop_session_payload(): array
         $payload['brewrecipes_styles_url'] = hophop_brewrecipes_styles_url();
         $payload['avatar_url'] = hophop_forum_avatar_url();
         $payload['mysql_ready'] = hophop_storage() !== 'mysql' || hophop_mysql_store_ready();
+
+        if (hophop_forum_is_bot()) {
+            $payload['blocked'] = 'robot';
+        }
     }
 
     return $payload;

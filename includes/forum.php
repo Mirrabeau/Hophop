@@ -193,11 +193,35 @@ function hophop_bootstrap_phpbb_web_stack(bool $start_session = true): void
 }
 
 /**
+ * Visiteur déjà reconnu comme robot par phpBB (session is_bot).
+ * Couvre les groupes BOTS et AI_CRAWLERS (3.3.18+) : les deux sont USER_IGNORE.
+ * Un membre inactif peut aussi avoir is_bot sur une session encore ouverte — on ne le bloque pas.
+ */
+function hophop_forum_is_bot(): bool
+{
+    if (!hophop_bootstrap_phpbb()) {
+        return false;
+    }
+
+    global $user;
+
+    if (!isset($user->data) || !is_array($user->data) || empty($user->data['is_bot'])) {
+        return false;
+    }
+
+    return defined('USER_IGNORE') && (int) ($user->data['user_type'] ?? -1) === USER_IGNORE;
+}
+
+/**
  * @return array{user_id: int, username: string}|null
  */
 function hophop_forum_user(): ?array
 {
     if (!hophop_bootstrap_phpbb()) {
+        return null;
+    }
+
+    if (hophop_forum_is_bot()) {
         return null;
     }
 
