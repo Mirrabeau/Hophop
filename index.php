@@ -1193,9 +1193,7 @@ function brewCalc(b) {
 }
 function viewBrews() {
   const l = [...D.brews].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const xnOff = D.prefs.brewExtraNotes !== true;
   return `<div class="bar"><h1>Historique de brassage</h1><div class="grow"></div><button class="btn" data-act="newBrew">+ Nouveau brassage</button></div>
-  ${xnOff ? '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>' : ''}
   ${l.length ? `<div class="cards">${l.map(b => { const k = brewCalc(b); return `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;gap:.5rem"><h2 style="margin:0">${esc(b.recipeName)}</h2><span class="chip">${STATUS[b.status]}</span></div>
     <div class="sub">${fdate(b.date)} · ${f(b.vol, 1)} L</div>
     <dl class="kv" style="margin-top:.6rem"><dt>Densité initiale</dt><dd>${b.ogM > 1 ? gUnit(b.ogM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.og)})</span></dd><dt>Densité finale</dt><dd>${b.fgM > 0.99 ? gUnit(b.fgM) : '–'} <span class="sub">(visée ${gPrimaryText(b.stats.fg)})</span></dd>
