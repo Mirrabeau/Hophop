@@ -95,7 +95,7 @@ nav.tabs button[aria-current="page"]{color:var(--head);border-bottom-color:var(-
 .ico{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;width:2.2rem;height:2.2rem;flex:none}
 .ico:hover{color:var(--danger);border-color:var(--danger)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
-details.brew-extra{margin-top:.85rem;border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;background:var(--bg)}
+details.brew-extra{margin-top:.85rem;border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;background:var(--bg);container-type:inline-size;container-name:brew-extra}
 details.brew-extra>summary{cursor:pointer;font-weight:600;color:var(--head);font-family:var(--serif);list-style-position:outside}
 details.brew-extra>summary::-webkit-details-marker{color:var(--accent)}
 details.brew-extra[open]>summary{margin-bottom:.55rem}
@@ -103,13 +103,33 @@ details.brew-extra h3{margin:.75rem 0 .35rem;font-size:.95rem}
 details.brew-extra .fgrid{margin-top:.2rem}
 details.brew-extra .scroll{overflow-x:visible}
 details.brew-extra .scroll .brew-xn-tbl,details.brew-extra .brew-xn-tbl{width:100%;max-width:100%;table-layout:fixed;font-size:.88rem;margin:.25rem 0 .4rem}
-details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle;overflow-wrap:anywhere}
+details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle;overflow-wrap:break-word}
 details.brew-extra .brew-xn-tbl .xn-planned{width:6.5rem;color:var(--muted);white-space:nowrap}
 details.brew-extra .brew-xn-tbl .xn-actual{width:7.5rem}
 details.brew-extra .brew-xn-tbl .xn-actions{width:2.6rem;text-align:center;padding-left:.2rem;padding-right:.2rem}
 details.brew-extra .brew-xn-tbl .xn-actual input,details.brew-extra .brew-xn-tbl td.xn-actual input{width:100%;max-width:none;padding:.35rem .45rem;font-size:.88rem;box-sizing:border-box}
 details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem;max-width:none}
+details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-ep]{width:3.6rem}
+details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-eu]{width:2.4rem}
 details.brew-extra .brew-xn-rec{font-size:.72rem;color:var(--muted);font-weight:400;line-height:1.25}
+/* Écran étroit : chaque relevé devient une fiche (nom, puis prévu / réel), au lieu d’un tableau dont la 1re colonne s’écrase lettre par lettre. */
+@container brew-extra (max-width:26rem){
+  details.brew-extra{padding:.5rem .55rem}
+  details.brew-extra .scroll .brew-xn-tbl,details.brew-extra .brew-xn-tbl{display:block;table-layout:auto;font-size:.92rem;margin:.15rem 0 .35rem}
+  details.brew-extra .brew-xn-tbl thead{display:none}
+  details.brew-extra .brew-xn-tbl tbody{display:flex;flex-direction:column;gap:.45rem}
+  details.brew-extra .brew-xn-tbl tr{display:grid;grid-template-columns:minmax(0,1fr);gap:.28rem .4rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .6rem}
+  details.brew-extra .brew-xn-tbl tr:has(> .xn-actions button){grid-template-columns:minmax(0,1fr) auto}
+  details.brew-extra .brew-xn-tbl td{display:block;width:auto;max-width:none;min-width:0;padding:0;border:0;white-space:normal;overflow-wrap:break-word}
+  details.brew-extra .brew-xn-tbl td:first-child{grid-column:1;grid-row:1;font-weight:600;color:var(--text)}
+  details.brew-extra .brew-xn-tbl tr:has(> .xn-actions button)>td.xn-actions{grid-column:2;grid-row:1;align-self:center;width:auto}
+  details.brew-extra .brew-xn-tbl td.xn-actions:empty{display:none}
+  details.brew-extra .brew-xn-tbl td.xn-planned,details.brew-extra .brew-xn-tbl td.xn-actual{grid-column:1 / -1;display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .45rem;width:auto;max-width:none;min-width:0;font-weight:500;color:var(--text)}
+  details.brew-extra .brew-xn-tbl td.xn-planned::before,details.brew-extra .brew-xn-tbl td.xn-actual::before{content:attr(data-label);flex:0 0 5.6rem;font-size:.72rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+  details.brew-extra .brew-xn-tbl td.xn-actual input{flex:1 1 6rem;width:auto;min-width:0}
+  details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-ep]{flex:1 1 4.5rem;width:auto;max-width:8rem;min-width:0}
+  details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-eu]{flex:0 0 3.2rem;width:3.2rem}
+}
 .brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
 .brew-extra-hint{font-size:.9rem;color:var(--muted);margin:.5rem 0 .75rem;padding:.55rem .8rem;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
 .brew-extra-hint button{font:inherit;font-size:inherit;color:var(--head);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
@@ -1118,8 +1138,8 @@ function brewXnNum(attrs, val) {
 function brewExtraQtyExtraRow(x = {}) {
   return `<tr data-xn-extra>
     <td><input data-xn-en placeholder="Ingrédient" aria-label="Ingrédient ajouté" value="${esc(x.name || '')}"></td>
-    <td class="xn-planned" style="white-space:nowrap"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}" style="width:3.6rem"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}" style="width:2.2rem"></td>
-    <td class="xn-actual"><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
+    <td class="xn-planned" data-label="Q prévu"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}"></td>
+    <td class="xn-actual" data-label="Q réel"><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
     <td class="xn-actions"><button type="button" class="ico" data-act="xnRmQty" aria-label="Retirer">✕</button></td>
   </tr>`;
 }
@@ -1131,28 +1151,28 @@ function brewExtraNotesHTML(b) {
   const qtyExtras = [...(e.qtyExtra || []), {}];
   const qtyBody = qtyRows.map(row => `<tr>
       <td>${esc(row.label)}</td>
-      <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td class="xn-actual">${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
+      <td class="xn-planned" data-label="Q prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Q réel">${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
       <td class="xn-actions"></td>
     </tr>`).join('') + qtyExtras.map(brewExtraQtyExtraRow).join('');
   const tempBody = brewExtraTempPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
-      <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td class="xn-actual">${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
+      <td class="xn-planned" data-label="T° prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="T° réel">${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
     </tr>`).join('');
   const volBody = brewExtraVolPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
-      <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td class="xn-actual">${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
+      <td class="xn-planned" data-label="Vol. prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Vol. réel">${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
     </tr>`).join('');
   const sgBody = brewExtraSgPlan(b).map(row => `<tr>
       <td>${esc(row.label)}</td>
-      <td class="xn-planned">${esc(row.plannedTxt)}</td>
-      <td class="xn-actual">${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
+      <td class="xn-planned" data-label="Prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Réel">${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
     </tr>`).join('');
   const phBody = BREW_PH_ROWS.map(row => `<tr>
       <td>${esc(row.label)}<div class="brew-xn-rec">${esc(row.rec)}</div></td>
-      <td class="xn-actual">${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
+      <td class="xn-actual" data-label="pH réel">${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
     </tr>`).join('');
   return `<details class="brew-extra"${open}>
     <summary>Autres notes</summary>
