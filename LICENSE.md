@@ -15,7 +15,7 @@ Selon les conditions suivantes :
 
 - **Attribution** — Vous devez créditer l'œuvre, intégrer un lien vers la licence et indiquer si des
   modifications ont été effectuées. Vous devez indiquer ces informations par tous les moyens raisonnables,
-  sans toutefois suggérer que claude.ai & Kiwi vous soutiennent ou approuvent votre utilisation.
+  sans toutefois suggérer que claude.ai & Penn-Maen vous soutiennent ou approuvent votre utilisation.
 - **Pas d'Utilisation Commerciale** — Vous n'êtes pas autorisé à faire un usage commercial de cette œuvre,
   tout ou partie du matériel la composant.
 - **Partage dans les Mêmes Conditions** — Dans le cas où vous effectuez un remix, que vous transformez, ou
