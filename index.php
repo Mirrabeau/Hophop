@@ -455,13 +455,17 @@ function normalizeData(d) {
   d.profiles.forEach(p => {
     if (p.ratio === undefined || p.ratio === null) p.ratio = 3;
     if (p.infusionTemp === undefined || p.infusionTemp === null) p.infusionTemp = 96;
+    p.mashMethod = p.mashMethod === 'biab' ? 'biab' : 'classic';
+    if (typeof p.biabSqueeze !== 'boolean') p.biabSqueeze = false;
   });
   d.recipes = Array.isArray(d.recipes) ? d.recipes : [];
-  d.recipes.forEach(r => {   // rapport eau/grain, rendement et température d'infusion : modifiables par recette, initialisés depuis le profil si absents
+  d.recipes.forEach(r => {   // rapport eau/grain, rendement, température d'infusion et méthode de brassage : modifiables par recette, initialisés depuis le profil si absents
     const prof = d.profiles.find(p => p.id === r.profileId) || d.profiles[0] || DEFAULT_P;
     if (r.ratio === undefined || r.ratio === null) r.ratio = prof.ratio ?? 3;
     if (r.eff === undefined || r.eff === null) r.eff = prof.eff ?? 72;
     if (r.infusionTemp === undefined || r.infusionTemp === null) r.infusionTemp = prof.infusionTemp ?? 96;
+    if (r.mashMethod === undefined || r.mashMethod === null) r.mashMethod = prof.mashMethod ?? 'classic';
+    if (typeof r.biabSqueeze !== 'boolean') r.biabSqueeze = prof.biabSqueeze ?? false;
   });
   d.brews = Array.isArray(d.brews) ? d.brews : [];
   d.stock = (d.stock && typeof d.stock === 'object') ? d.stock : {};
@@ -587,11 +591,13 @@ const STOCK_TYPES = ['ferm', 'hop', 'yeast', 'misc'];   // bibliothèques suivie
 const RLIB = {ferm: 'ferm', hops: 'hop', yeast: 'yeast', misc: 'misc'};   // section de recette → bibliothèque
 const lib = (t, id) => D.ing[t].find(x => x.id === id);
 const unitOf = (t, x) => t === 'ferm' ? 'kg' : t === 'hop' ? 'g' : t === 'yeast' ? 'sachet(s)' : (x.unit || 'g');
-const DEFAULT_P = {name: 'Défaut', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, shrink: 4, eff: 72, ratio: 3, infusionTemp: 96};
+const DEFAULT_P = {name: 'Défaut', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, shrink: 4, eff: 72, ratio: 3, infusionTemp: 96, mashMethod: 'classic', biabSqueeze: false};
+// Méthode de brassage : classique (empâtage + rinçage) ou BIAB (volume unique dans la cuve d’ébullition, sans rinçage).
+const BREW_METHOD = [['classic', 'Classique (empâtage + rinçage)'], ['biab', 'Brew in a Bag — BIAB (volume unique, sans rinçage)']];
 
 function newRecipe() {
   const p = D.profiles[0] || DEFAULT_P;
-  return {id: uid(), name: 'Nouvelle recette', style: '', styleId: '', profileId: D.profiles[0]?.id || '', batch: p.batch, ratio: p.ratio, eff: p.eff, infusionTemp: p.infusionTemp, grainTemp: 20, co2: 2.4,
+  return {id: uid(), name: 'Nouvelle recette', style: '', styleId: '', profileId: D.profiles[0]?.id || '', batch: p.batch, ratio: p.ratio, eff: p.eff, infusionTemp: p.infusionTemp, mashMethod: p.mashMethod, biabSqueeze: p.biabSqueeze, grainTemp: 20, co2: 2.4,
     ferm: [], hops: [], yeast: [], misc: [],
     mash: [{name: 'Saccharification', temp: 67, time: 60}, {name: 'Mash out', temp: 78, time: 10}],
     ferment: [{name: 'Fermentation tumultueuse', temp: 19, days: 14}, {name: 'Cold crash', temp: 4, days: 7}],
@@ -623,13 +629,20 @@ function calc(r) {
   const abv = (og - fg) * 131.25;
   const srm = mcu > 0 ? 1.4922 * Math.pow(mcu / (V / 3.785), 0.6859) : 0, ebc = srm * 1.97;
 
+  const mashMethod = (r.mashMethod != null ? r.mashMethod : P.mashMethod) === 'biab' ? 'biab' : 'classic';
+  const biabSqueeze = !!(r.biabSqueeze != null ? r.biabSqueeze : P.biabSqueeze);
+  // BIAB (sac filtrant pressé) : on récupère davantage de moût du grain, pertes d'absorption réduites de moitié (approximation usuelle).
+  const effAbsorb = P.absorb * (mashMethod === 'biab' && biabSqueeze ? 0.5 : 1);
   const preboil = (V + P.trub) / (1 - P.shrink / 100) + P.evap * P.boil / 60;
   const pbSG = 1 + potEff / preboil / 1000;
-  const totalWater = preboil + P.absorb * kgMash + P.mashLoss;
+  const totalWater = preboil + effAbsorb * kgMash + P.mashLoss;
   const ratio = Math.max(N(r.ratio != null ? r.ratio : P.ratio), 0.5);
-  const mashWater = Math.min(totalWater, ratio * kgMash), sparge = Math.max(0, totalWater - mashWater);
+  // Classique : eau d'empâtage plafonnée au rapport eau/grain, le reste en rinçage. BIAB : volume unique dès l'empâtage.
+  const mashWater = mashMethod === 'biab' ? totalWater : Math.min(totalWater, ratio * kgMash);
+  const sparge = mashMethod === 'biab' ? 0 : Math.max(0, totalWater - mashWater);
   const mashTemp = r.mash[0] ? N(r.mash[0].temp) : 67;
-  const strike = kgMash ? (0.41 / ratio) * (mashTemp - N(r.grainTemp)) + mashTemp : 0;
+  const strikeRatio = mashMethod === 'biab' && kgMash ? mashWater / kgMash : ratio;
+  const strike = kgMash ? (0.41 / strikeRatio) * (mashTemp - N(r.grainTemp)) + mashTemp : 0;
 
   const gu = (potEff / ((V + preboil) / 2)) / 1000, big = 1.65 * Math.pow(0.000125, gu);
   const hi = r.hops.map(row => {
@@ -690,7 +703,8 @@ function calc(r) {
 
   return {P, V, og, fg, abv, ibu, ebc, srm, att, hasYeast: yeasts.length > 0, bugu: ogPts > 0 ? ibu / ogPts : 0,
     preboil, pbSG, totalWater, mashWater, sparge, strike, mashTemp, kgMash, kgTot, fp, hi, potGrain, potOther,
-    evapL: P.evap * P.boil / 60, sugarL, sugarTot, residual, effPct, ratio, costFerm, costHop, costYeast, costMisc, costTotal, costPerL, mashSteps, infusionTemp: INFUSION_TEMP};
+    evapL: P.evap * P.boil / 60, sugarL, sugarTot, residual, effPct, ratio, costFerm, costHop, costYeast, costMisc, costTotal, costPerL, mashSteps, infusionTemp: INFUSION_TEMP,
+    mashMethod, biabSqueeze};
 }
 
 /* ---------- 5. VUES ---------- */
@@ -848,6 +862,10 @@ function viewEditor() {
         ${fld('Température eau d’infusion (°C)', bi('infusionTemp', r.infusionTemp, 1))}
         ${fld('Température des grains (°C)', bi('grainTemp', r.grainTemp, 1))}
         ${fld('CO₂ visé (vol.)', bi('co2', r.co2, 1))}
+        ${fld('Méthode de brassage', `<select data-b="mashMethod">${opts(BREW_METHOD, r.mashMethod)}</select>`)}
+        ${r.mashMethod === 'biab' ? `<label class="fld" style="flex-direction:row;align-items:center;gap:.5rem;padding-top:1.5rem">
+          <input type="checkbox" data-b="biabSqueeze" style="width:auto" ${r.biabSqueeze ? 'checked' : ''}>
+          <span style="text-transform:none;font-size:.95rem;color:var(--text)">Pressurage du sac (pertes réduites)</span></label>` : ''}
       </div></section>
     <div class="editor-rest">
     ${sectionHTML('Fermentescibles', 'ferm', r.ferm.map(rowFerm), 'Ajouter')}
@@ -888,8 +906,9 @@ function statsHTML(c, r) {
         <span class="chip${inRange(c.ebc, st.colorMin, st.colorMax) ? '' : ' bad'}">EBC ${f(st.colorMin, 0)}–${f(st.colorMax, 0)}</span>
         <span class="chip${inRange(c.abv, st.abvMin, st.abvMax) ? '' : ' bad'}">Alcool ${f(st.abvMin, 1)}–${f(st.abvMax, 1)} %</span>
       </div>` : ''}
-    <h3>Eau</h3><dl class="kv"><dt>Empâtage</dt><dd>${f(c.mashWater, 1)} L à ${f(c.strike, 0)} °C</dd><dt>Rinçage</dt><dd>${f(c.sparge, 1)} L</dd><dt>Eau totale</dt><dd>${f(c.totalWater, 1)} L</dd>
+    <h3>Eau</h3><dl class="kv"><dt>Empâtage</dt><dd>${f(c.mashWater, 1)} L à ${f(c.strike, 0)} °C</dd><dt>Rinçage</dt><dd>${c.mashMethod === 'biab' ? 'Aucun (BIAB)' : f(c.sparge, 1) + ' L'}</dd><dt>Eau totale</dt><dd>${f(c.totalWater, 1)} L</dd>
       <dt>Pré-ébullition</dt><dd>${f(c.preboil, 1)} L · ${gUnit(c.pbSG)}</dd><dt>Évaporation</dt><dd>${f(c.evapL, 1)} L</dd></dl>
+    ${c.mashMethod === 'biab' ? `<div class="sub" style="margin-top:-.2rem;margin-bottom:.5rem">Brew in a Bag : tout le volume d’eau est présent dès l’empâtage (sac filtrant dans la cuve d’ébullition), sans rinçage séparé.${c.biabSqueeze ? ' Pressurage du sac pris en compte (pertes d’absorption réduites).' : ''}</div>` : ''}
     ${c.mashSteps.length ? `<h3>Volume de maische par palier</h3><dl class="kv">${c.mashSteps.map((m, i) => `<dt>${esc(m.name)} (${f(m.temp, 0)} °C)</dt><dd>${f(m.volume, 1)} L${i > 0 && m.method === 'infusion' && m.infusion > 0 ? ` (+${f(m.infusion, 1)} L)` : ''}${i > 0 && m.method === 'decoction' && m.decoctionVol > 0 ? ` (préléver ${f(m.decoctionVol, 1)} L)` : ''}</dd>`).join('')}</dl>
       <div class="sub" style="margin-top:.2rem">Volume de maische = eau présente + grain (≈ 0,7 L/kg). « + X L » : infusion d’eau chaude à ${f(c.infusionTemp, 0)} °C. « Prélever X L » : portion à décocter.</div>` : ''}
     <h3>Grains et rendement</h3><dl class="kv"><dt>Total fermentescibles</dt><dd>${f(c.kgTot, 2)} kg</dd><dt>Rapport eau/grain</dt><dd>${f(c.ratio, 1)} L/kg</dd><dt>Rendement</dt><dd>${f(c.effPct, 0)} %</dd><dt>Atténuation</dt><dd>${f(c.att, 0)} %</dd></dl>
@@ -935,7 +954,9 @@ function hopSheetOrder(hops) {
 function brewSteps(r, c) {
   const P = c.P, S = [], sg = x => gUnit(x);
   const name = (t, id) => esc(lib(t, id)?.name || '?');
-  if (c.kgMash > 0) S.push(`<b>Empâtage.</b> Chauffer ${f(c.mashWater, 1)} L d’eau à ${f(c.strike, 0)} °C (grains à ${f(N(r.grainTemp), 0)} °C, rapport ${f(c.ratio, 1)} L/kg) puis ajouter ${f(c.kgMash, 2)} kg de grains.`);
+  if (c.kgMash > 0) S.push(c.mashMethod === 'biab'
+    ? `<b>Empâtage (BIAB).</b> Chauffer la totalité de l’eau (${f(c.mashWater, 1)} L) à ${f(c.strike, 0)} °C directement dans la cuve d’ébullition, placer le sac filtrant, puis ajouter ${f(c.kgMash, 2)} kg de grains (grains à ${f(N(r.grainTemp), 0)} °C).`
+    : `<b>Empâtage.</b> Chauffer ${f(c.mashWater, 1)} L d’eau à ${f(c.strike, 0)} °C (grains à ${f(N(r.grainTemp), 0)} °C, rapport ${f(c.ratio, 1)} L/kg) puis ajouter ${f(c.kgMash, 2)} kg de grains.`);
   c.mashSteps.forEach((m, i) => {
     let extra = '';
     if (i > 0 && m.method === 'infusion' && m.infusion > 0) extra = ` Ajouter ≈ ${f(m.infusion, 1)} L d’eau chaude pour cette montée en température.`;
@@ -945,7 +966,8 @@ function brewSteps(r, c) {
   });
   const mashMisc = r.misc.filter(m => m.use === 'mash');
   mashMisc.forEach(m => S.push(`À l’empâtage : ${f(N(m.qty), 1)} ${esc(lib('misc', m.ref)?.unit || '')} de ${name('misc', m.ref)}.`));
-  if (c.sparge > 0) S.push(`<b>Rinçage.</b> Rincer les drêches avec ${f(c.sparge, 1)} L d’eau à 78 °C pour obtenir ${f(c.preboil, 1)} L de moût (densité pré-ébullition ≈ ${sg(c.pbSG)}).`);
+  if (c.mashMethod === 'biab') S.push(`<b>Fin d’empâtage.</b> Retirer le sac filtrant et le laisser s’égoutter${c.biabSqueeze ? ', en le pressant légèrement pour récupérer un maximum de moût' : ' sans le presser'} : ≈ ${f(c.preboil, 1)} L de moût (densité pré-ébullition ≈ ${sg(c.pbSG)}).`);
+  else if (c.sparge > 0) S.push(`<b>Rinçage.</b> Rincer les drêches avec ${f(c.sparge, 1)} L d’eau à 78 °C pour obtenir ${f(c.preboil, 1)} L de moût (densité pré-ébullition ≈ ${sg(c.pbSG)}).`);
   r.hops.filter(h => h.use === 'fwh').forEach(h => S.push(`Premier moût : ${f(N(h.g), 0)} g de ${name('hop', h.ref)} dans la cuve d’ébullition.`));
   S.push(`<b>Ébullition</b> de ${f(P.boil, 0)} min (évaporation ≈ ${f(c.evapL, 1)} L).`);
   const adds = [];
@@ -982,7 +1004,7 @@ function viewSheet() {
     ${r.yeast.length ? `<h3>Levure</h3><ul>${r.yeast.map(y => `<li>${f(N(y.qty), 1)} × ${esc(lib('yeast', y.ref)?.name || '?')}</li>`).join('')}</ul>` : ''}
     ${r.misc.length ? `<h3>Divers</h3><ul>${r.misc.map(m => `<li>${f(N(m.qty), 1)} ${esc(lib('misc', m.ref)?.unit || '')} ${esc(lib('misc', m.ref)?.name || '?')} — ${USE_M[m.use]}${m.use === 'boil' || m.use === 'mash' ? ' (' + f(N(m.time), 0) + ' min)' : ''}</li>`).join('')}</ul>` : ''}
     ${!r.ferm.length && !r.hops.length ? '<div class="sub">Aucun ingrédient.</div>' : ''}</div>
-  <div class="card"><h2>Eau et rendement</h2><dl class="kv"><dt>Eau d’empâtage</dt><dd>${f(c.mashWater, 1)} L à ${f(c.strike, 0)} °C</dd><dt>Eau de rinçage</dt><dd>${f(c.sparge, 1)} L</dd><dt>Eau totale</dt><dd>${f(c.totalWater, 1)} L</dd>
+  <div class="card"><h2>Eau et rendement</h2>${c.mashMethod === 'biab' ? `<div class="sub" style="margin-top:0">Brew in a Bag (BIAB) : volume unique, sans rinçage${c.biabSqueeze ? ', sac pressé' : ''}.</div>` : ''}<dl class="kv"><dt>Eau d’empâtage</dt><dd>${f(c.mashWater, 1)} L à ${f(c.strike, 0)} °C</dd><dt>Eau de rinçage</dt><dd>${c.mashMethod === 'biab' ? 'Aucune (BIAB)' : f(c.sparge, 1) + ' L'}</dd><dt>Eau totale</dt><dd>${f(c.totalWater, 1)} L</dd>
     <dt>Volume pré-ébullition</dt><dd>${f(c.preboil, 1)} L (${gUnit(c.pbSG)})</dd><dt>Rapport eau/grain</dt><dd>${f(c.ratio, 1)} L/kg</dd><dt>Rendement brasserie</dt><dd>${f(c.effPct, 0)} %</dd><dt>Atténuation apparente</dt><dd>${f(c.att, 0)} %</dd></dl>
     ${!ui.sheetSteps && c.mashSteps.length ? `<h3 style="margin-top:.7rem">Paliers d’empâtage</h3><div class="scroll"><table class="tbl">${th(['Palier', 'Température', 'Durée', 'Volume de maische'])}${c.mashSteps.map((m, i) => tr([esc(m.name), f(m.temp, 0) + ' °C', f(N(r.mash[i].time), 0) + ' min',
       f(m.volume, 1) + ' L' + (i > 0 && m.method === 'infusion' && m.infusion > 0 ? ` (+${f(m.infusion, 1)} L)` : '') + (i > 0 && m.method === 'decoction' && m.decoctionVol > 0 ? ` (prélever ${f(m.decoctionVol, 1)} L)` : '')])).join('')}</table></div>` : ''}</div>
@@ -1300,12 +1322,14 @@ function viewIngs() {
 /* --- Profils matériel --- */
 const PROF_FIELDS = [{k: 'name', l: 'Nom du profil'}, {k: 'batch', l: 'Volume final par défaut (L)', t: 'number'}, {k: 'boil', l: 'Durée d’ébullition (min)', t: 'number'}, {k: 'evap', l: 'Évaporation (L/h)', t: 'number'},
   {k: 'trub', l: 'Pertes cuve d’ébullition / trub (L)', t: 'number'}, {k: 'mashLoss', l: 'Pertes cuve d’empâtage (L)', t: 'number'}, {k: 'absorb', l: 'Absorption des drêches (L/kg)', t: 'number'},
-  {k: 'ratio', l: 'Rapport eau/grain (L/kg)', t: 'number'}, {k: 'infusionTemp', l: 'Température eau d’infusion (°C)', t: 'number'}, {k: 'shrink', l: 'Contraction au refroidissement (%)', t: 'number'}, {k: 'eff', l: 'Rendement brasserie (%)', t: 'number'}];
+  {k: 'ratio', l: 'Rapport eau/grain (L/kg)', t: 'number'}, {k: 'infusionTemp', l: 'Température eau d’infusion (°C)', t: 'number'}, {k: 'shrink', l: 'Contraction au refroidissement (%)', t: 'number'}, {k: 'eff', l: 'Rendement brasserie (%)', t: 'number'},
+  {k: 'mashMethod', l: 'Méthode de brassage', t: 'select', o: BREW_METHOD}, {k: 'biabSqueeze', l: 'Pressurage du sac (BIAB, pertes réduites)', t: 'check'}];
 function viewProfiles() {
   return `<div class="bar"><h1>Matériel</h1><div class="grow"></div><button class="btn" data-act="addProfile">+ Nouveau profil</button></div>
   <div class="cards">${D.profiles.map(p => `<div class="card" style="margin:0"><h2>${esc(p.name)}</h2>
     <dl class="kv"><dt>Volume final</dt><dd>${f(p.batch, 1)} L</dd><dt>Ébullition</dt><dd>${f(p.boil, 0)} min</dd><dt>Évaporation</dt><dd>${f(p.evap, 1)} L/h</dd><dt>Pertes trub</dt><dd>${f(p.trub, 1)} L</dd><dt>Pertes empâtage</dt><dd>${f(p.mashLoss, 1)} L</dd>
-    <dt>Absorption drêches</dt><dd>${f(p.absorb, 2)} L/kg</dd><dt>Rapport eau/grain</dt><dd>${f(p.ratio, 1)} L/kg</dd><dt>Eau d’infusion</dt><dd>${f(p.infusionTemp, 0)} °C</dd><dt>Contraction</dt><dd>${f(p.shrink, 1)} %</dd><dt>Rendement</dt><dd>${f(p.eff, 0)} %</dd></dl>
+    <dt>Absorption drêches</dt><dd>${f(p.absorb, 2)} L/kg</dd><dt>Rapport eau/grain</dt><dd>${f(p.ratio, 1)} L/kg</dd><dt>Eau d’infusion</dt><dd>${f(p.infusionTemp, 0)} °C</dd><dt>Contraction</dt><dd>${f(p.shrink, 1)} %</dd><dt>Rendement</dt><dd>${f(p.eff, 0)} %</dd>
+    <dt>Méthode</dt><dd>${esc((BREW_METHOD.find(([k]) => k === p.mashMethod) || BREW_METHOD[0])[1])}</dd>${p.mashMethod === 'biab' ? `<dt>Pressurage du sac</dt><dd>${p.biabSqueeze ? 'Oui' : 'Non'}</dd>` : ''}</dl>
     <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editProfile" data-id="${p.id}">Modifier</button><button class="btn ghost sm" data-act="dupProfile" data-id="${p.id}">Dupliquer</button><button class="btn danger sm" data-act="delProfile" data-id="${p.id}">Supprimer</button></div></div>`).join('') || '<div class="empty">Aucun profil.</div>'}</div>${pageFoot()}`;
 }
 
@@ -1387,7 +1411,7 @@ function openForm(title, fields, vals, onSave, extra = '') {
     const v = vals[fd.k] ?? '', id = 'f-' + fd.k;
     if (fd.t === 'select') return fld(fd.l, `<select id="${id}" data-f="${fd.k}">${opts(fd.o, v)}</select>`);
     if (fd.t === 'textarea') return fld(fd.l, `<textarea id="${id}" data-f="${fd.k}">${esc(v)}</textarea>`, 'full');
-    if (fd.t === 'check') return `<label class="fld full" style="flex-direction:row;align-items:center;gap:.5rem"><input type="checkbox" style="height:auto" id="${id}" data-f="${fd.k}" ${v ? 'checked' : ''}><span style="text-transform:none;font-size:.95rem;color:var(--text)">${fd.l}</span></label>`;
+    if (fd.t === 'check') return `<label class="fld full" style="flex-direction:row;align-items:center;gap:.5rem"><input type="checkbox" style="width:auto" id="${id}" data-f="${fd.k}" ${v ? 'checked' : ''}><span style="text-transform:none;font-size:.95rem;color:var(--text)">${fd.l}</span></label>`;
     if (fd.t === 'date') return fld(fd.l, `<input type="date" id="${id}" data-f="${fd.k}" value="${esc(v)}">`);
     return fld(fd.l, `<input id="${id}" data-f="${fd.k}" ${fd.t === 'number' ? 'data-t="n" inputmode="decimal"' : ''} value="${esc(v)}">`);
   }).join('');
@@ -1463,7 +1487,7 @@ function brewFormExtraNotesHTML(b) {
   }
   return '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>';
 }
-const profDefaults = () => ({name: 'Nouveau profil', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72});
+const profDefaults = () => ({name: 'Nouveau profil', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72, mashMethod: 'classic', biabSqueeze: false});
 
 const ACT = {
   authMode: el => { ui.auth = el.dataset.m; render(); }, authGo: () => authSubmit(), logout: () => logout(),
@@ -1560,13 +1584,14 @@ document.addEventListener('input', e => {
   const t = e.target;
   if (t.dataset.b) {                                   // champ de la recette en cours d'édition
     const r = R(); if (!r) return;
-    setPath(r, t.dataset.b, t.hasAttribute('data-n') ? N(t.value) : t.value);
+    setPath(r, t.dataset.b, t.type === 'checkbox' ? t.checked : (t.hasAttribute('data-n') ? N(t.value) : t.value));
     if (t.dataset.b === 'styleId') { const st = styleById(r.styleId); r.style = st ? st.name : ''; }
     r.updated = Date.now(); persist(); updateStats();
     if (t.dataset.b === 'batch') { const nv = $('#newvol'); if (nv) nv.value = t.value; }
-    if (t.dataset.b === 'profileId') {                   // reprend les valeurs du nouveau profil (volume, ratio, rendement, eau d'infusion…)
+    if (t.dataset.b === 'mashMethod') { renderMain(true); return; }
+    if (t.dataset.b === 'profileId') {                   // reprend les valeurs du nouveau profil (volume, ratio, rendement, eau d'infusion, méthode…)
       const p = D.profiles.find(x => x.id === r.profileId) || DEFAULT_P;
-      r.batch = p.batch; r.ratio = p.ratio; r.eff = p.eff; r.infusionTemp = p.infusionTemp;
+      r.batch = p.batch; r.ratio = p.ratio; r.eff = p.eff; r.infusionTemp = p.infusionTemp; r.mashMethod = p.mashMethod; r.biabSqueeze = p.biabSqueeze;
       toast('Valeurs reprises du profil « ' + p.name + ' »'); renderMain(true); return;
     }
   } else if (t.id === 'newvol') { const r = R(), nv = N(t.value); $('#kfac').textContent = nv > 0 && N(r.batch) > 0 ? '× ' + f(nv / N(r.batch), 3) : ''; }
