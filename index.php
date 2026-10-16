@@ -95,6 +95,45 @@ nav.tabs button[aria-current="page"]{color:var(--head);border-bottom-color:var(-
 .ico{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;width:2.2rem;height:2.2rem;flex:none}
 .ico:hover{color:var(--danger);border-color:var(--danger)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+details.brew-extra{margin-top:.85rem;border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;background:var(--bg);container-type:inline-size;container-name:brew-extra}
+details.brew-extra>summary{cursor:pointer;font-weight:600;color:var(--head);font-family:var(--serif);list-style-position:outside}
+details.brew-extra>summary::-webkit-details-marker{color:var(--accent)}
+details.brew-extra[open]>summary{margin-bottom:.55rem}
+details.brew-extra h3{margin:.75rem 0 .35rem;font-size:.95rem}
+details.brew-extra .fgrid{margin-top:.2rem}
+details.brew-extra .scroll{overflow-x:visible}
+details.brew-extra .scroll .brew-xn-tbl,details.brew-extra .brew-xn-tbl{width:100%;max-width:100%;table-layout:fixed;font-size:.88rem;margin:.25rem 0 .4rem}
+details.brew-extra .brew-xn-tbl th,details.brew-extra .brew-xn-tbl td{vertical-align:middle;overflow-wrap:break-word}
+details.brew-extra .brew-xn-tbl .xn-planned{width:6.5rem;color:var(--muted);white-space:nowrap}
+details.brew-extra .brew-xn-tbl .xn-actual{width:7.5rem}
+details.brew-extra .brew-xn-tbl .xn-actions{width:2.6rem;text-align:center;padding-left:.2rem;padding-right:.2rem}
+details.brew-extra .brew-xn-tbl .xn-actual input,details.brew-extra .brew-xn-tbl td.xn-actual input{width:100%;max-width:none;padding:.35rem .45rem;font-size:.88rem;box-sizing:border-box}
+details.brew-extra .brew-xn-tbl input{padding:.35rem .45rem;font-size:.88rem;max-width:none}
+details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-ep]{width:3.6rem}
+details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-eu]{width:2.4rem}
+details.brew-extra .brew-xn-rec{font-size:.72rem;color:var(--muted);font-weight:400;line-height:1.25}
+/* Écran étroit : chaque relevé devient une fiche (nom, puis prévu / réel), au lieu d’un tableau dont la 1re colonne s’écrase lettre par lettre. */
+@container brew-extra (max-width:26rem){
+  details.brew-extra{padding:.5rem .55rem}
+  details.brew-extra .scroll .brew-xn-tbl,details.brew-extra .brew-xn-tbl{display:block;table-layout:auto;font-size:.92rem;margin:.15rem 0 .35rem}
+  details.brew-extra .brew-xn-tbl thead{display:none}
+  details.brew-extra .brew-xn-tbl tbody{display:flex;flex-direction:column;gap:.45rem}
+  details.brew-extra .brew-xn-tbl tr{display:grid;grid-template-columns:minmax(0,1fr);gap:.28rem .4rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .6rem}
+  details.brew-extra .brew-xn-tbl tr:has(> .xn-actions button){grid-template-columns:minmax(0,1fr) auto}
+  details.brew-extra .brew-xn-tbl td{display:block;width:auto;max-width:none;min-width:0;padding:0;border:0;white-space:normal;overflow-wrap:break-word}
+  details.brew-extra .brew-xn-tbl td:first-child{grid-column:1;grid-row:1;font-weight:600;color:var(--text)}
+  details.brew-extra .brew-xn-tbl tr:has(> .xn-actions button)>td.xn-actions{grid-column:2;grid-row:1;align-self:center;width:auto}
+  details.brew-extra .brew-xn-tbl td.xn-actions:empty{display:none}
+  details.brew-extra .brew-xn-tbl td.xn-planned,details.brew-extra .brew-xn-tbl td.xn-actual{grid-column:1 / -1;display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .45rem;width:auto;max-width:none;min-width:0;font-weight:500;color:var(--text)}
+  details.brew-extra .brew-xn-tbl td.xn-planned::before,details.brew-extra .brew-xn-tbl td.xn-actual::before{content:attr(data-label);flex:0 0 5.6rem;font-size:.72rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+  details.brew-extra .brew-xn-tbl td.xn-actual input{flex:1 1 6rem;width:auto;min-width:0}
+  details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-ep]{flex:1 1 4.5rem;width:auto;max-width:8rem;min-width:0}
+  details.brew-extra .brew-xn-tbl td.xn-planned input[data-xn-eu]{flex:0 0 3.2rem;width:3.2rem}
+}
+.brew-extra-chip{font-size:.75rem;color:var(--muted);margin-top:.35rem}
+.brew-extra-hint{font-size:.9rem;color:var(--muted);margin:.5rem 0 .75rem;padding:.55rem .8rem;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
+.brew-extra-hint button{font:inherit;font-size:inherit;color:var(--head);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
+
 input,select,textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;min-width:0}
 textarea{min-height:5rem;resize:vertical}
 .fld{display:flex;flex-direction:column;gap:.2rem;min-width:0}
@@ -438,6 +477,8 @@ function normalizeData(d) {
   if (d.prefs.avatarType !== 'image') d.prefs.avatarType = 'emoji';
   if (!d.prefs.avatarEmoji) d.prefs.avatarEmoji = '🍺';
   if (typeof d.prefs.avatarImage !== 'string') d.prefs.avatarImage = '';
+  if (d.prefs.brewExtraNotes !== true) d.prefs.brewExtraNotes = false;
+  d.brews.forEach(normalizeBrewExtraNotes);
   return d;
 }
 // Recadre l'image importée en carré (centre), la réduit à 160×160 et la compresse en JPEG — garde la
@@ -974,6 +1015,237 @@ function viewSheet() {
 }
 
 /* --- Brassins (historique) --- */
+function emptyBrewExtraNotes() {
+  return {
+    qtyActual: {},
+    qtyExtra: [],
+    temp: {},
+    ph: {mashBefore: '', mashDuring: '', mashEnd: '', spargeWater: '', preBoil: '', postBoil: ''},
+    sg: {preSparge: '', preBoil: '', postBoil: ''},
+    vol: {},
+    free: '',
+  };
+}
+function normalizeBrewExtraNotes(b) {
+  if (!b || typeof b !== 'object') return;
+  const base = emptyBrewExtraNotes();
+  const src = (b.extraNotes && typeof b.extraNotes === 'object') ? b.extraNotes : {};
+  const mapVals = (obj) => {
+    const out = {};
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      Object.keys(obj).forEach(k => { if (obj[k] != null && obj[k] !== '') out[k] = obj[k]; });
+    }
+    return out;
+  };
+  const ph = {...base.ph};
+  const phSrc = (src.ph && typeof src.ph === 'object') ? src.ph : {};
+  Object.keys(ph).forEach(k => { if (phSrc[k] != null && phSrc[k] !== '') ph[k] = phSrc[k]; });
+  const sg = {...base.sg};
+  const sgSrc = (src.sg && typeof src.sg === 'object') ? src.sg : {};
+  Object.keys(sg).forEach(k => { if (sgSrc[k] != null && sgSrc[k] !== '') sg[k] = sgSrc[k]; });
+  let free = src.free != null ? String(src.free) : '';
+  // Ancien format (textes libres par catégorie) → basculé dans les notes libres
+  if (src.qty && typeof src.qty === 'object' && !Array.isArray(src.qty) && ('ferm' in src.qty || 'hop' in src.qty)) {
+    const bits = [['Malts', src.qty.ferm], ['Houblons', src.qty.hop], ['Levure', src.qty.yeast], ['Autre', src.qty.misc]]
+      .filter(([, v]) => String(v || '').trim()).map(([l, v]) => l + ' : ' + String(v).trim());
+    if (bits.length) free = (free ? free + '\n\n' : '') + bits.join('\n');
+  }
+  const temp = mapVals(src.temp);
+  // Ancienne clé unique « mash » → premier palier si présent
+  if (temp.mash != null && temp.mash !== '' && temp['mash.0'] == null) temp['mash.0'] = temp.mash;
+  const vol = mapVals(src.vol);
+  b.extraNotes = {
+    qtyActual: mapVals(src.qtyActual),
+    qtyExtra: Array.isArray(src.qtyExtra) ? src.qtyExtra.map(x => ({
+      name: x?.name != null ? String(x.name) : '',
+      unit: x?.unit != null ? String(x.unit) : '',
+      planned: x?.planned != null && x.planned !== '' ? x.planned : '',
+      actual: x?.actual != null && x.actual !== '' ? x.actual : '',
+    })) : [],
+    temp, ph, sg, vol, free,
+  };
+}
+function brewExtraHasVal(v) { return v != null && String(v).trim() !== ''; }
+function brewExtraNotesFilled(b) {
+  if (!b?.extraNotes) return false;
+  const e = b.extraNotes;
+  if (Object.values(e.qtyActual || {}).some(brewExtraHasVal)) return true;
+  if ((e.qtyExtra || []).some(x => brewExtraHasVal(x.name) || brewExtraHasVal(x.actual) || brewExtraHasVal(x.planned))) return true;
+  if ([e.temp, e.ph, e.sg, e.vol].some(g => g && Object.values(g).some(brewExtraHasVal))) return true;
+  return brewExtraHasVal(e.free);
+}
+function brewSnapCalc(b) {
+  const r = b?.snap && typeof b.snap === 'object' ? b.snap : null;
+  if (!r) return {r: null, c: null};
+  try { return {r, c: calc(r)}; } catch { return {r, c: null}; }
+}
+function brewExtraQtyPlan(b) {
+  const {r} = brewSnapCalc(b);
+  if (!r) return [];
+  const rows = [];
+  (r.ferm || []).forEach((x, i) => {
+    const g = lib('ferm', x.ref);
+    rows.push({k: 'ferm.' + i, label: g?.name || 'Fermentescible', planned: N(x.kg), unit: 'kg', plannedTxt: f(N(x.kg), 3) + ' kg'});
+  });
+  (r.hops || []).forEach((x, i) => {
+    const h = lib('hop', x.ref);
+    const use = USE_H[x.use] ? ' · ' + USE_H[x.use] : '';
+    rows.push({k: 'hops.' + i, label: (h?.name || 'Houblon') + use, planned: N(x.g), unit: 'g', plannedTxt: f(N(x.g), 1) + ' g'});
+  });
+  (r.yeast || []).forEach((x, i) => {
+    const y = lib('yeast', x.ref);
+    rows.push({k: 'yeast.' + i, label: y?.name || 'Levure', planned: N(x.qty), unit: '×', plannedTxt: f(N(x.qty), 1) + ' ×'});
+  });
+  (r.misc || []).forEach((x, i) => {
+    const m = lib('misc', x.ref);
+    const unit = m?.unit || '';
+    rows.push({k: 'misc.' + i, label: m?.name || 'Divers', planned: N(x.qty), unit, plannedTxt: f(N(x.qty), 2) + (unit ? ' ' + unit : '')});
+  });
+  return rows;
+}
+function brewExtraTempPlan(b) {
+  const {r, c} = brewSnapCalc(b);
+  const rows = [];
+  if (c && c.kgMash > 0) rows.push({k: 'strike', label: 'Eau d’empâtage (strike)', planned: rnd(c.strike, 0), plannedTxt: f(c.strike, 0) + ' °C'});
+  (r?.mash || []).forEach((s, i) => rows.push({k: 'mash.' + i, label: s.name || ('Palier ' + (i + 1)), planned: N(s.temp), plannedTxt: f(N(s.temp), 0) + ' °C'}));
+  if (c && c.sparge > 0) rows.push({k: 'sparge', label: 'Rinçage', planned: 78, plannedTxt: '78 °C'});
+  rows.push({k: 'boil', label: 'Ébullition', planned: 100, plannedTxt: '100 °C'});
+  rows.push({k: 'postBoil', label: 'Après ébullition', planned: '', plannedTxt: '—'});
+  const ft = r?.ferment?.[0] != null && r.ferment[0].temp !== '' && r.ferment[0].temp != null ? N(r.ferment[0].temp) : '';
+  rows.push({k: 'chilled', label: 'Après refroidissement', planned: ft, plannedTxt: ft === '' ? '—' : f(ft, 0) + ' °C'});
+  return rows;
+}
+function brewExtraVolPlan(b) {
+  const {c} = brewSnapCalc(b);
+  if (!c) {
+    return [
+      {k: 'preSparge', label: 'Avant rinçage', plannedTxt: '—'},
+      {k: 'spargeWater', label: 'Eau de rinçage', plannedTxt: '—'},
+      {k: 'preBoil', label: 'Avant ébullition', plannedTxt: '—'},
+      {k: 'postBoil', label: 'Après ébullition', plannedTxt: '—'},
+      {k: 'fermenter', label: 'Dans le fermenteur', plannedTxt: '—'},
+      {k: 'packaging', label: 'Final au conditionnement', plannedTxt: '—'},
+    ];
+  }
+  const mashVol = c.mashSteps.length ? c.mashSteps[c.mashSteps.length - 1].volume : c.mashWater;
+  const postBoil = (c.V + c.P.trub) / (1 - c.P.shrink / 100);
+  return [
+    {k: 'preSparge', label: 'Avant rinçage', planned: rnd(mashVol, 1), plannedTxt: f(mashVol, 1) + ' L'},
+    {k: 'spargeWater', label: 'Eau de rinçage', planned: rnd(c.sparge, 1), plannedTxt: f(c.sparge, 1) + ' L'},
+    {k: 'preBoil', label: 'Avant ébullition', planned: rnd(c.preboil, 1), plannedTxt: f(c.preboil, 1) + ' L'},
+    {k: 'postBoil', label: 'Après ébullition', planned: rnd(postBoil, 1), plannedTxt: f(postBoil, 1) + ' L'},
+    {k: 'fermenter', label: 'Dans le fermenteur', planned: rnd(c.V, 1), plannedTxt: f(c.V, 1) + ' L'},
+    {k: 'packaging', label: 'Final au conditionnement', planned: rnd(c.V, 1), plannedTxt: f(c.V, 1) + ' L'},
+  ];
+}
+function brewExtraSgPlan(b) {
+  const {c} = brewSnapCalc(b);
+  return [
+    {k: 'preSparge', label: 'Avant rinçage', plannedTxt: '—'},
+    {k: 'preBoil', label: 'Avant ébullition', plannedTxt: c ? gPrimaryText(c.pbSG) : '—'},
+    {k: 'postBoil', label: 'Après ébullition', plannedTxt: c ? gPrimaryText(c.og) : '—'},
+  ];
+}
+const BREW_PH_ROWS = [
+  {k: 'mashBefore', label: 'Maische avant brassage', rec: '—'},
+  {k: 'mashDuring', label: 'Maische pendant (~15 min)', rec: '5,2–5,6 (idéal 5,2–5,4 pâles · 5,4–5,6 foncées)'},
+  {k: 'mashEnd', label: 'Maische fin de brassage', rec: '5,2–5,6'},
+  {k: 'spargeWater', label: 'Eau de rinçage', rec: '≤ 6,0 (souvent 5,5–6,0 acidifiée)'},
+  {k: 'preBoil', label: 'Avant ébullition', rec: '≈ 5,2–5,6'},
+  {k: 'postBoil', label: 'Après ébullition', rec: '≈ 5,0–5,4'},
+];
+function brewXnNum(attrs, val) {
+  return `<input ${attrs} data-t="n" inputmode="decimal" value="${esc(val ?? '')}">`;
+}
+function brewExtraQtyExtraRow(x = {}) {
+  return `<tr data-xn-extra>
+    <td><input data-xn-en placeholder="Ingrédient" aria-label="Ingrédient ajouté" value="${esc(x.name || '')}"></td>
+    <td class="xn-planned" data-label="Q prévu"><input data-xn-ep data-t="n" inputmode="decimal" aria-label="Q prévu" value="${esc(x.planned ?? '')}"> <input data-xn-eu placeholder="u" aria-label="Unité" value="${esc(x.unit || '')}"></td>
+    <td class="xn-actual" data-label="Q réel"><input data-xn-ea data-t="n" inputmode="decimal" aria-label="Q réel" value="${esc(x.actual ?? '')}"></td>
+    <td class="xn-actions"><button type="button" class="ico" data-act="xnRmQty" aria-label="Retirer">✕</button></td>
+  </tr>`;
+}
+/** Sous-formulaire dépliable « Autres notes » (si activé dans Compte). */
+function brewExtraNotesHTML(b) {
+  normalizeBrewExtraNotes(b);
+  const e = b.extraNotes, open = brewExtraNotesFilled(b) ? ' open' : '';
+  const qtyRows = brewExtraQtyPlan(b);
+  const qtyExtras = [...(e.qtyExtra || []), {}];
+  const qtyBody = qtyRows.map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned" data-label="Q prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Q réel">${brewXnNum(`data-xn-qty="${esc(row.k)}" aria-label="Q réel ${esc(row.label)}"`, e.qtyActual[row.k])}</td>
+      <td class="xn-actions"></td>
+    </tr>`).join('') + qtyExtras.map(brewExtraQtyExtraRow).join('');
+  const tempBody = brewExtraTempPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned" data-label="T° prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="T° réel">${brewXnNum(`data-xn-temp="${esc(row.k)}" aria-label="T° réel ${esc(row.label)}"`, e.temp[row.k])}</td>
+    </tr>`).join('');
+  const volBody = brewExtraVolPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned" data-label="Vol. prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Vol. réel">${brewXnNum(`data-xn-vol="${esc(row.k)}" aria-label="Vol. réel ${esc(row.label)}"`, e.vol[row.k])}</td>
+    </tr>`).join('');
+  const sgBody = brewExtraSgPlan(b).map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="xn-planned" data-label="Prévu">${esc(row.plannedTxt)}</td>
+      <td class="xn-actual" data-label="Réel">${brewXnNum(`data-f="xn.sg.${esc(row.k)}" aria-label="Densité réelle ${esc(row.label)}"`, e.sg[row.k])}</td>
+    </tr>`).join('');
+  const phBody = BREW_PH_ROWS.map(row => `<tr>
+      <td>${esc(row.label)}<div class="brew-xn-rec">${esc(row.rec)}</div></td>
+      <td class="xn-actual" data-label="pH réel">${brewXnNum(`data-f="xn.ph.${esc(row.k)}" aria-label="pH ${esc(row.label)}"`, e.ph[row.k])}</td>
+    </tr>`).join('');
+  return `<details class="brew-extra"${open}>
+    <summary>Autres notes</summary>
+    <p class="sub" style="margin:.2rem 0 .5rem">Relevés optionnels du jour de brassage. Les densités principales (DI / DF mesurées) restent ci-dessus. Les valeurs « prévu » viennent de la recette enregistrée.</p>
+    <h3>Quantités</h3>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Ingrédient</th><th class="xn-planned">Q prévu</th><th class="xn-actual">Q réel</th><th class="xn-actions"></th></tr></thead>
+      <tbody id="xn-qty-body">${qtyBody}</tbody></table></div>
+    <div class="dlg-actions" style="justify-content:flex-start;margin:.2rem 0 .5rem"><button type="button" class="btn ghost sm" data-act="xnAddQty">+ Ingrédient</button></div>
+    <h3>Températures (°C)</h3>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Étape</th><th class="xn-planned">T° prévu</th><th class="xn-actual">T° réel</th></tr></thead><tbody>${tempBody}</tbody></table></div>
+    <h3>pH</h3>
+    <p class="sub" style="margin:.1rem 0 .35rem">Mesures à température ambiante (~20 °C). Recommandations indicatives (brassage amateur).</p>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-actual">pH réel</th></tr></thead><tbody>${phBody}</tbody></table></div>
+    <h3>Densités</h3>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-planned">Prévu</th><th class="xn-actual">Réel</th></tr></thead><tbody>${sgBody}</tbody></table></div>
+    <h3>Volumes (L)</h3>
+    <div class="scroll"><table class="tbl brew-xn-tbl"><thead><tr><th>Mesure</th><th class="xn-planned">Vol. prévu</th><th class="xn-actual">Vol. réel</th></tr></thead><tbody>${volBody}</tbody></table></div>
+    <h3>Autres notes de brassage</h3>
+    <div class="fgrid"><label class="fld full"><span>Notes libres</span><textarea id="xn-free" data-f="xn.free">${esc(e.free)}</textarea></label></div>
+  </details>`;
+}
+function readBrewExtraFromDlg() {
+  const e = emptyBrewExtraNotes();
+  document.querySelectorAll('#dlg [data-xn-qty]').forEach(el => {
+    e.qtyActual[el.dataset.xnQty] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg tr[data-xn-extra]').forEach(tr => {
+    const name = tr.querySelector('[data-xn-en]')?.value || '';
+    const unit = tr.querySelector('[data-xn-eu]')?.value || '';
+    const ep = tr.querySelector('[data-xn-ep]');
+    const ea = tr.querySelector('[data-xn-ea]');
+    const planned = ep && ep.value !== '' ? N(ep.value) : '';
+    const actual = ea && ea.value !== '' ? N(ea.value) : '';
+    if (!name.trim() && planned === '' && actual === '' && !unit.trim()) return;
+    e.qtyExtra.push({name, unit, planned, actual});
+  });
+  document.querySelectorAll('#dlg [data-xn-temp]').forEach(el => {
+    e.temp[el.dataset.xnTemp] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg [data-xn-vol]').forEach(el => {
+    e.vol[el.dataset.xnVol] = el.value === '' ? '' : N(el.value);
+  });
+  document.querySelectorAll('#dlg [data-f^="xn.ph."], #dlg [data-f^="xn.sg."], #dlg [data-f="xn.free"]').forEach(el => {
+    const path = el.dataset.f.slice(3).split('.');
+    let t = e;
+    for (let i = 0; i < path.length - 1; i++) t = t[path[i]];
+    const last = path[path.length - 1];
+    t[last] = el.dataset.t === 'n' ? (el.value === '' ? '' : N(el.value)) : el.value;
+  });
+  return e;
+}
 function brewCalc(b) {
   const og = b.ogM, fg = b.fgM, has = og > 1 && fg > 0.99;
   const abv = has ? (og - fg) * 131.25 : null, att = has && og > 1 ? (og - fg) / (og - 1) * 100 : null;
@@ -990,6 +1262,7 @@ function viewBrews() {
       <dt>Réfractomètre non corrigé</dt><dd>≈ ${f(rawBrixAtFG(b.ogM > 1 ? b.ogM : b.stats.og, b.fgM > 0.99 ? b.fgM : b.stats.fg), 1)} °Bx</dd>
       <dt>Alcool réel</dt><dd>${k.abv === null ? '–' : f(k.abv, 1) + ' %'}</dd><dt>Atténuation</dt><dd>${k.att === null ? '–' : f(k.att, 0) + ' %'}</dd><dt>Rendement réel</dt><dd>${k.eff === null ? '–' : f(k.eff, 0) + ' %'}</dd></dl>
     ${b.notes ? `<p class="sub" style="white-space:pre-wrap">${esc(b.notes)}</p>` : ''}
+    ${D.prefs.brewExtraNotes && brewExtraNotesFilled(b) ? '<p class="brew-extra-chip">Autres notes renseignées</p>' : ''}
     <div class="dlg-actions" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editBrew" data-id="${b.id}">Modifier</button><button class="btn danger sm" data-act="delBrew" data-id="${b.id}">Supprimer</button></div></div>`; }).join('')}</div>`
     : '<div class="empty">Aucun brassage enregistré.<br>Depuis une recette, utilisez « Enregistrer un brassage ».</div>'}${pageFoot()}`;
 }
@@ -1100,6 +1373,13 @@ function viewAccount() {
       <button data-act="setRefract" data-v="linear" aria-pressed="${D.prefs.refractFormula !== 'cubic'}">Sean Terrill (linéaire)</button>
       <button data-act="setRefract" data-v="cubic" aria-pressed="${D.prefs.refractFormula === 'cubic'}">Cubique</button></div>
     <p class="sub" style="margin-bottom:0">La formule linéaire convient à la plupart des densités ; la cubique est recommandée au-delà d’environ 1,080 de densité initiale (bières fortes).</p></div>
+  <div class="card"><h2>Brassins</h2>
+    <p class="sub" style="margin-top:0">Sous-formulaire « Autres notes » à l’édition d’un brassage : quantités réelles, températures, pH, densités et volumes du jour de brassage.</p>
+    <div class="seg">
+      <button data-act="setBrewExtra" data-v="1" aria-pressed="${D.prefs.brewExtraNotes === true}">Activé</button>
+      <button data-act="setBrewExtra" data-v="0" aria-pressed="${D.prefs.brewExtraNotes !== true}">Désactivé</button>
+    </div>
+    <p class="sub" style="margin-bottom:0">Désactivé par défaut. Les notes déjà saisies restent enregistrées si vous désactivez l’option.</p></div>
   <div class="card"><h2>Sauvegarde</h2><p class="sub" style="margin-top:0">Vos données vivent sur ce serveur. Exportez tout de même une sauvegarde JSON de temps en temps, et importez-la pour restaurer un état antérieur.</p>
     <div class="dlg-actions" style="justify-content:flex-start;flex-wrap:wrap;margin:0"><button class="btn ghost sm" data-act="backup">Exporter la sauvegarde</button><button class="btn ghost sm" data-act="restore">Importer une sauvegarde</button><input type="file" id="restoreFile" accept=".json,application/json" style="display:none"></div></div>
   ${AUTH.features.delete_account ? '<div class="card"><h2>Zone sensible</h2><button class="btn danger sm" data-act="delAccount">Supprimer ce compte et ses données</button></div>' : ''}
@@ -1157,6 +1437,7 @@ const scaleRecipe = (r, nv) => {
 function createBrew(r, date) {
   const c = calc(r);
   const b = {id: uid(), recipeId: r.id, recipeName: r.name, date, status: 'brewed', ogM: 0, fgM: 0, vol: N(r.batch), notes: '', tasting: '',
+    extraNotes: emptyBrewExtraNotes(),
     stats: {og: c.og, fg: c.fg, abv: c.abv, ibu: c.ibu, ebc: c.ebc, potGrain: c.potGrain, potOther: c.potOther}, snap: clone(r)};
   D.brews.push(b); persist();
   return b;
@@ -1188,6 +1469,24 @@ function openStockDeductDialog(r) {
   }, '<p class="sub">Préremplies avec les quantités de la recette — ajustez si vous avez utilisé plus ou moins, puis validez la sortie de stock.</p>');
 }
 const brewFields = [{k: 'date', l: 'Date de brassage', t: 'date'}, {k: 'deduct', l: 'Décompter les ingrédients du stock (uniquement ceux suivis)', t: 'check'}];
+const brewEditFields = [
+  {k: 'date', l: 'Date', t: 'date'},
+  {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)},
+  {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'},
+  {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
+  {k: 'vol', l: 'Volume obtenu (L)', t: 'number'},
+  {k: 'notes', l: 'Notes de brassage', t: 'textarea'},
+  {k: 'tasting', l: 'Dégustation', t: 'textarea'},
+];
+const brewEditHelp = '<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>';
+/** Sous le formulaire d’édition : Autres notes (si activé) ou rappel Compte. */
+function brewFormExtraNotesHTML(b) {
+  if (D.prefs.brewExtraNotes === true) {
+    normalizeBrewExtraNotes(b);
+    return brewExtraNotesHTML(b);
+  }
+  return '<p class="brew-extra-hint">Autres notes activables dans l’onglet <button type="button" data-act="go" data-v="account">Compte</button>.</p>';
+}
 const profDefaults = () => ({name: 'Nouveau profil', batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72, mashMethod: 'classic', biabSqueeze: false});
 
 const ACT = {
@@ -1196,6 +1495,9 @@ const ACT = {
   setDensity: el => { D.prefs.density = el.dataset.v; applyPrefs(); persist(); renderMain(true); },
   setUnit: el => { D.prefs.unitPrimary = el.dataset.v; persist(); renderMain(true); },
   setRefract: el => { D.prefs.refractFormula = el.dataset.v; persist(); renderMain(true); },
+  setBrewExtra: el => { D.prefs.brewExtraNotes = el.dataset.v === '1'; persist(); renderMain(true); },
+  xnAddQty: () => { const tb = $('#xn-qty-body'); if (tb) tb.insertAdjacentHTML('beforeend', brewExtraQtyExtraRow()); },
+  xnRmQty: el => { const tr = el.closest('tr'); if (tr) tr.remove(); },
   setAvatarEmoji: el => { D.prefs.avatarType = 'emoji'; D.prefs.avatarEmoji = el.dataset.v; persist(); renderMain(true); },
   avatarUpload: () => $('#avatarFile').click(),
   avatarReset: () => { D.prefs.avatarType = 'emoji'; D.prefs.avatarImage = ''; persist(); renderMain(true); },
@@ -1245,10 +1547,14 @@ const ACT = {
   },
   editBrew: el => {
     const b = D.brews.find(x => x.id === el.dataset.id);
-    openForm(b.recipeName, [{k: 'date', l: 'Date', t: 'date'}, {k: 'status', l: 'Statut', t: 'select', o: Object.entries(STATUS)}, {k: 'ogM', l: 'Densité initiale mesurée', t: 'number'}, {k: 'fgM', l: 'Densité finale mesurée', t: 'number'},
-      {k: 'vol', l: 'Volume obtenu (L)', t: 'number'}, {k: 'notes', l: 'Notes de brassage', t: 'textarea'}, {k: 'tasting', l: 'Dégustation', t: 'textarea'}], b,
-      v => { Object.assign(b, v); persist(); renderMain(true); },
-      `<p class="sub">Saisissez les densités au format 1.052 (ou 1,052). Le rendement réel est calculé à partir de la densité initiale et du volume obtenu.</p>`);
+    normalizeBrewExtraNotes(b);
+    openForm(b.recipeName, brewEditFields, b,
+      v => {
+        b.date = v.date; b.status = v.status; b.ogM = v.ogM; b.fgM = v.fgM; b.vol = v.vol; b.notes = v.notes; b.tasting = v.tasting;
+        if (D.prefs.brewExtraNotes === true) b.extraNotes = readBrewExtraFromDlg();
+        persist(); renderMain(true);
+      },
+      brewEditHelp + brewFormExtraNotesHTML(b));
   },
   delBrew: el => ask('Supprimer ce brassage de l’historique ?', 'Supprimer', () => { D.brews = D.brews.filter(x => x.id !== el.dataset.id); persist(); renderMain(true); }),
   ingTab: el => { ui.tab = el.dataset.t; renderMain(true); },
