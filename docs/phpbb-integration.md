@@ -18,6 +18,10 @@ Cette branche part de **v1.1 / BIAB** (`main` Tech-Tad) et ajoute une couche **o
 | `import_preview.php` | Point d’entrée POST BrewRecipes → HopHop |
 | `health.php` | Diagnostic déploiement (auth, stockage, URLs BrewRecipes) |
 
+## Compteurs (mode phpBB)
+
+En pied de page, si l’auth forum est active et que le stockage MySQL est disponible : nombre de **brasseurs** (au moins une recette en base) et de **visiteurs** (comptes forum sans recette HopHop). Calcul côté serveur (`includes/user_store.php`), exposé dans la session (`brewer_count`, `visitor_count`).
+
 ## BrewRecipes « débrayable »
 
 - **Mode autonome** : aucune URL BrewRecipes n’est exposée ; l’UI masque partage et sélecteur de styles.
