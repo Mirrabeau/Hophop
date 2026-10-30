@@ -1473,6 +1473,24 @@ function openStockDeductDialog(r) {
 const brewFields = [{k: 'date', l: t('brew_date_target'), t: 'date'}, {k: 'deduct', l: t('brew_deduct'), t: 'check'}];
 const profDefaults = () => ({name: t('new_profile_name'), batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72, mashMethod: 'classic', biabSqueeze: false, mashTunMax: 0});
 
+/** Impression navigateur : restaure le DOM quand le dialogue se ferme (Imprimer ou Annuler). afterprint seul ne suffit pas partout. */
+function printWithRevert(revert) {
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    revert();
+    window.removeEventListener('afterprint', finish);
+    mq.removeEventListener('change', onMq);
+  };
+  const mq = window.matchMedia('print');
+  const onMq = () => { if (!mq.matches) finish(); };
+  window.addEventListener('afterprint', finish);
+  mq.addEventListener('change', onMq);
+  try { window.print(); } catch { toast(t('toast_print_fallback')); finish(); return; }
+  queueMicrotask(() => { if (!mq.matches) finish(); });
+}
+
 const ACT = {
   authMode: el => { ui.auth = el.dataset.m; render(); }, authGo: () => authSubmit(), logout: () => logout(),
   setLang: el => { const v = el.dataset.v; if (v === D.prefs.lang) return; D.prefs.lang = v; persist(); saveNow().then(() => location.reload()); },
@@ -1495,11 +1513,7 @@ const ACT = {
     const id = el.dataset.id;
     const cards = document.querySelectorAll('#main .cards > .card[data-brewid]');
     cards.forEach(c => { if (c.dataset.brewid !== id) c.classList.add('print-hide'); });
-    let done = false;
-    const restore = () => { if (done) return; done = true; cards.forEach(c => c.classList.remove('print-hide')); window.removeEventListener('afterprint', restore); };
-    window.addEventListener('afterprint', restore);
-    setTimeout(restore, 60000);   // filet de sécurité si « afterprint » ne se déclenche pas (anciens navigateurs)
-    try { window.print(); } catch { toast(t('toast_print_fallback')); restore(); }
+    printWithRevert(() => cards.forEach(c => c.classList.remove('print-hide')));
   },
   printBrewExtra: el => {
     const id = el.dataset.id;
@@ -1514,20 +1528,15 @@ const ACT = {
       const wrap = document.createElement('div');
       wrap.innerHTML = brewExtraNotesHTML(b);
       injected = wrap.firstElementChild;
-      injected.setAttribute('open', '');   // toujours dépliée à l'impression, même si vide
+      injected.setAttribute('open', '');   // déplié pour l'aperçu papier uniquement (retiré après le dialogue)
+      injected.classList.add('print-inject');
       const actions = card.querySelector('.dlg-actions');
       card.insertBefore(injected, actions || null);
     }
-    let done = false;
-    const restore = () => {
-      if (done) return; done = true;
+    printWithRevert(() => {
       cards.forEach(c => c.classList.remove('print-hide'));
       if (injected && injected.parentNode) injected.parentNode.removeChild(injected);
-      window.removeEventListener('afterprint', restore);
-    };
-    window.addEventListener('afterprint', restore);
-    setTimeout(restore, 60000);   // filet de sécurité si « afterprint » ne se déclenche pas (anciens navigateurs)
-    try { window.print(); } catch { toast(t('toast_print_fallback')); restore(); }
+    });
   },
   dupRecipe: () => { const r = clone(R()); r.id = uid(); r.name += ' (copie)'; r.created = r.updated = Date.now(); D.recipes.push(r); ui.rid = r.id; persist(); renderMain(); window.scrollTo(0, 0); toast(t('toast_recipe_dup')); },
   delRecipe: () => ask(t('recipe_confirm_delete', {name: esc(R().name)}), t('btn_delete'), () => { D.recipes = D.recipes.filter(x => x.id !== ui.rid); ui.view = 'recipes'; persist(); renderMain(); }),
