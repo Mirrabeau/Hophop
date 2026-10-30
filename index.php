@@ -133,6 +133,8 @@ output{padding:.55rem 0;font-weight:600;color:var(--head)}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-bottom:1rem}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
+.cards>.card{min-width:0}
+.cards>.card .dlg-actions{flex-wrap:wrap;justify-content:flex-start;gap:.4rem}
 .rcard{cursor:pointer;display:flex;flex-direction:column;gap:.5rem;text-align:left;width:100%;color:inherit;margin:0}
 .rcard:hover{border-color:var(--accent)}
 .rcard .meta{display:flex;flex-wrap:wrap;gap:.35rem}
@@ -1261,7 +1263,7 @@ function viewBrews() {
     ${b.notes ? `<div style="margin-top:.7rem"><h3 style="margin:0 0 .2rem">${t('brew_edit_notes')}</h3><p style="white-space:pre-wrap;margin:0;font-size:1rem">${esc(b.notes)}</p></div>` : ''}
     ${b.tasting ? `<div style="margin-top:.7rem"><h3 style="margin:0 0 .2rem">${t('brew_edit_tasting')}</h3><p style="white-space:pre-wrap;margin:0;font-size:1rem">${esc(b.tasting)}</p></div>` : ''}
     ${D.prefs.brewExtraNotes && brewExtraNotesFilled(b) ? `<p class="brew-extra-chip">${t('xn_chip_filled')}</p>` : ''}
-    <div class="dlg-actions noprint" style="justify-content:flex-start"><button class="btn ghost sm" data-act="editBrew" data-id="${b.id}">${t('ing_edit')}</button><button class="btn ghost sm" data-act="printBrew" data-id="${b.id}">${t('sheet_print')}</button>${D.prefs.brewExtraNotes === true ? `<button class="btn ghost sm" data-act="printBrewExtra" data-id="${b.id}">${t('xn_print_plus')}</button>` : ''}<button class="btn danger sm" data-act="delBrew" data-id="${b.id}">${t('btn_delete')}</button></div></div>`; }).join('')}</div>`
+    <div class="dlg-actions noprint brew-card-actions"><button class="btn ghost sm" data-act="editBrew" data-id="${b.id}">${t('ing_edit')}</button><button class="btn ghost sm" data-act="printBrew" data-id="${b.id}">${t('sheet_print')}</button>${D.prefs.brewExtraNotes === true ? `<button class="btn ghost sm" data-act="printBrewExtra" data-id="${b.id}">${t('xn_print_plus')}</button>` : ''}<button class="btn danger sm" data-act="delBrew" data-id="${b.id}">${t('btn_delete')}</button></div></div>`; }).join('')}</div>`
     : `<div class="empty">${t('brews_empty')}</div>`}`;
 }
 
