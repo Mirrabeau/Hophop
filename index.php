@@ -168,6 +168,8 @@ dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:600;text-align:right}
 .foot-usage{text-align:center;color:var(--muted);font-size:.75rem;margin:1.6rem 0 0;opacity:.72}
 .style-line{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
 .style-line select{flex:1 1 12rem;min-width:0;width:auto}
+.br-style-row{display:flex;align-items:center;gap:.45rem;cursor:pointer;color:var(--text);font-size:.95rem;margin:0}
+.br-style-row input[type=radio]{width:auto;min-width:0;flex:none;margin:0;padding:0;accent-color:var(--accent)}
 .account-id{display:flex;gap:.8rem;align-items:center;min-width:0}
 .account-id > div{min-width:0}
 
