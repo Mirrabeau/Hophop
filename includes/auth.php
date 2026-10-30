@@ -55,11 +55,11 @@ function hophop_user_context(): ?array
 function require_login(): void
 {
     if (hophop_auth_mode() === 'phpbb' && hophop_forum_is_bot()) {
-        json_fail('Les robots du forum ne peuvent pas utiliser HopHop.', 403);
+        json_fail(tt('server_err_robot_blocked'), 403);
     }
 
     if (!hophop_user_context()) {
-        json_fail('Session expirée, reconnectez-vous.', 401);
+        json_fail(tt('server_err_session_expired'), 401);
     }
 }
 
@@ -102,7 +102,7 @@ function hophop_session_payload(): array
 function hophop_reject_if_forum_auth(): void
 {
     if (!hophop_standalone_auth()) {
-        json_fail('Comptes gérés par le forum BrassageAmateur.', 403);
+        json_fail(tt('server_err_forum_accounts'), 403);
     }
 }
 
@@ -165,14 +165,14 @@ function register(string $username, string $password): void
     hophop_reject_if_forum_auth();
     $username = trim($username);
     if (!username_valid($username)) {
-        json_fail('Identifiant invalide : 2 à 40 caractères (lettres, chiffres, . _ - @).');
+        json_fail(tt('server_err_username_invalid'));
     }
     if (strlen($password) < 6) {
-        json_fail('Mot de passe : 6 caractères minimum.');
+        json_fail(tt('server_err_password_short'));
     }
     $users = get_users();
     if (isset($users[$username])) {
-        json_fail('Cet identifiant existe déjà.');
+        json_fail(tt('server_err_username_taken'));
     }
     $users[$username] = ['hash' => password_hash($password, PASSWORD_DEFAULT), 'created' => time()];
     save_users($users);
@@ -186,7 +186,7 @@ function do_login(string $username, string $password): void
     $users = get_users();
     $username = trim($username);
     if (!isset($users[$username]) || !password_verify($password, $users[$username]['hash'])) {
-        json_fail('Identifiant ou mot de passe incorrect.');
+        json_fail(tt('server_err_login_invalid'));
     }
     $_SESSION['user'] = $username;
 }
@@ -208,11 +208,11 @@ function hophop_load_user_data(): array
 {
     $ctx = hophop_user_context();
     if (!$ctx) {
-        json_fail('Session expirée, reconnectez-vous.', 401);
+        json_fail(tt('server_err_session_expired'), 401);
     }
 
     if (hophop_storage() === 'mysql' && !hophop_mysql_store_ready()) {
-        json_fail('Stockage MySQL non configuré : exécutez docs/sql/hophop_store.sql sur la base du forum.', 503);
+        json_fail(tt('server_err_mysql_not_configured'), 503);
     }
 
     $data = hophop_user_store_load($ctx);
@@ -220,7 +220,7 @@ function hophop_load_user_data(): array
     if ($data === null) {
         $data = seed_data();
         if (!hophop_user_store_save($ctx, $data)) {
-            json_fail('Impossible d’initialiser vos données.', 500);
+            json_fail(tt('server_err_init_data'), 500);
         }
     }
 
@@ -231,7 +231,7 @@ function hophop_save_user_data(array $data): void
 {
     $ctx = hophop_user_context();
     if (!$ctx) {
-        json_fail('Session expirée, reconnectez-vous.', 401);
+        json_fail(tt('server_err_session_expired'), 401);
     }
 
     hophop_store_debug_log(
@@ -241,14 +241,13 @@ function hophop_save_user_data(array $data): void
     );
 
     if (hophop_storage() === 'mysql' && !hophop_mysql_store_ready()) {
-        json_fail('Stockage MySQL non configuré : exécutez docs/sql/hophop_store.sql sur la base du forum.', 503);
+        json_fail(tt('server_err_mysql_not_configured'), 503);
     }
 
     if (!hophop_user_store_save($ctx, $data)) {
         $detail = hophop_last_store_error();
         json_fail(
-            'Échec de l’enregistrement côté serveur.'
-            . ($detail !== '' ? ' ' . $detail : ''),
+            tt('server_err_save_failed') . ($detail !== '' ? ' ' . $detail : ''),
             500
         );
     }
