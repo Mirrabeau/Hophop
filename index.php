@@ -1473,7 +1473,12 @@ function openStockDeductDialog(r) {
 const brewFields = [{k: 'date', l: t('brew_date_target'), t: 'date'}, {k: 'deduct', l: t('brew_deduct'), t: 'check'}];
 const profDefaults = () => ({name: t('new_profile_name'), batch: 20, boil: 60, evap: 3, trub: 1.5, mashLoss: 1, absorb: 1, ratio: 3, infusionTemp: 96, shrink: 4, eff: 72, mashMethod: 'classic', biabSqueeze: false, mashTunMax: 0});
 
-/** Impression navigateur : restaure le DOM quand le dialogue se ferme (Imprimer ou Annuler). afterprint seul ne suffit pas partout. */
+/** Retire les blocs « Autres notes » injectés pour Print+ (filet si revert incomplet). */
+function clearPrintInjections() {
+  document.querySelectorAll('#main .print-inject').forEach(el => el.remove());
+}
+
+/** Impression navigateur : revert dès que print() rend la main (Annuler ou Imprimer) + afterprint / matchMedia en secours. */
 function printWithRevert(revert) {
   let finished = false;
   const finish = () => {
@@ -1487,8 +1492,15 @@ function printWithRevert(revert) {
   const onMq = () => { if (!mq.matches) finish(); };
   window.addEventListener('afterprint', finish);
   mq.addEventListener('change', onMq);
-  try { window.print(); } catch { toast(t('toast_print_fallback')); finish(); return; }
-  queueMicrotask(() => { if (!mq.matches) finish(); });
+  try {
+    window.print();
+  } catch {
+    toast(t('toast_print_fallback'));
+  } finally {
+    // Sur Chrome/Safari/Firefox, print() bloque jusqu’à fermeture du dialogue : finally = Annuler ou OK.
+    finish();
+  }
+  setTimeout(finish, 500);
 }
 
 const ACT = {
@@ -1535,7 +1547,7 @@ const ACT = {
     }
     printWithRevert(() => {
       cards.forEach(c => c.classList.remove('print-hide'));
-      if (injected && injected.parentNode) injected.parentNode.removeChild(injected);
+      clearPrintInjections();
     });
   },
   dupRecipe: () => { const r = clone(R()); r.id = uid(); r.name += ' (copie)'; r.created = r.updated = Date.now(); D.recipes.push(r); ui.rid = r.id; persist(); renderMain(); window.scrollTo(0, 0); toast(t('toast_recipe_dup')); },
