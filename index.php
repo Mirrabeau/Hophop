@@ -1572,6 +1572,8 @@ const ACT = {
     D.recipes.push(c); ui.rid = c.id; persist(); renderMain(); window.scrollTo(0, 0); toast(t('toast_resized_copy'));
   },
   exp: el => showExport(el.dataset.k),
+  shareBrewRecipes: () => shareToBrewRecipes(),
+  pickBrewRecipesStyle: () => openBrewRecipesStylePicker(),
   brewFrom: () => openForm(t('editor_brewfrom'), brewFields, {date: today(), deduct: false}, v => {
     const r = R(); createBrew(r, v.date || today());
     if (v.deduct) { openStockDeductDialog(r); return false; }
@@ -2301,13 +2303,13 @@ function toBeerXML(r) {
   const notes = (recipeStyleName(r) ? 'Style : ' + recipeStyleName(r) + '\n' : '') + r.notes;
   const xmlDecl = '<' + '?xml version="1.0" encoding="UTF-8"?>';
   return `${xmlDecl}\n<RECIPES>\n<RECIPE>${X('VERSION', 1)}${X('NAME', r.name)}${X('TYPE', r.ferm.some(x => lib('ferm', x.ref)?.type === 'grain') ? 'All Grain' : 'Extract')}${X('BREWER', USER)}
+${beerXmlStyle(r, X)}
 ${X('BATCH_SIZE', rnd(c.V, 2))}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BOIL_TIME', P.boil)}${X('EFFICIENCY', rnd(c.effPct, 0))}
 ${sec('HOPS', hops)}${sec('FERMENTABLES', ferm)}${sec('MISCS', miscs)}${sec('YEASTS', yeasts)}
 <EQUIPMENT>${X('NAME', P.name)}${X('VERSION', 1)}${X('BOIL_SIZE', rnd(c.preboil, 2))}${X('BATCH_SIZE', rnd(c.V, 2))}${X('TRUB_CHILLER_LOSS', P.trub)}${X('EVAP_RATE', rnd(P.evap / c.preboil * 100, 2))}${X('BOIL_TIME', P.boil)}</EQUIPMENT>
 <MASH>${X('NAME', t('export_mash_name'))}${X('VERSION', 1)}${X('GRAIN_TEMP', N(r.grainTemp))}<MASH_STEPS>${steps.join('')}</MASH_STEPS></MASH>
 ${X('NOTES', notes)}${X('OG', rnd(c.og, 4))}${X('FG', rnd(c.fg, 4))}${X('IBU', rnd(c.ibu, 1))}${X('EST_ABV', rnd(c.abv, 2))}${X('CARBONATION', N(r.co2))}${X('FERMENTATION_STAGES', r.ferment.length)}
 ${r.ferment[0] ? X('PRIMARY_AGE', N(r.ferment[0].days)) + X('PRIMARY_TEMP', N(r.ferment[0].temp)) : ''}
-${beerXmlStyle(r, X)}
 </RECIPE>\n</RECIPES>\n`;
 }
 function toBeerJSON(r) {
